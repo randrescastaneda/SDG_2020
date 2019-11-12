@@ -20,7 +20,8 @@ library("tidyverse")
 library("zoo")
 library("plotly")
 library("povcalnetR")
-
+library("paletteer")
+library("ggthemr")
 
 #----------------------------------------------------------
 #   subfunctions
@@ -66,17 +67,19 @@ cty <- povcalnet(fill_gaps = TRUE) %>%
   inner_join(cr)
 
 
-
-
-
 headcount_col <- "#E69F00"
+ggthemr('flat')
 
-ggplot() +
+wld_p <- ggplot() +
   geom_line(data = wld,
             aes(x = year,  y = headcount),
-            color = headcount_col) +
+            size = 1.5) +
+  geom_point(data = wld,
+            aes(x = year,  y = headcount)) +
   geom_point(data = cty,
-             aes(x = year, y = headcount, size = poor_pop, color = region)) +
+             aes(x = year, y = headcount,
+                 size = poor_pop, color = region),
+             alpha = .7) +
   scale_y_continuous(
     labels = scales::percent,
     limits = c(0, 0.8),
@@ -86,4 +89,8 @@ ggplot() +
        x = "")
 
 
+wld_gp <- ggplotly(wld_p)
+wld_p
 
+
+#wld_gp
