@@ -64,11 +64,33 @@ cty <- povcalnet(fill_gaps = TRUE) %>%
     poor_pop = round(headcount * population, 0),
     headcount = round(headcount, 3)
   ) %>%
-  inner_join(cr)
+  inner_join(cr) %>%
+  mutate(text = paste0("Country: ", countryname, "\n",
+                       "Region: ", region, "\n",
+                       "Headcount: ", round(headcount*100, digits = 1), "%\n",
+                       "Million of poor: ", poor_pop, "\n",
+                       "Year: ", year, "\n"))
 
 
 headcount_col <- "#E69F00"
 ggthemr('flat')
+
+
+plain <- theme(
+  #axis.text = element_blank(),
+  #axis.line = element_blank(),
+  #axis.ticks = element_blank(),
+  panel.border = element_blank(),
+  panel.grid = element_blank(),
+  #axis.title = element_blank(),
+  panel.background = element_rect(fill = "white"),
+  plot.title = element_text(hjust = 0.5),
+  # legend.position = "bottom",
+  legend.position = "none",
+  legend.box = "horizontal"
+)
+
+
 
 wld_p <- ggplot() +
   geom_line(data = wld,
@@ -78,7 +100,8 @@ wld_p <- ggplot() +
             aes(x = year,  y = headcount)) +
   geom_point(data = cty,
              aes(x = year, y = headcount,
-                 size = poor_pop, color = region),
+                 size = poor_pop, color = region,
+                 text = text),
              alpha = .7) +
   scale_y_continuous(
     labels = scales::percent,
@@ -86,11 +109,11 @@ wld_p <- ggplot() +
     breaks = c(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7)
   ) +
   labs(y = "Poverty rate (%)",
-       x = "")
-
-
-wld_gp <- ggplotly(wld_p)
+       x = "",
+       size = "Poor population\n(Millions)") + plain
 wld_p
 
 
-#wld_gp
+wld_gp <- ggplotly(wld_p, tooltip = "text")
+
+wld_gp
