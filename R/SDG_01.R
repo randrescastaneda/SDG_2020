@@ -100,8 +100,7 @@ wld_p <- ggplot() +
             aes(x = year,  y = headcount)) +
   geom_point(data = cty,
              aes(x = year, y = headcount,
-                 size = poor_pop, color = region,
-                 text = text),
+                 size = poor_pop, color = region),
              alpha = .7) +
   scale_y_continuous(
     labels = scales::percent,
@@ -114,6 +113,6 @@ wld_p <- ggplot() +
 wld_p
 
 
-wld_gp <- ggplotly(wld_p, tooltip = "text")
+wld_gp <- ggplotly(wld_p)
 
 wld_gp
