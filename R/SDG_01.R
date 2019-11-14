@@ -73,7 +73,7 @@ cty <- povcalnet(fill_gaps = TRUE) %>%
 
 
 headcount_col <- "#E69F00"
-ggthemr('flat')
+
 
 
 plain <- theme(
@@ -82,8 +82,8 @@ plain <- theme(
   #axis.ticks = element_blank(),
   panel.border = element_blank(),
   panel.grid = element_blank(),
-  #axis.title = element_blank(),
   panel.background = element_rect(fill = "white"),
+  #axis.title = element_blank(),
   plot.title = element_text(hjust = 0.5),
   # legend.position = "bottom",
   legend.position = "none",
