@@ -29,7 +29,7 @@ library("haven")
 
 
 #----------------------------------------------------------
-#
+# Prepare actual data
 #----------------------------------------------------------
 
 # countries and regions
@@ -69,12 +69,94 @@ cty <- povcalnet(fill_gaps = TRUE) %>%
                        "Region: ", region, "\n",
                        "Headcount: ", round(headcount*100, digits = 1), "%\n",
                        "Million of poor: ", poor_pop, "\n",
-                       "Year: ", year, "\n"))
+                       "Year: ", year, "\n"),
+         regionf = as.factor(region))
 
 
-headcount_col <- "#E69F00"
+#----------------------------------------------------------
+#   Prepare forcasted data
+#----------------------------------------------------------
 
 
+#--------- Data at the country level
+
+pr_cty <- read_dta("data/projections.dta") # load data provided by Daniel from Twinning
+
+cutyr <- 2018
+pr_cty <- pr_cty %>%
+  filter(growth  %in% c("2018-2023", ""),    # Filter projection growth
+         gic  %in% c("l", "")) %>%           # type of GIC
+  select(-matches("^FGT[12]|^.*_3|^.*_55"))  %>%  # Drop variables
+  as.data.table()
+
+#--------- Global data
+
+# Collapse date by alpha, extragrowth and year
+pr_wld <- pr_cty %>%
+  group_by(alpha, extragrowth, year) %>%
+  summarise(
+    # weigthed mean by pop and divide by 100
+    headcount = weighted.mean(x = FGT0_19, w = pop, na.rm = TRUE)/100
+  ) %>%  ungroup() %>% arrange(year)
+
+# get value of poverty for cutting year, (2018)
+pr_temp <- pr_wld %>%
+  filter(year == cutyr) %>%
+  select(headcount) %>%
+  pull()
+
+# get combinations of alpha and extra growth from year 2019
+pr_25 <- pr_wld %>%
+  filter(year == cutyr + 1) %>%
+  select(-headcount, -year) %>%
+  mutate(
+    headcount = pr_temp,   # add poverty year from 2018
+    year = cutyr           # add year variable for cutyear == 2018
+    )
+
+#--------- joind actual data and projected data
+
+pr_wld_act <- pr_wld %>%       # global projected
+  filter(year > 2015) %>%      # stay with years after overlapping year (2015)
+  bind_rows(pr_25) %>%         # append fake 2018 series
+  bind_rows(wld) %>%           # append real data
+  # Convert to factor and remove NA
+  mutate(
+    alpha = as.factor(ifelse(is.na(alpha), 0, alpha)),
+    extragrowth = as.factor(ifelse(is.na(extragrowth), 0, extragrowth))
+  )  %>%
+  arrange(year) %>%
+  filter(alpha == 0)     # projection filter... This has to change for the app
+
+rm(pr_temp, pr_25)    # remove unnecessary data
+
+
+
+#----------------------------------------------------------
+#   charts
+#----------------------------------------------------------
+
+#--------- prepare theme
+
+ggthemr_reset()
+
+ggthemr('flat')
+flat_swatch <- swatch()
+
+# scales::show_col(new_swatch) # show colors scales
+# scales::show_col(paletteer_d(package = "ggthemes", palette = "Tableau 20"))
+# palettes_d_names %>% filter(package == "ggthemes", length > 10)
+# scales::show_col(swatch())
+
+# gradient of line
+gr_pl <- paletteer_dynamic(package = "cartography", palette = "blue.pal",
+                           n = 12, direction = -1)
+gr_pl <- gr_pl[3:length(gr_pl)]  # remove darkest colors
+scales::show_col(gr_pl)
+
+clr_point <- swatch()[c(3, 5, 4, 6, 8, 9)]
+
+#--------- plot
 
 plain <- theme(
   #axis.text = element_blank(),
@@ -93,15 +175,15 @@ plain <- theme(
 
 
 wld_p <- ggplot() +
-  geom_line(data = wld,
-            aes(x = year,  y = headcount),
-            size = 1.5) +
-  geom_point(data = wld,
-            aes(x = year,  y = headcount)) +
   geom_point(data = cty,
              aes(x = year, y = headcount,
-                 size = poor_pop, color = region),
-             alpha = .7) +
+                 size = poor_pop, fill = region),
+             alpha = .7, pch = 21) +
+  scale_fill_manual(values = clr_point) +
+  geom_line(data = pr_wld_act,
+            aes(x = year,  y = headcount, colour  = extragrowth),
+            size = 1.5) +
+  scale_colour_manual(values = gr_pl, aesthetics = c("colour")) +
   scale_y_continuous(
     labels = scales::percent,
     limits = c(0, 0.8),
