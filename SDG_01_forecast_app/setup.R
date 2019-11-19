@@ -80,14 +80,13 @@ cty <- povcalnet(fill_gaps = TRUE) %>%
 
 #--------- Data at the country level
 
-pr_cty <- read_dta("data/projections.dta") # load data provided by Daniel from Twinning
+pr_cty <- read_dta("../data/projections.dta") # load data provided by Daniel from Twinning
 
 cutyr <- 2018
 pr_cty <- pr_cty %>%
   filter(growth  %in% c("2018-2023", ""),    # Filter projection growth
          gic  %in% c("l", "")) %>%           # type of GIC
-  select(-matches("^FGT[12]|^.*_3|^.*_55"))  %>%  # Drop variables
-  as.data.table()
+  select(-matches("^FGT[12]|^.*_3|^.*_55"))
 
 #--------- Global data
 
@@ -112,10 +111,9 @@ pr_25 <- pr_wld %>%
   mutate(
     headcount = pr_temp,   # add poverty year from 2018
     year = cutyr           # add year variable for cutyear == 2018
-    )
+  )
 
 #--------- joind actual data and projected data
-
 pr_wld_act <- pr_wld %>%       # global projected
   filter(year > 2015) %>%      # stay with years after overlapping year (2015)
   bind_rows(pr_25) %>%         # append fake 2018 series
@@ -125,76 +123,19 @@ pr_wld_act <- pr_wld %>%       # global projected
     alpha = as.factor(ifelse(is.na(alpha), 0, alpha)),
     extragrowth = as.factor(ifelse(is.na(extragrowth), 0, extragrowth))
   )  %>%
-  arrange(year) %>%
-  filter(alpha == 0)     # projection filter... This has to change for the app
+  arrange(year)
+
 
 rm(pr_temp, pr_25)    # remove unnecessary data
 
 
-
 #----------------------------------------------------------
-#   charts
+#   Data for app
 #----------------------------------------------------------
 
-#--------- prepare theme
+alpha <- unique(pr_wld_act$alpha)
 
-ggthemr_reset()
-
-ggthemr('flat')
-flat_swatch <- swatch()
-
-# scales::show_col(new_swatch) # show colors scales
-# scales::show_col(paletteer_d(package = "ggthemes", palette = "Tableau 20"))
-# palettes_d_names %>% filter(package == "ggthemes", length > 10)
-# scales::show_col(swatch())
-
-# gradient of line
-gr_pl <- paletteer_dynamic(package = "cartography", palette = "blue.pal",
-                           n = 12, direction = -1)
-gr_pl <- gr_pl[3:length(gr_pl)]  # remove darkest colors
-scales::show_col(gr_pl)
-
-clr_point <- swatch()[c(3, 5, 4, 6, 8, 9)]
-
-#--------- plot
-
-plain <- theme(
-  #axis.text = element_blank(),
-  #axis.line = element_blank(),
-  #axis.ticks = element_blank(),
-  panel.border = element_blank(),
-  panel.grid = element_blank(),
-  panel.background = element_rect(fill = "white"),
-  #axis.title = element_blank(),
-  plot.title = element_text(hjust = 0.5),
-  # legend.position = "bottom",
-  legend.position = "none",
-  legend.box = "horizontal"
-)
+extragrowth <- unique(pr_wld_act$extragrowth)
+names(extragrowth) <- paste0(extragrowth, "%")
 
 
-
-wld_p <- ggplot() +
-  geom_point(data = cty,
-             aes(x = year, y = headcount,
-                 size = poor_pop, fill = region),
-             alpha = .7, pch = 21) +
-  scale_fill_manual(values = clr_point) +
-  geom_line(data = pr_wld_act,
-            aes(x = year,  y = headcount, colour  = extragrowth),
-            size = 1.5) +
-  scale_colour_manual(values = gr_pl, aesthetics = c("colour")) +
-  scale_y_continuous(
-    labels = scales::percent,
-    limits = c(0, 0.8),
-    breaks = c(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7)
-  ) +
-  labs(y = "Poverty rate (%)",
-       x = "",
-       size = "Poor population\n(Millions)") + plain
-wld_p
-
-
-wld_gp <- ggplotly(wld_p, tooltip = cty$text)
-
-wld_gp

@@ -1,0 +1,12 @@
+name: sdg_01_forecast_app
+title: SDG_01_forecast_app
+username: acastanedaa
+account: acastanedaa
+server: w0lxpjekins05.worldbank.org
+hostUrl: http://w0lxpjekins05.worldbank.org:3939/__api__
+appId: 454
+bundleId: 2063
+url: http://w0lxpjekins05.worldbank.org:3939/content/454/
+when: 1574181626.34532
+asMultiple: FALSE
+asStatic: FALSE
