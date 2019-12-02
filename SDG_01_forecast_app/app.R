@@ -43,15 +43,17 @@ server <- function(input, output) {
 
     #--------- prepare theme
 
-    ggthemr_reset()
-    ggthemr('flat')
+    # ggthemr_reset()
+    # ggthemr('flat')
 
     # gradient of line
     gr_pl <- paletteer_dynamic(package = "cartography", palette = "blue.pal",
                                n = 12, direction = -1)
     gr_pl <- gr_pl[3:length(gr_pl)]  # remove darkest colors
 
-    clr_point <- swatch()[c(3, 5, 4, 6, 8, 9)]
+    sw <- c("#34495e", "#3498db", "#2ecc71", "#f1c40f", "#e74c3c", "#9b59b6", "#1abc9c", "#f39c12", "#d35400")
+
+    clr_point <- sw[c(3, 5, 4, 6, 8, 9)]
 
     #--------- plot
 
