@@ -23,7 +23,7 @@ library("povcalnetR")
 #----------------------------------------------------------
 #   subfunctions
 #----------------------------------------------------------
-source("c:/sers/wb384996/OneDrive - WBG/WorldBank/DECDG/dwd/povcalnet_iterate.R")
+source("c:/users/wb384996/OneDrive - WBG/WorldBank/DECDG/dwd/povcalnet_iterate.R")
 
 
 #----------------------------------------------------------
@@ -58,8 +58,8 @@ save(dfr, file = "data/dfr.RData")
 
 #------- countries
 countries <- get_countries("WLD")
-countries, <-, c("ARG", "BOL", "BRA", "CHL", "COL", "CRI", "DOM", "ECU", "SLV", "HND", "MEX")
-countries, <-, c("ARG",  "BRA", "COL")
+countries <- c("ARG", "BOL", "BRA", "CHL", "COL", "CRI", "DOM", "ECU", "SLV", "HND", "MEX")
+countries <- c("ARG",  "BRA", "COL")
 
 cdf <- as.list(expand.grid(goal = c(.1, .5, .9),
                            country = countries,
