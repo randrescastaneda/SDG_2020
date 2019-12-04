@@ -86,8 +86,7 @@ cutyr <- 2018
 pr_cty <- pr_cty %>%
   filter(growth  %in% c("2018-2023", ""),    # Filter projection growth
          gic  %in% c("l", "")) %>%           # type of GIC
-  select(-matches("^FGT[12]|^.*_3|^.*_55"))  %>%  # Drop variables
-  as.data.table()
+  select(-matches("^FGT[12]|^.*_3|^.*_55"))
 
 #--------- Global data
 
