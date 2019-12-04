@@ -66,8 +66,8 @@ df_g <- povcalnet(fill_gaps = TRUE) %>%   # Load povcalnet data
   group_by(countrycode) %>%
   mutate(n = sequence(n())) %>%
   filter((n == 1) |
-           (n == 3 & (coveragetype  %in% c("N", "A"))) |
-           (n == 2 & datatype == "consumptioin")) %>%
+         (n == 3 & (coveragetype  %in% c("N", "A"))) |
+         (n == 2 & datatype == "consumptioin")) %>%
 
   # Keep important variables
   select(countrycode,
@@ -85,7 +85,6 @@ dfc_1g <- dfc_1 %>% left_join(df_g) %>%
 #----------------------------------------------------------
 #   charts
 #----------------------------------------------------------
-
 
 #--------- without Gini
 ggplot(data = dfc_1g) +
