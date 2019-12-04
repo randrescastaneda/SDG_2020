@@ -87,6 +87,23 @@ dfc_1g <- dfc_1 %>% left_join(df_g) %>%
 #----------------------------------------------------------
 
 
+#--------- without Gini
+ggplot(data = dfc_1g) +
+  geom_point(aes(x = countrycode,
+                 y = p50)) +
+  geom_errorbar(aes(x = countrycode,
+                    ymin = p10,
+                    ymax = p90,
+                    color = region),
+                width = 0.5) +
+  theme_classic() +
+  theme(
+    axis.text.x = element_text(angle = 90,
+                               size = 5)
+  )
+
+#--------- with Gini
+
 adj_scale <- 150
 ggplot(data = dfc_1g) +
   geom_point(aes(x = countrycode,
