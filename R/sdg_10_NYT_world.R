@@ -29,13 +29,16 @@ library("gghighlight")
 
 f_steps <- function(k, zero = TRUE) {
   step <- k
-  function(y) {
-    seq(floor(min(y)), ceiling(max(y)), by = step)
+  if (zero == TRUE) {
+    f <- 0
+  } else {
+    f <- floor(min(y))
   }
-  # if (zero == TRUE) {
-  #   d <- c(0,d)
-  # }
-  #return(d)
+
+  function(y) {
+    seq(f, ceiling(max(y)), by = step)
+  }
+
 }
 
 #----------------------------------------------------------
@@ -89,5 +92,6 @@ ggplot() +
     strip.placement = "outside"
   ) +
   scale_y_continuous(name = "2011 PPP USD a day",
-                     breaks = v_breaks,
+                     #breaks = v_breaks,
+                     breaks = f_steps(10, zero = FALSE),
                      labels = scales::dollar)

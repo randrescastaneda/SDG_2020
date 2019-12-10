@@ -20,7 +20,6 @@ library("tidyverse")
 library("plotly")
 library("povcalnetR")
 library("paletteer")
-library("ggthemr")
 library("haven")
 
 #----------------------------------------------------------
@@ -48,10 +47,11 @@ for (r in seq_along(regs)) {
   cr <- bind_rows(cr, a)
 }
 
+st_year <- 1990
 
 # Global poverty
 wld <- povcalnet_wb() %>%
-  filter(year > 1989, regioncode == "WLD") %>%
+  filter(year > st_year, regioncode == "WLD") %>%
   mutate(
     poor_pop = round(headcount * population, 0),
     headcount = round(headcount, 3)
@@ -59,7 +59,7 @@ wld <- povcalnet_wb() %>%
 
 # Data at country level
 cty <- povcalnet(fill_gaps = TRUE) %>%
-  filter(year > 1989) %>%
+  filter(year > st_year) %>%
   mutate(
     poor_pop = round(headcount * population, 0),
     headcount = round(headcount, 3)
@@ -137,11 +137,6 @@ rm(pr_temp, pr_25)    # remove unnecessary data
 
 #--------- prepare theme
 
-ggthemr_reset()
-
-ggthemr('flat')
-flat_swatch <- swatch()
-
 # scales::show_col(new_swatch) # show colors scales
 # scales::show_col(paletteer_d(package = "ggthemes", palette = "Tableau 20"))
 # palettes_d_names %>% filter(package == "ggthemes", length > 10)
@@ -151,9 +146,9 @@ flat_swatch <- swatch()
 gr_pl <- paletteer_dynamic(package = "cartography", palette = "blue.pal",
                            n = 12, direction = -1)
 gr_pl <- gr_pl[3:length(gr_pl)]  # remove darkest colors
-scales::show_col(gr_pl)
 
-clr_point <- swatch()[c(3, 5, 4, 6, 8, 9)]
+sw <- c("#34495e", "#3498db", "#2ecc71", "#f1c40f", "#e74c3c", "#9b59b6", "#1abc9c", "#f39c12", "#d35400")
+clr_point <- sw[c(3, 5, 4, 6, 8, 9)]
 
 #--------- plot
 
@@ -172,8 +167,28 @@ plain <- theme(
 )
 
 
+# original
+wld_p1 <- ggplot() +
+  geom_point(data = cty,
+             aes(x = year, y = headcount,
+                 size = poor_pop, fill = regionf),
+             alpha = .7, pch = 21) +
+  scale_fill_manual(values = clr_point) +
+  geom_line(data = wld,
+            aes(x = year,  y = headcount),
+            size = 1.5) +
+  scale_y_continuous(
+    labels = scales::percent,
+    limits = c(0, 0.8),
+    breaks = c(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7)
+  ) +
+  labs(y = "Poverty rate (%)",
+       x = "",
+       size = "Poor population\n(Millions)") + plain
 
-wld_p <- ggplot() +
+
+
+wld_p2 <- ggplot() +
   geom_point(data = cty,
              aes(x = year, y = headcount,
                  size = poor_pop, fill = region),
@@ -191,9 +206,8 @@ wld_p <- ggplot() +
   labs(y = "Poverty rate (%)",
        x = "",
        size = "Poor population\n(Millions)") + plain
-wld_p
+
+wld_gp2 <- ggplotly(wld_p2, tooltip = cty$text)
 
 
-wld_gp <- ggplotly(wld_p, tooltip = cty$text)
 
-wld_gp

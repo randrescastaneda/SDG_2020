@@ -1,0 +1,61 @@
+---
+title: "No Poverty"
+author: "SDG Atlas 2020"
+date: "12/10/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, 
+                      message = FALSE, 
+                      warning = FALSE, 
+                      error = FALSE)
+```
+
+```{r run-scripts}
+source("R/SDG_01.R")
+```
+
+```{r calculations}
+
+# No. of poor
+npoor <- wld %>% 
+  arrange(year) %>% 
+  filter(year  %in% c(1993, 2015)) %>% 
+  select(poor_pop) %>% 
+  round(digits = 0) %>% 
+  pull()
+
+np <- (npoor[1] - npoor[2])/1000
+
+
+# Headcounts
+hc <- wld %>% 
+  arrange(year) %>% 
+  filter(year  %in% c(1993, 2015)) %>% 
+  select(headcount) %>% 
+  {round(.*100, digits = 1)} %>% 
+  pull()
+
+sss = "TEMP"
+```
+
+
+## Global understanding of poverty
+
+During the last 25 years, extreme global poverty has declined steadily from `r hc[1]` percent in 1990 to `r hc[2]` percent in 2015, which represents the scape of `r prettyNum(np, digits = 2)` billion people out of extreme poverty. Yet, this remarkable success has not been achieved equally around the world, neither does it mean that those who have escaped enjoy a significantly better quality of life. 
+
+Of those `r prettyNum(np, digits = 2)` billion people that escaped poverty `r sss` belong to China and `r sss` belongs to India. That means that the remaining `r sss` million people that escaped poverty since 1990--`r sss`%--belong to the rest of the world. Besides the remarkable progress of China and India, countries in East Asia and Pacific and the South Asia region have also reduced their poverty levels remarkably. For instance, Indonesia, Vietnam and Thailan by 2015 have lifted out of poverty more than 75% of the poor in 1990. In the same way, South Asian countries like Pakistan, Bangladesh and Nepal have reduced their poverty levels by `r sss`. 
+
+Notwithstanding the remarkable progress of the asian regions, poverty in other countries of the world remains high. 
+
+
+```{r wld-pov}
+wld_p1
+```
+
+## Global poverty in 2030
+
+```{r wld-pro}
+wld_p2
+```
