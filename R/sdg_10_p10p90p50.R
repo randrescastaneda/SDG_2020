@@ -66,8 +66,8 @@ df_g <- povcalnet(fill_gaps = TRUE) %>%   # Load povcalnet data
   group_by(countrycode) %>%
   mutate(n = sequence(n())) %>%
   filter((n == 1) |
-           (n == 3 & (coveragetype  %in% c("N", "A"))) |
-           (n == 2 & datatype == "consumptioin")) %>%
+         (n == 3 & (coveragetype  %in% c("N", "A"))) |
+         (n == 2 & datatype == "consumptioin")) %>%
 
   # Keep important variables
   select(countrycode,
@@ -86,6 +86,22 @@ dfc_1g <- dfc_1 %>% left_join(df_g) %>%
 #   charts
 #----------------------------------------------------------
 
+#--------- without Gini
+ggplot(data = dfc_1g) +
+  geom_point(aes(x = countrycode,
+                 y = p50)) +
+  geom_errorbar(aes(x = countrycode,
+                    ymin = p10,
+                    ymax = p90,
+                    color = region),
+                width = 0.5) +
+  theme_classic() +
+  theme(
+    axis.text.x = element_text(angle = 90,
+                               size = 5)
+  )
+
+#--------- with Gini
 
 adj_scale <- 150
 ggplot(data = dfc_1g) +
