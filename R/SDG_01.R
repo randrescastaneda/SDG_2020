@@ -21,11 +21,28 @@ library("plotly")
 library("povcalnetR")
 library("paletteer")
 library("haven")
+library("ggrepel")
 
 #----------------------------------------------------------
 #   subfunctions
 #----------------------------------------------------------
 
+
+#--------- define steps for breaking the axis of the chart
+
+f_steps <- function(k, zero = TRUE) {
+  step <- k
+  if (zero == TRUE) {
+    f <- 0
+  } else {
+    f <- floor(min(y))
+  }
+
+  function(y) {
+    seq(f, ceiling(max(y)), by = step)
+  }
+
+}
 
 #----------------------------------------------------------
 # Prepare actual data
@@ -60,6 +77,11 @@ wld <- povcalnet_wb() %>%
 # Data at country level
 cty <- povcalnet(fill_gaps = TRUE) %>%
   filter(year > st_year) %>%
+  group_by(countrycode, year) %>%
+  mutate(n  = n()) %>%
+  filter((n == 1) |
+           (n == 3 & (coveragetype  %in% c("N", "A"))) |
+           (n == 2 & datatype == "consumption")) %>%
   mutate(
     poor_pop = round(headcount * population, 0),
     headcount = round(headcount, 3)
@@ -150,6 +172,9 @@ gr_pl <- gr_pl[3:length(gr_pl)]  # remove darkest colors
 sw <- c("#34495e", "#3498db", "#2ecc71", "#f1c40f", "#e74c3c", "#9b59b6", "#1abc9c", "#f39c12", "#d35400")
 clr_point <- sw[c(3, 5, 4, 6, 8, 9)]
 
+
+xbreaks <- seq(0, 0.7, 0.1)
+
 #--------- plot
 
 plain <- theme(
@@ -167,12 +192,219 @@ plain <- theme(
 )
 
 
+
+# Number of poor
+p1 <- ggplot(data = wld,
+             aes(x = year,
+                 y = poor_pop)) +
+  geom_line(size = 1.5,
+            color = "#3498db") +
+  geom_label_repel(aes(label = ifelse(poor_pop  %in% c(max(wld$poor_pop),min(wld$poor_pop)),
+                               paste(prettyNum(poor_pop, big.mark = ","),
+                                     "Million"),
+                               "")),
+                   box.padding   = 0.35,
+                   point.padding = 0.5,
+                   segment.color = 'grey50') +
+  scale_y_continuous(
+    labels = scales::comma,
+    limits = c(0, max(wld$poor_pop))
+    #breaks = c(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7)
+    #breaks = f_steps(10, zero = TRUE)
+  ) +
+  labs(y = "Millions of people",
+       x = "") +
+  plain
+
+
+# Global poverty trend
+p2 <- ggplot(data = wld,
+             aes(x = year,
+                 y = headcount)) +
+  geom_line(size = 1.5,
+            color = "#34495e") +
+  geom_label_repel(aes(label = ifelse(headcount  %in% c(max(wld$headcount),min(wld$headcount)),
+                                      paste0(prettyNum(headcount*100, digits = 3),
+                                            "%"),
+                                      "")),
+                   box.padding   = 0.35,
+                   point.padding = 0.5,
+                   segment.color = 'grey50') +
+  scale_y_continuous(
+    labels = scales::percent,
+    limits = c(0, max(wld$headcount))
+  ) +
+  labs(y = "Poverty rate (%)",
+       x = "") + plain
+
+
+
+# country level
+p3 <- ggplot() +
+  geom_point(data = cty,
+             aes(x = year,
+                 y = headcount),
+             alpha = .6,
+             color = "#e74c3c",
+             size = 2) +
+  geom_line(data = wld,
+            aes(x = year,
+                y = headcount),
+            size = 1.5,
+            color = "#34495e") +
+  scale_y_continuous(
+    labels = scales::percent,
+    limits = c(0, 0.8),
+    breaks = xbreaks
+  ) +
+  labs(y = "Poverty rate (%)",
+       x = ""
+       ) + plain
+
+
+# country level by size
+p4 <- ggplot() +
+  geom_point(data = cty,
+             aes(x = year,
+                 y = headcount,
+                 size = poor_pop),
+             alpha = .6,
+             color = "#e74c3c") +
+  scale_size(range = c(1, 15)) +
+  geom_line(data = wld,
+            aes(x = year,
+                y = headcount),
+            size = 1.5,
+            color = "#34495e") +
+  scale_y_continuous(
+    labels = scales::percent,
+    limits = c(0, 0.8),
+    breaks = xbreaks
+  ) +
+  labs(y = "Poverty rate (%)",
+       x = "",
+       size = "Poor population\n(Millions)") + plain
+
+# two countries stand up
+#sw <- c("#34495e", "#3498db", "#2ecc71", "#f1c40f", "#e74c3c", "#9b59b6", "#1abc9c", "#f39c12", "#d35400")
+
+cty2 <- cty %>%
+  filter(countrycode  %in% c("IND", "CHN"))
+
+p5 <- ggplot() +
+  geom_point(data = cty2,
+             aes(x = year,
+                 y = headcount,
+                 size = poor_pop,
+                 fill = regionf),
+             alpha = .8,
+             pch = 21) +
+  scale_fill_manual(values = c( "#d35400", "#f1c40f")) +
+  scale_size(range = c(1, 15)) +
+  geom_line(data = wld,
+            aes(x = year,
+                y = headcount),
+            size = 1.5,
+            color = "#34495e") +
+  geom_label_repel(data = cty2,
+                   aes(x = year,
+                       y = headcount,
+                       label = ifelse(year == min(cty2$year),
+                                      countryname,
+                                      "")),
+                   box.padding   = 0.35,
+                   point.padding = 0.5,
+                   segment.color = 'grey50') +
+  scale_y_continuous(
+    labels = scales::percent,
+    limits = c(0, 0.8),
+    breaks = xbreaks
+  ) +
+  labs(y = "Poverty rate (%)",
+       x = "",
+       size = "Poor population\n(Millions)") + plain
+
+
+
+# too many (small) countries still have a poverty rate higher than the World's headcount
+
+cty3 <- cty %>%
+  left_join(select(wld, year, whdc = headcount), by = "year") %>%
+  filter(!(countrycode  %in% c("IND", "CHN")),
+         headcount > whdc)
+
+p6 <- ggplot() +
+  geom_point(data = cty3,
+             aes(x = year,
+                 y = headcount,
+                 size = poor_pop),
+             alpha = .6,
+             color = "#e74c3c") +
+  scale_size(range = c(1, 4)) +
+  geom_line(data = wld,
+            aes(x = year,
+                y = headcount),
+            size = 1.5,
+            color = "#34495e") +
+  scale_y_continuous(
+    labels = scales::percent,
+    limits = c(0, 0.8),
+    breaks = xbreaks
+  ) +
+  labs(y = "Poverty rate (%)",
+       x = "",
+       size = "Poor population\n(Millions)") + plain
+
+# most of them belong to Africa
+p7 <- ggplot() +
+  geom_point(data = cty3,
+             aes(x = year,
+                 y = headcount,
+                 size = poor_pop,
+                 fill = regionf),
+             alpha = .6,
+             pch = 21) +
+  scale_fill_manual(values = clr_point) +
+  scale_size(range = c(1, 4)) +
+  geom_line(data = wld,
+            aes(x = year,
+                y = headcount),
+            size = 1.5,
+            color = "#34495e") +
+  scale_y_continuous(
+    labels = scales::percent,
+    limits = c(0, 0.8),
+    breaks = xbreaks
+  ) +
+  labs(y = "Poverty rate (%)",
+       x = "") +
+  theme( panel.border = element_blank(),
+         panel.grid = element_blank(),
+         panel.background = element_rect(fill = "white"),
+         plot.title = element_text(hjust = 0.5),
+         legend.position = c(.15, .15),
+         legend.direction = "horizontal",
+         legend.title = element_blank(),
+         legend.background = element_blank()
+       ) +
+  guides(
+    size = FALSE,
+    fill = guide_legend(title = "",
+                        nrow = 2,
+                        byrow = TRUE)
+  )
+
+
+
 # original
 wld_p1 <- ggplot() +
   geom_point(data = cty,
-             aes(x = year, y = headcount,
-                 size = poor_pop, fill = regionf),
-             alpha = .7, pch = 21) +
+             aes(x = year,
+                 y = headcount,
+                 size = poor_pop,
+                 fill = regionf),
+             alpha = .7,
+             pch = 21) +
   scale_fill_manual(values = clr_point) +
   geom_line(data = wld,
             aes(x = year,  y = headcount),
@@ -187,7 +419,7 @@ wld_p1 <- ggplot() +
        size = "Poor population\n(Millions)") + plain
 
 
-
+# projections
 wld_p2 <- ggplot() +
   geom_point(data = cty,
              aes(x = year, y = headcount,

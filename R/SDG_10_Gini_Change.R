@@ -48,7 +48,7 @@ df_g <- povcalnet(fill_gaps = TRUE) %>%   # Load povcalnet data
   mutate(n  = n()) %>%
   filter((n == 1) |
            (n == 3 & (coveragetype  %in% c("N", "A"))) |
-           (n == 2 & datatype == "consumptioin")) %>%
+           (n == 2 & datatype == "consumption")) %>%
   arrange(countrycode, year) %>%
   group_by(countrycode) %>%
   mutate(x  = sequence(n())) %>%

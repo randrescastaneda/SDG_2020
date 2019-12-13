@@ -38,6 +38,12 @@ hc <- wld %>%
   pull()
 
 sss = "TEMP"
+
+#--------- regional poveryt
+
+r <- povcalnet_wb() 
+
+
 ```
 
 
@@ -47,7 +53,11 @@ During the last 25 years, extreme global poverty has declined steadily from `r h
 
 Of those `r prettyNum(np, digits = 2)` billion people that escaped poverty `r sss` belong to China and `r sss` belongs to India. That means that the remaining `r sss` million people that escaped poverty since 1990--`r sss`%--belong to the rest of the world. Besides the remarkable progress of China and India, countries in East Asia and Pacific and the South Asia region have also reduced their poverty levels remarkably. For instance, Indonesia, Vietnam and Thailan by 2015 have lifted out of poverty more than 75% of the poor in 1990. In the same way, South Asian countries like Pakistan, Bangladesh and Nepal have reduced their poverty levels by `r sss`. 
 
-Notwithstanding the remarkable progress of the asian regions, poverty in other countries of the world remains high. 
+Notwithstanding the remarkable progress of the asian regions, poverty rates in other countries of the world remain high. 
+
+* poverty in africa is still high
+
+* 
 
 
 ```{r wld-pov}
