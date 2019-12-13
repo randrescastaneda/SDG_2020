@@ -16,7 +16,7 @@
 #   Run data
 #----------------------------------------------------------
 
-source("R/SDG_01_data.R")
+#source("R/SDG_01_data.R")
 
 #----------------------------------------------------------
 #   Load libraries
@@ -89,9 +89,7 @@ p1 <- ggplot(data = wld,
                    segment.color = 'grey50') +
   scale_y_continuous(
     labels = scales::comma,
-    limits = c(0, max(wld$poor_pop))
-    #breaks = c(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7)
-    #breaks = f_steps(10, zero = TRUE)
+    limits = c(500, max(wld$poor_pop))
   ) +
   labs(y = "Millions of people",
        x = "") +
@@ -115,8 +113,77 @@ p2 <- ggplot(data = wld,
     labels = scales::percent,
     limits = c(0, max(wld$headcount))
   ) +
+  geom_hline(yintercept = 0.03,
+             linetype = "dashed",
+             color = "#e74c3c",
+             size = 1.2) +
   labs(y = "Poverty rate (%)",
        x = "") + plain
+
+
+# Global poverty trend and goal
+
+wld_f <-  lm(headcount ~ year,
+             data = wld)
+
+yv <- tibble( year = c(2016:2022))
+
+wld2 <- wld %>%
+  select(year, headcount) %>%
+  arrange(year) %>%
+  bind_rows(yv)
+
+# 3% percent goal
+p2_2 <- ggplot(data = wld2,
+             aes(x = year,
+                 y = headcount)) +
+  geom_line(size = 1.5,
+            color = "#34495e") +
+  stat_smooth(method = "lm",
+              fullrange = TRUE,
+              se = FALSE,
+              color = "grey50") +
+  geom_label_repel(aes(label = ifelse(headcount  %in% c(max(wld$headcount),
+                                                        min(wld$headcount)),
+                                      paste0(prettyNum(headcount*100, digits = 3),
+                                             "%"),
+                                      "")),
+                   box.padding   = 0.35,
+                   point.padding = 0.5,
+                   segment.color = 'grey50') +
+  scale_y_continuous(
+    labels = scales::percent,
+    limits = c(0, max(wld$headcount))
+  ) +
+  geom_hline(yintercept = 0.03,
+             linetype = "dashed",
+             color = "#e74c3c",
+             size = 1.2) +
+  labs(y = "Poverty rate (%)",
+       x = "") + plain
+
+
+# Global poverty rescaled to the fit variability.
+
+p2_3 <- ggplot(data = wld,
+             aes(x = year,
+                 y = headcount)) +
+  geom_line(size = 1.5,
+            color = "#34495e") +
+  geom_label_repel(aes(label = ifelse(headcount  %in% c(max(wld$headcount),min(wld$headcount)),
+                                      paste0(prettyNum(headcount*100, digits = 3),
+                                             "%"),
+                                      "")),
+                   box.padding   = 0.35,
+                   point.padding = 0.5,
+                   segment.color = 'grey50') +
+  scale_y_continuous(
+    labels = scales::percent,
+    limits = c(0, 0.8)
+  ) +
+  labs(y = "Poverty rate (%)",
+       x = "") + plain
+
 
 
 
@@ -331,18 +398,16 @@ p8 <- ggplot() +
 #... or ECA
 
 cty6 <- cty %>%
-  filter(region %in%  c("LAC", "ECA"))
-
+  filter(region == "ECA")
+"3498db"
 
 p9 <- ggplot() +
   geom_point(data = cty6,
              aes(x = year,
                  y = headcount,
-                 size = poor_pop,
-                 fill = region),
+                 size = poor_pop),
              alpha = .8,
-             pch = 21) +
-  scale_fill_manual(values = c("#3498db", "#f1c40f")) +
+             color = "3498db") +
   scale_size(range = c(1, 4)) +
   geom_line(data = wld,
             aes(x = year,
