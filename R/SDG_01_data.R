@@ -89,10 +89,16 @@ cty <- povcalnet(fill_gaps = TRUE) %>%
                        "Headcount: ", round(headcount*100, digits = 1), "%\n",
                        "Million of poor: ", poor_pop, "\n",
                        "Year: ", year, "\n"),
-         regionf = as.factor(region))
-
-
-
+         regionf = as.factor(region)) %>%
+  select(countrycode,
+         countryname,
+         year,
+         mean,
+         headcount,
+         population,
+         poor_pop,
+         region, regionf,
+         text)
 
 #----------------------------------------------------------
 #   Prepare forcasted data
@@ -143,10 +149,11 @@ pr_wld_act <- pr_wld %>%       # global projected
   # Convert to factor and remove NA
   mutate(
     alpha = as.factor(ifelse(is.na(alpha), 0, alpha)),
-    extragrowth = as.factor(ifelse(is.na(extragrowth), 0, extragrowth))
+    extragrowth = as.factor(ifelse(is.na(extragrowth), 0, extragrowth)),
+    scenario = paste(alpha, extragrowth)
   )  %>%
-  arrange(year) %>%
-  filter(alpha == 0)     # projection filter... This has to change for the app
+  #filter(alpha == 0) %>%   # projection filter... This has to change for the app
+  arrange(year)
 
 rm(pr_temp, pr_25)    # remove unnecessary data
 
