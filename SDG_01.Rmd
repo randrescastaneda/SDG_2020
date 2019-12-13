@@ -1,71 +1,61 @@
 ---
-title: "No Poverty"
-author: "SDG Atlas 2020"
-date: "12/10/2019"
-output: html_document
+output:
+  xaringan::moon_reader:
+    seal: false
+    css: ["css/sfah.css", "css/fonts.css", "default"]
+    self_contained: false
+    lib_dir: libs
+    mathjax: "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_HTMLorMML"
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: "16:9"
+      titleSlideClass: ["left", "middle", "inverse"]
 ---
-
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, 
-                      message = FALSE, 
-                      warning = FALSE, 
-                      error = FALSE)
+options(htmltools.dir.version = FALSE)
+library(knitr)
+library(data.tree)
+
+knitr::opts_chunk$set(
+  warning = FALSE,
+  collapse = TRUE,
+  message = FALSE,
+  echo = FALSE,
+  fig.retina = 3
+)
+# options(knitr.table.format = "html")
+library(fontawesome) # from github: https://github.com/rstudio/fontawesome
+
+library(RefManageR)
+BibOptions(check.entries = FALSE,
+           bib.style = "authoryear",
+           cite.style = "alphabetic",
+           style = "markdown",
+           hyperlink = FALSE,
+           dashed = FALSE)
+#myBib <- ReadBib("IARIW_World Bank2019.bib", check = FALSE)
+
 ```
+class: center, middle
+background-image: url(img/jobs_distribution.png)
+background-size: cover
+# .large[SDG Atlas 2020]
 
-```{r run-scripts}
-source("R/SDG_01.R")
-```
+# SDG01: No Poverty
 
-```{r calculations}
-
-# No. of poor
-npoor <- wld %>% 
-  arrange(year) %>% 
-  filter(year  %in% c(1993, 2015)) %>% 
-  select(poor_pop) %>% 
-  round(digits = 0) %>% 
-  pull()
-
-np <- (npoor[1] - npoor[2])/1000
-
-
-# Headcounts
-hc <- wld %>% 
-  arrange(year) %>% 
-  filter(year  %in% c(1993, 2015)) %>% 
-  select(headcount) %>% 
-  {round(.*100, digits = 1)} %>% 
-  pull()
-
-sss = "TEMP"
-
-#--------- regional poveryt
-
-r <- povcalnet_wb() 
-
+---
+```{r runcode, include = FALSE}
+#source("R/SDG_01_charts.R")
 
 ```
 
-
-## Global understanding of poverty
-
-During the last 25 years, extreme global poverty has declined steadily from `r hc[1]` percent in 1990 to `r hc[2]` percent in 2015, which represents the scape of `r prettyNum(np, digits = 2)` billion people out of extreme poverty. Yet, this remarkable success has not been achieved equally around the world, neither does it mean that those who have escaped enjoy a significantly better quality of life. 
-
-Of those `r prettyNum(np, digits = 2)` billion people that escaped poverty `r sss` belong to China and `r sss` belongs to India. That means that the remaining `r sss` million people that escaped poverty since 1990--`r sss`%--belong to the rest of the world. Besides the remarkable progress of China and India, countries in East Asia and Pacific and the South Asia region have also reduced their poverty levels remarkably. For instance, Indonesia, Vietnam and Thailan by 2015 have lifted out of poverty more than 75% of the poor in 1990. In the same way, South Asian countries like Pakistan, Bangladesh and Nepal have reduced their poverty levels by `r sss`. 
-
-Notwithstanding the remarkable progress of the asian regions, poverty rates in other countries of the world remain high. 
-
-* poverty in africa is still high
-
-* 
-
-
-```{r wld-pov}
-wld_p1
+.pull-left[
+## Number of poor has declinned a lot since 1990
+]
+.pull-right[
+```{r fig.retina = 3}
+p1
 ```
-
-## Global poverty in 2030
-
-```{r wld-pro}
-wld_p2
-```
+]
