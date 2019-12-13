@@ -399,7 +399,6 @@ p8 <- ggplot() +
 
 cty6 <- cty %>%
   filter(region == "ECA")
-"3498db"
 
 p9 <- ggplot() +
   geom_point(data = cty6,
@@ -407,7 +406,7 @@ p9 <- ggplot() +
                  y = headcount,
                  size = poor_pop),
              alpha = .8,
-             color = "3498db") +
+             color = "#3498db") +
   scale_size(range = c(1, 4)) +
   geom_line(data = wld,
             aes(x = year,
