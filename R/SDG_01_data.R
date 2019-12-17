@@ -1,6 +1,6 @@
 # ==================================================
 # project:       SDG 1 fixing data
-# Author:        Andres Castaneda
+# Author:        R.Andres Castaneda
 # Dependencies:  The World Bank
 # ----------------------------------------------------
 # Creation Date:    2019-11-11
@@ -107,7 +107,9 @@ cty <- povcalnet(fill_gaps = TRUE) %>%
 
 #--------- Data at the country level
 
-pr_cty <- read_dta("data/projections.dta") # load data provided by Daniel from Twinning
+# pr_cty <- read_dta("data/projections.dta") # load data provided by Daniel from Twinning
+load(file = "data/projections.Rdata")
+
 
 cutyr <- 2018
 pr_cty <- pr_cty %>%

@@ -185,5 +185,6 @@ ggplot(df_b40_chg) +
   theme_classic() +
   theme(legend.position = "none",) +
   xlab("") +
-  ylab("B40 as share of mean")
+  ylab("B40 as share of mean") +
+  theme(panel.grid.major = element_line(),axis.text.y = element_text(size = 6))
 

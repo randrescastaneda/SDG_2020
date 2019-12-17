@@ -93,5 +93,6 @@ ggplot() +
   ) +
   scale_y_continuous(name = "2011 PPP USD a day",
                      #breaks = v_breaks,
-                     breaks = f_steps(10, zero = FALSE),
+                     # breaks = f_steps(10, zero = FALSE),
+                     breaks = function(y) seq(floor(min(y)), ceiling(max(y)), by = 10),
                      labels = scales::dollar)
