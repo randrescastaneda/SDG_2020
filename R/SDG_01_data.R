@@ -125,7 +125,9 @@ pr_wld <- pr_cty %>%
   summarise(
     # weigthed mean by pop and divide by 100
     headcount = weighted.mean(x = FGT0_19, w = pop, na.rm = TRUE)/100
-  ) %>%  ungroup() %>% arrange(year)
+  ) %>%
+  ungroup() %>%
+  arrange(year)
 
 # get value of poverty for cutting year, (2018)
 pr_temp <- pr_wld %>%
@@ -158,4 +160,48 @@ pr_wld_act <- pr_wld %>%       # global projected
   arrange(year)
 
 rm(pr_temp, pr_25)    # remove unnecessary data
+
+
+
+#--------- Data base for Elbert
+
+cty_df <- cty %>%
+  mutate(
+    poor_pop = round(headcount * population, 2)
+  ) %>%
+  select(-c(regionf, text))
+
+write.csv(cty_df,
+         file="data/SDG01_Country_data.csv",
+         row.names = FALSE,
+         col.names = TRUE,
+         na="")
+
+
+wld_df <- pr_wld %>%
+  filter((alpha == -2 & extragrowth == 2) |
+         (alpha == 2 & extragrowth == -2) |
+         (alpha == 0 & extragrowth == 0) |
+         (is.na(alpha) & is.na(extragrowth)))
+
+
+
+
+wld_df <- pr_wld %>%
+  mutate(case =
+           case_when(
+             (alpha == -2 & extragrowth == 2)    ~ "Best",
+             (alpha == 2 & extragrowth == -2)    ~ "Worst",
+             (alpha == 0 & extragrowth == 0)     ~ "Most likely",
+             (is.na(alpha) & is.na(extragrowth)) ~ "Actual",
+             TRUE ~ ""
+           )) %>%
+  filter(case != "") %>%
+  select(-c(alpha, extragrowth))
+
+write.csv(wld_df,
+          file="data/SDG01_global_data.csv",
+          row.names = FALSE,
+          col.names = TRUE,
+          na="")
 
