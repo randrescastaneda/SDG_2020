@@ -135,18 +135,7 @@ p2 <- ggplot(data = wld,
        x = "") + plain
 
 
-# Global poverty trend and goal
-
-wld_f <-  lm(headcount ~ year,
-             data = wld)
-
-yv <- tibble( year = c(2016:2022))
-
-wld2 <- wld %>%
-  select(year, headcount) %>%
-  arrange(year) %>%
-  bind_rows(yv)
-
+## eliminate poverty assuming linear projection
 # 3% percent goal
 p2_2 <- ggplot(data = wld2,
              aes(x = year,

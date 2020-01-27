@@ -46,7 +46,7 @@ f_steps <- function(k, zero = TRUE) {
 #----------------------------------------------------------
 
 # countries and regions
-regs <- c("EAP", "ECA", "LAC", "MNA", "SAS", "SSA")
+regs <- c("EAP", "ECA", "LAC", "MNA", "SAS", "SSA", "OHI")
 reg <-  map(regs, get_countries)
 
 cr <-  as_tibble(countrycode = NULL,
@@ -201,6 +201,30 @@ wld_df <- pr_wld %>%
 
 write.csv(wld_df,
           file="data/SDG01_global_data.csv",
+          row.names = FALSE,
+          col.names = TRUE,
+          na="")
+
+
+
+# Global poverty trend and goal
+yv <- tibble( year = c(2016:2022))
+
+wld2 <- wld %>%
+  select(year, headcount) %>%
+  arrange(year) %>%
+  bind_rows(yv)
+
+# liner model
+lm_wld <-  lm(headcount ~ year,
+             data = wld2)
+
+lm_wld <- data.frame(wld2,
+                     hc_proj = predict(lm_fit, wld2))
+
+
+write.csv(lm_wld,
+          file="data/lm_projection_global.csv",
           row.names = FALSE,
           col.names = TRUE,
           na="")
