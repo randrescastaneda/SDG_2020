@@ -162,8 +162,12 @@ pr_wld_act <- pr_wld %>%       # global projected
 rm(pr_temp, pr_25)    # remove unnecessary data
 
 
+#----------------------------------------------------------
+#   Data for Elbert
+#----------------------------------------------------------
 
-#--------- Data base for Elbert
+#--------- Country data
+
 
 cty_df <- cty %>%
   mutate(
@@ -177,14 +181,7 @@ write.csv(cty_df,
          col.names = TRUE,
          na="")
 
-
-wld_df <- pr_wld %>%
-  filter((alpha == -2 & extragrowth == 2) |
-         (alpha == 2 & extragrowth == -2) |
-         (alpha == 0 & extragrowth == 0) |
-         (is.na(alpha) & is.na(extragrowth)))
-
-
+#--------- World data
 
 
 wld_df <- pr_wld %>%
@@ -197,7 +194,8 @@ wld_df <- pr_wld %>%
              TRUE ~ ""
            )) %>%
   filter(case != "") %>%
-  select(-c(alpha, extragrowth))
+  select(-c(alpha, extragrowth)) %>%
+  left_join(select(wld, poor_pop, year))
 
 write.csv(wld_df,
           file="data/SDG01_global_data.csv",
