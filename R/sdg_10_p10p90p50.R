@@ -89,12 +89,13 @@ dfc_1g <- dfc_1 %>%
 
 #--------- without Gini
 p_p10p90 <- ggplot(data = dfc_1g,
-                   aes(x = countrycode)) +
+                   aes(x = countrycode,
+                       y = p50)) +
+  geom_point() +
   geom_errorbar(aes(ymin = p10,
                     ymax = p90,
                     color = region),
                 width = .5) +
-  geom_point(aes(y = p50)) +
   theme_classic() +
   theme(
     axis.text.x = element_text(angle = 90,
