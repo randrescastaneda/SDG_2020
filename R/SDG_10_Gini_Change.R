@@ -37,13 +37,11 @@ source("R/_aux_data.R")
 # Gini data
 #----------------------------------------------------------
 
-minyear <- 2000
+minyear <- 1999
 
 df_g <- povcalnet(fill_gaps = TRUE) %>%   # Load povcalnet data
-  filter(year >= minyear) %>%
   group_by(countrycode) %>%
-  filter((year == min(year)) |
-           (year == max(year))) %>%
+  filter(year  %in%  c(minyear, max(year))) %>%
   group_by(countrycode, year) %>%
   mutate(n  = n()) %>%
   filter((n == 1) |
@@ -87,3 +85,4 @@ p_g <- ggplot(data = df_g,
 p_g
 
 ggplotly(p_g, tooltip = "text")
+
