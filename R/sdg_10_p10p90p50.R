@@ -78,7 +78,8 @@ df_g <- povcalnet(fill_gaps = TRUE) %>%   # Load povcalnet data
   arrange(countrycode)
 
 
-dfc_1g <- dfc_1 %>% left_join(df_g) %>%
+dfc_1g <- dfc_1 %>%
+  left_join(df_g) %>%
   mutate(countrycode = factor(countrycode, countrycode))
 
 
@@ -87,19 +88,24 @@ dfc_1g <- dfc_1 %>% left_join(df_g) %>%
 #----------------------------------------------------------
 
 #--------- without Gini
-ggplot(data = dfc_1g) +
-  geom_point(aes(x = countrycode,
-                 y = p50)) +
-  geom_errorbar(aes(x = countrycode,
-                    ymin = p10,
+p_p10p90 <- ggplot(data = dfc_1g,
+                   aes(x = countrycode)) +
+  geom_errorbar(aes(ymin = p10,
                     ymax = p90,
                     color = region),
-                width = 0.5) +
+                width = .5) +
+  geom_point(aes(y = p50)) +
   theme_classic() +
   theme(
     axis.text.x = element_text(angle = 90,
                                size = 5)
   )
+p_p10p90
+
+ggplotly(p_p10p90)
+
+
+# ggplotly(p_p10p90, tooltip = "text")
 
 #--------- with Gini
 
