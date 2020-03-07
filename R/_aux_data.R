@@ -1,5 +1,6 @@
 # auxiliary data. This script is to re executed in other scripts
 
+library("povcalnetR")
 #--------- Load data
 
 load("data/dfc.RData")

@@ -1,6 +1,6 @@
 # ==================================================
 # project:       SDG 1 charts
-# Author:        Andres Castaneda
+# Author:        R.Andres Castaneda
 # Dependencies:  The World Bank
 # ----------------------------------------------------
 # Creation Date:    2019-11-11
@@ -50,7 +50,18 @@ gr_pl <- paletteer_c(package = "ggthemes",
                      direction = -1)
 #gr_pl <- gr_pl[3:length(gr_pl)]  # remove darkest colors
 
-sw <- c("#34495e", "#3498db", "#2ecc71", "#f1c40f", "#e74c3c", "#9b59b6", "#1abc9c", "#f39c12", "#d35400")
+sw <-
+  c(
+    "#34495e",
+    "#3498db",
+    "#2ecc71",
+    "#f1c40f",
+    "#e74c3c",
+    "#9b59b6",
+    "#1abc9c",
+    "#f39c12",
+    "#d35400"
+  )
 clr_point <- sw[c(3, 5, 4, 6, 8, 9)]
 
 
@@ -80,7 +91,8 @@ p1 <- ggplot(data = wld,
                  y = poor_pop)) +
   geom_line(size = 1.5,
             color = "#3498db") +
-  geom_label_repel(aes(label = ifelse(poor_pop  %in% c(max(wld$poor_pop),min(wld$poor_pop)),
+  geom_label_repel(aes(label = ifelse(poor_pop  %in% c(max(wld$poor_pop),
+                                                       min(wld$poor_pop)),
                                paste(prettyNum(poor_pop, big.mark = ","),
                                      "Million"),
                                "")),
@@ -102,8 +114,10 @@ p2 <- ggplot(data = wld,
                  y = headcount)) +
   geom_line(size = 1.5,
             color = "#34495e") +
-  geom_label_repel(aes(label = ifelse(headcount  %in% c(max(wld$headcount),min(wld$headcount)),
-                                      paste0(prettyNum(headcount*100, digits = 3),
+  geom_label_repel(aes(label = ifelse(headcount  %in% c(max(wld$headcount),
+                                                        min(wld$headcount)),
+                                      paste0(prettyNum(headcount*100,
+                                                       digits = 3),
                                             "%"),
                                       "")),
                    box.padding   = 0.35,
@@ -121,18 +135,7 @@ p2 <- ggplot(data = wld,
        x = "") + plain
 
 
-# Global poverty trend and goal
-
-wld_f <-  lm(headcount ~ year,
-             data = wld)
-
-yv <- tibble( year = c(2016:2022))
-
-wld2 <- wld %>%
-  select(year, headcount) %>%
-  arrange(year) %>%
-  bind_rows(yv)
-
+## eliminate poverty assuming linear projection
 # 3% percent goal
 p2_2 <- ggplot(data = wld2,
              aes(x = year,
@@ -170,7 +173,8 @@ p2_3 <- ggplot(data = wld,
                  y = headcount)) +
   geom_line(size = 1.5,
             color = "#34495e") +
-  geom_label_repel(aes(label = ifelse(headcount  %in% c(max(wld$headcount),min(wld$headcount)),
+  geom_label_repel(aes(label = ifelse(headcount  %in% c(max(wld$headcount),
+                                                        min(wld$headcount)),
                                       paste0(prettyNum(headcount*100, digits = 3),
                                              "%"),
                                       "")),

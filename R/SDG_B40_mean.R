@@ -150,7 +150,9 @@ df_b40_chg <- mdf %>%  # data frame of b40 change over time
   drop_na() %>%
   mutate(
     text = paste0("County: ", countryname, "\n",
-                  "Range: ", year_1, "-", year_2, "\n")
+                  "Range: ", year_1, "-", year_2, "\n",
+                  year_1, ": ", rat_b40m_1, "\n",
+                  year_2, ": ", rat_b40m_2, "\n")
   ) %>%
   # Reorder data using average
   rowwise() %>%
@@ -164,7 +166,8 @@ df_b40_chg <- mdf %>%  # data frame of b40 change over time
 # plot lollipop
 
 
-ggplot(df_b40_chg) +
+p_llpop <- ggplot(df_b40_chg,
+                  aes(text = text)) +
   geom_segment(aes(
     x    = countryname,
     xend = countryname,
@@ -174,16 +177,18 @@ ggplot(df_b40_chg) +
   geom_point(aes(x = countryname,
                  y = rat_b40m_1),
              color = "#3498db",
-             size = 3,
+             size = 1.5,
              alpha = .8) +
   geom_point(aes(x = countryname,
                  y = rat_b40m_2),
              color = "#f39c12",
-             size = 3,
+             size = 1.5,
              alpha = .8) +
   coord_flip() +
   theme_classic() +
   theme(legend.position = "none",) +
   xlab("") +
-  ylab("B40 as share of mean")
+  ylab("B40 as share of mean") +
+  theme(panel.grid.major = element_line(),axis.text.y = element_text(size = 6))
 
+ggplotly(p_llpop, tooltip = "text")

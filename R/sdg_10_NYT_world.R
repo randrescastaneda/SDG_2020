@@ -6,7 +6,7 @@
 # Creation Date:    2019-12-05
 # Modification Date:
 # Script version:    01
-# References:
+# References:     https://www.nytimes.com/2014/04/23/upshot/the-american-middle-class-is-no-longer-the-worlds-richest.html?rref=upshot
 #
 #
 # Output:             Chart
@@ -73,7 +73,7 @@ v_breaks <- seq(floor(min(dft$threshold)),
 
 
 
-ggplot() +
+p_nyt <-  ggplot() +
   # draw the original data series with grey
   geom_line(data = dft,
             aes(year, threshold, group = countrycode),
@@ -93,5 +93,10 @@ ggplot() +
   ) +
   scale_y_continuous(name = "2011 PPP USD a day",
                      #breaks = v_breaks,
-                     breaks = f_steps(10, zero = FALSE),
+                     # breaks = f_steps(10, zero = FALSE),
+                     breaks = function(y) seq(floor(min(y)), ceiling(max(y)), by = 10),
                      labels = scales::dollar)
+
+ggplotly(p_nyt)
+
+# ggplotly(p_nyt, tooltip = "text")
