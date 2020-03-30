@@ -17,8 +17,10 @@
 #----------------------------------------------------------
 
 library("tidyverse")
+library("data.table")
 library("povcalnetR")
 library("haven")
+library("janitor")
 
 #----------------------------------------------------------
 #   subfunctions
@@ -163,67 +165,99 @@ rm(pr_temp, pr_25)    # remove unnecessary data
 
 
 #----------------------------------------------------------
-#   Data for Elbert
+#   Countries trends typology
 #----------------------------------------------------------
 
-#--------- Country data
+# fixed effects model of poverty over time
+cty_fit <- lm( headcount ~ year
+               + factor(countrycode) - 1,
+               data = cty)
+
+# simulation database
+cty_pred <- expand.grid(countrycode = unique(cty$countrycode),
+                        year = c(1990:2250)) %>%
+  arrange(countrycode, year) %>%
+  setDT()
+
+# predict poverty rates following the same trend
+cty_pred$headcount <- predict(cty_fit, newdata = cty_pred)
+
+zero_pov <- 0
+
+# clean data
+cty_p <- cty_pred[,
+                  minh := min(headcount),
+                  by = .(countrycode)
+                  ][
+                    headcount  %inrange% c(zero_pov:100)  # keep positive headcount
+                    ][minh < 0,                    # only those that elimiate pov.
+                      .SD[which.max(year)],
+                      by = countrycode
+                      ][,
+                        countrycode := as.character(countrycode)  # for plotting
+                        ][
+                          year > 2018                         # for plotting
+                          ]
 
 
-cty_df <- cty %>%
+# join regions names
+setDT(cr)
+cty_p <- cty_p[cr,
+  on = c("countrycode"),
+  region := i.region]
+
+# create subsample for repel labels
+set.seed(10101)
+cty_pred2 <- cty_p[sample(nrow(cty_p), 20),] %>%
   mutate(
-    poor_pop = round(headcount * population, 2)
+    text = paste0(countrycode, " (", year, ")")
+  )
+
+
+povch <- cty %>%
+  group_by(countrycode) %>%
+  mutate(
+    maxy = max(year),
+    miny = min(year)
   ) %>%
-  select(-c(regionf, text))
-
-write.csv(cty_df,
-         file="data/SDG01_Country_data.csv",
-         row.names = FALSE,
-         col.names = TRUE,
-         na="")
-
-#--------- World data
-
-
-wld_df <- pr_wld %>%
-  mutate(case =
-           case_when(
-             (alpha == -2 & extragrowth == 2)    ~ "Best",
-             (alpha == 2 & extragrowth == -2)    ~ "Worst",
-             (alpha == 0 & extragrowth == 0)     ~ "Most likely",
-             (is.na(alpha) & is.na(extragrowth)) ~ "Actual",
-             TRUE ~ ""
-           )) %>%
-  filter(case != "") %>%
-  select(-c(alpha, extragrowth)) %>%
-  left_join(select(wld, poor_pop, year))
-
-write.csv(wld_df,
-          file="data/SDG01_global_data.csv",
-          row.names = FALSE,
-          col.names = TRUE,
-          na="")
+  filter(  year == maxy
+         | year == miny ) %>%
+  mutate(
+    povchange = headcount - lag(headcount,
+                                order_by = year),
+    povchange = if_else(is.na(povchange),
+                        lead(povchange,
+                             order_by = year),
+                        povchange),
+    povtrend = case_when(
+      povchange    > 0   ~ "Bad",
+      povchange    < 0   ~ "Good",
+      povchange    == 0  ~ "Same",
+      TRUE ~ ""
+    )
+  ) %>%
+  arrange(countrycode, year) %>%
+  ungroup()
 
 
+cty_bad <- povch %>%
+  filter(
+    povtrend == "Bad"
+    & region != "OHI"
+    & headcount > 0.05
+    ) %>%
+  arrange(countrycode, year) %>%
+  group_by(countrycode) %>%
+  mutate(
+    no_poor = headcount*population*1e6,
+    gr_pp = (no_poor/lag(no_poor))^(1/(year-lag(year)))-1
+  )
 
-# Global poverty trend and goal
-yv <- tibble( year = c(2016:2022))
-
-wld2 <- wld %>%
-  select(year, headcount) %>%
-  arrange(year) %>%
-  bind_rows(yv)
-
-# liner model
-lm_wld <-  lm(headcount ~ year,
-             data = wld2)
-
-lm_wld <- data.frame(wld2,
-                     hc_proj = predict(lm_fit, wld2))
-
-
-write.csv(lm_wld,
-          file="data/lm_projection_global.csv",
-          row.names = FALSE,
-          col.names = TRUE,
-          na="")
+bad_ctrs <- cty_bad %>%
+  filter(!(is.na(gr_pp))) %>%
+  select(countryname, countrycode, gr_pp, no_poor, headcount) %>%
+  inner_join(cr, by = "countrycode") %>%
+  mutate(
+    countryname = gsub("(.*)(,.*)", "\\1", countryname) # remove part of the name after comma
+  )
 
