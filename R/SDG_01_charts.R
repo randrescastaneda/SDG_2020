@@ -41,11 +41,10 @@ library("ggrepel")
 
 # gradient of line
 
-gr_pl <- paletteer_dynamic(package = "cartography", palette = "blue.pal",
+gr_pl <- paletteer_dynamic(palette = "cartography::blue.pal",
                            n = 12, direction = -1)
 
-gr_pl <- paletteer_c(package = "ggthemes",
-                     palette = "Classic Orange-White-Blue",
+gr_pl <- paletteer_c(palette = "ggthemes::Classic Orange-White-Blue",
                      n = 26,
                      direction = -1)
 #gr_pl <- gr_pl[3:length(gr_pl)]  # remove darkest colors
@@ -137,6 +136,14 @@ p2 <- ggplot(data = wld,
 
 ## eliminate poverty assuming linear projection
 # 3% percent goal
+# Global poverty trend and goal
+yv <- tibble( year = c(2016:2024))
+
+wld2 <- wld %>%
+  select(year, headcount) %>%
+  arrange(year) %>%
+  bind_rows(yv)
+
 p2_2 <- ggplot(data = wld2,
              aes(x = year,
                  y = headcount)) +
@@ -158,7 +165,7 @@ p2_2 <- ggplot(data = wld2,
     labels = scales::percent,
     limits = c(0, max(wld$headcount))
   ) +
-  geom_hline(yintercept = 0.03,
+  geom_hline(yintercept = 0,
              linetype = "dashed",
              color = "#e74c3c",
              size = 1.2) +
@@ -526,3 +533,65 @@ p11 <- ggplot() +
 
 #sw <- c("#34495e", "#3498db", "#2ecc71", "#f1c40f", "#e74c3c", "#9b59b6", "#1abc9c", "#f39c12", "#d35400")
 # scales::show_col(sw)
+
+
+#--------- Predictions at the country level
+
+# shit axis so that the chart starts in 2000
+t_shift <- scales::trans_new("shift",
+                             transform = function(x) {x-2000},
+                             inverse = function(x) {x+2000})
+
+
+p_cty_pre <- ggplot(data = cty_p,
+                    aes(x = reorder(countrycode, year),
+                        y = year,
+                        fill = region)) +
+  geom_col(position = "dodge") +
+  scale_y_continuous(trans = t_shift) +
+  theme(
+    axis.text.x = element_blank(),
+    legend.position = c(0.1, 0.7)
+  ) +
+  ggrepel::geom_label_repel(
+    data = cty_pred2,
+    aes(label = text),
+    show.legend = FALSE,
+    force = 20
+  )
+
+
+#--------- COuntries that are doing really bad
+p_bad_ctr <- ggplot(
+  data = bad_ctrs,
+  aes(
+    x     = gr_pp,
+    y     = headcount,
+    color = region,
+    size  = no_poor
+  )
+) +
+  geom_point() +
+  ggrepel::geom_label_repel(
+    aes(label = countrycode),
+    show.legend = FALSE,
+    size        = 4,
+    force = 20
+  ) +
+  scale_x_continuous(label=scales::percent) +
+  scale_y_continuous(label=scales::percent) +
+  labs(
+    x       = "annualized growth of number of poor",
+    y       = "Poverty headcount in latest year",
+    title   = "Countries increasing poverty",
+    subtitle= "Circa: 1993 - 2015",
+    caption = "preliminary results",
+    size    = "No. poor"
+  ) +
+  scale_size_continuous(
+    labels = scales::unit_format(unit = "M",
+                                 scale = 1e-6)
+  )
+
+
+

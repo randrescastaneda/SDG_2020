@@ -5,10 +5,10 @@ author: R.Andres Castaneda
 date: Created `r Sys.Date()`
 output:
   redoc::redoc:
-    reference_docx: "template.docx"
-    highlight_outputs: TRUE
-    margins: 1 
-    line_numbers: FALSE 
+    reference_docx: template.docx
+    highlight_outputs: yes
+    margins: 1
+    line_numbers: no
 ---
 
 ```{r setup, include=FALSE}
@@ -38,8 +38,7 @@ npoor <- wld %>%
   round(digits = 0) %>% 
   pull()
 
-np <- (npoor[1] - npoor[2])
-
+np <- (npoor[1] - npoor[2])/1000
 
 # Headcounts
 hc <- wld %>% 
@@ -56,7 +55,6 @@ x <- "x"
 
 r <- povcalnet_wb() 
 
-
 #--------- CHN and IND poor population
 np_ic <- cty2 %>% 
   filter(year  %in% c(1993, 2015)) %>% 
@@ -70,7 +68,8 @@ sh_np <- prettyNum((np_ic/10)/np , digits = 3)
 
 ```
 
-# The story behind Global poverty
+The sory behind Global poverty
+==============================
 
 The first target of Goal 1 of the SDG is to eliminate extreme poverty by 2030.
 Based on the historical trend of the most recent data, the World seems to be
@@ -116,7 +115,7 @@ chn_mm <- cty2 %>%
 ```
 
 China, in particular, has reduced its poverty rate from
-`r prettyNum(chn_mm[[1]]*100, digits = 2)` percent in 1993 to `r prettyNum(chn_mm[[2]]*100, digits = 2)` percent
+`r prettyNum(chn_mm[1]*100, digits = 2)` percent in 1993 to `r prettyNum(chn_mm[2]*100, digits = 2)` percent
 in 2015. The number of extreme poor in China is so small today that it bearly
 counts in the global average. India, on the other, though it has reduced by half
 its poverty rate, it still has some room to contribute to reduce global poverty.
@@ -135,20 +134,8 @@ concentrated in Africa and South Asia and only two countries, India and Nigeria.
 have `r x` of the poor. Yet, How do we expect it will look
 like inthe future?
 
-According to `r x`, if we assume an accelerated economic
+Accordint to `r x`, if we assume an accelerated economic
 growth and a constant reduction of inequality in all the countries, the best
 projection of global poverty still fails to eliminate global poverty by 2030. In
 contrast, projections of poverty rates that assume poor economic growth and
 rising welfare inequality are about `r scales::percent(max(pty$headcount), suffix = "")` percent.
-
-# Different trends across countries
-
-If we assume that each country were to keep the same poverty trend reduction of the last 20 years, we can divide the countries in the world in three groups. Those that will eventually eliminate poverty, those that won't eliminate poverty, and those that we jsut don't know. 
-
-Those countries whose poverty trends have been negative during the last years will eventually eliminate poverty as long as the trend remains unchanged. The current trend of reduction of poverty is not a predictor of poverty level of any sense, as it does not take into account poitical and economic events that highly affect poverty levels. However, the trend provides us with sense of the current pace at which each country is reducing poverty. This pace may change in the future, but if it were to continue indefinetly as is, each country with a negative-slope poverty reduction trend will eventually eliminate poverty. The question then is when. 
-
-  
-
-
-# National poverty rate
-
