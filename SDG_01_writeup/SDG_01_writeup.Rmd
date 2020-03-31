@@ -143,9 +143,11 @@ rising welfare inequality are about `r scales::percent(max(pty$headcount), suffi
 
 # Different trends across countries
 
-If we assume that each country were to keep the same poverty trend reduction of the last 20 years, we can divide the countries in the world in three groups. Those that will eventually eliminate poverty, those that won't eliminate poverty, and those that we jsut don't know. 
+If we assume that each country were to keep the same poverty-reduction trend of the last 20 years, we could divide the countries in the world in three groups. Those that will eventually eliminate poverty, those that won't eliminate poverty, and those that we jsut don't know. 
 
-Those countries whose poverty trends have been negative during the last years will eventually eliminate poverty as long as the trend remains unchanged. The current trend of reduction of poverty is not a predictor of poverty level of any sense, as it does not take into account poitical and economic events that highly affect poverty levels. However, the trend provides us with sense of the current pace at which each country is reducing poverty. This pace may change in the future, but if it were to continue indefinetly as is, each country with a negative-slope poverty reduction trend will eventually eliminate poverty. The question then is when. 
+Countries whose poverty trends have been negative during the last years will eventually eliminate poverty as long as the trend remains unchanged. The current poverty-reduction trends are not predictor of poverty levels in the future, as they do not take into account poitical, economic, or exogenous events that affect poverty levels. However, the trend provides us with sense of the current pace at which each country is reducing poverty. This pace may change in the future, but if it were to continue indefinetly as is, countries that are currently reducing poverty levels will eventually eliminate poverty completely. The question then is when would that happen. 
+
+
 
   
 
