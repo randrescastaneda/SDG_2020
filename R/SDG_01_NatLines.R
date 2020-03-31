@@ -4,8 +4,8 @@
 
 # Libraries
 
-library(tidyverse)
-library(data.table)
+library("tidyverse")
+library("data.table")
 
 #===== Get data an minor clean up =====
 
@@ -23,7 +23,6 @@ dta <- data %>%
   mutate_at( c("Year", "Value"), as.numeric) %>%
   select(-Time) %>%
   setDT()
-
 
 # -- Add Region ID
 cr <- read_rds("data/cty_regs_names.rds") %>%
@@ -65,14 +64,14 @@ overall <- dta %>%
          Year == Iny | Year == Fny) %>%
   arrange(countrycode, Year) %>%
   mutate(
-    Growth = Value/lag(Value) -1,            # abs growth
-    Value0 = if_else(Year == Iny, Value,0),  # Value in first year
-    Value0 = max(Value0),                    # max value in first year
-    Term = paste(Iny, Fny, sep = "-"),       # info
-    GAGR = ((Value/Value0)^(1/Period) -1),   # Annualized growth
+    Growth   = Value/lag(Value) -1,                  # abs growth
+    Value0   = if_else(Year == Iny, Value,0),        # Value in first year
+    Value0   = max(Value0),                          # max value in first year
+    Term     = paste(Iny, Fny, sep = "-"),           # info
+    GAGR     = ((Value/Value0)^(1/Period) -1),       # Annualized growth
     rem_time = if_else(15-Period < 0, 0, 15-Period), # Remaining time to 15-year period
     project  = Value*(1+GAGR)^rem_time,              # Projection
-    Growthp = ((project - Value0)/Value0) # growth change using proection
+    Growthp  = ((project - Value0)/Value0)           # growth change using proection
   ) %>%
   drop_na()
 
