@@ -52,17 +52,19 @@ f_steps <- function(k, zero = TRUE) {
 regs <- c("EAP", "ECA", "LAC", "MNA", "SAS", "SSA", "OHI")
 reg <-  map(regs, get_countries)
 
-cr <-  as_tibble(countrycode = NULL,
-                 region = NULL) # country and regions
+cr <- read_rds("data/cty_regs_names.rds")
 
-
-for (r in seq_along(regs)) {
-
-  a <- tibble(countrycode = reg[[r]],
-              region =  regs[r])
-
-  cr <- bind_rows(cr, a)
-}
+# cr <-  as_tibble(countrycode = NULL,
+#                  region = NULL) # country and regions
+#
+#
+# for (r in seq_along(regs)) {
+#
+#   a <- tibble(countrycode = reg[[r]],
+#               region =  regs[r])
+#
+#   cr <- bind_rows(cr, a)
+# }
 
 st_year <- 1990
 
