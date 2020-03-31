@@ -13,10 +13,10 @@ data <- as.data.frame(overall)
 
 data = data %>% arrange(regioncode, Growth)
 
-data = data %>% mutate(Growthp = ifelse(Growthp > 1, 1, Growthp )) %>% 
+data = data %>% mutate(Growthp = ifelse(Growthp > 1, 1, Growthp )) %>%
   mutate(Growthp = ifelse(Growthp < -1, -1, Growthp ) )
 
-# define label variable  
+# define label variable
 # data <- data %>%
 #   mutate(plotlabel = paste(Term, countrycode, sep = " "))
 
@@ -40,41 +40,94 @@ label_data$hjust <- ifelse( angle < -90, 1, 0)
 label_data$angle <- ifelse(angle < -90, angle+180, angle)
 
 # prepare a data frame for base lines
-base_data <- data %>% 
-  group_by(countrycode) %>% 
-  summarize(start=min(id), end=max(id) + 1) %>% 
-  rowwise() %>% 
+base_data <- data %>%
+  group_by(countrycode) %>%
+  summarize(start=min(id), end=max(id) + 1) %>%
+  rowwise() %>%
   mutate(title=mean(c(start, end)))
 
 
 # Make the plot
-p <- ggplot(data, aes(x=as.factor(id), y=Growthp, fill=regioncode)) +       # Note that id is a factor. If x is numeric, there is some space between the first bar
-  geom_bar(stat="identity", alpha=0.3) +
-  ylim(-1,1) +
+p <-
+  ggplot(data, aes(x = as.factor(id), y = Growthp, fill = regioncode)) +       # Note that id is a factor. If x is numeric, there is some space between the first bar
+  geom_bar(stat = "identity", alpha = 0.3) +
+  ylim(-1, 1) +
   theme_minimal() +
   theme(
     legend.position = "none",
     axis.text = element_blank(),
     axis.title = element_blank(),
     # panel.grid = element_blank(),
-    panel.grid.major = element_line(colour = "gray", size=0.05),
-    plot.margin = unit(rep(-1,4), "cm")
+    panel.grid.major = element_line(colour = "gray", size = 0.05),
+    plot.margin = unit(rep(-1, 4), "cm")
   ) +
-  coord_polar("x") + 
-  geom_text(data=label_data, aes(x=id, y=1, label=plotlabel, hjust=hjust), color="black", fontface="bold",alpha=0.6, size=4, angle= label_data$angle, inherit.aes = FALSE ) +
-  geom_segment(data=base_data, aes(x = start, y = -0.5, xend = end, yend = -0.5), colour = "red", alpha=0.8, size=0.6 , inherit.aes = FALSE ) +
-  geom_segment(data=base_data, aes(x = start, y = 0, xend = end, yend = 0), colour = "gray", alpha=0.8, size=0.2 , inherit.aes = FALSE ) +
-  geom_segment(data=base_data, aes(x = start, y = 0.5, xend = end, yend = 0.5), colour = "gray", alpha=0.8, size=0.2 , inherit.aes = FALSE ) 
+  coord_polar("x") +
+  geom_text(
+    data = label_data,
+    aes(
+      x = id,
+      y = 1,
+      label = plotlabel,
+      hjust = hjust
+    ),
+    color = "black",
+    fontface = "bold",
+    alpha = 0.6,
+    size = 4,
+    angle = label_data$angle,
+    inherit.aes = FALSE
+  ) +
+  geom_segment(
+    data = base_data,
+    aes(
+      x = start,
+      y = -0.5,
+      xend = end,
+      yend = -0.5
+    ),
+    colour = "red",
+    alpha = 0.8,
+    size = 0.6 ,
+    inherit.aes = FALSE
+  ) +
+  geom_segment(
+    data = base_data,
+    aes(
+      x = start,
+      y = 0,
+      xend = end,
+      yend = 0
+    ),
+    colour = "gray",
+    alpha = 0.8,
+    size = 0.2 ,
+    inherit.aes = FALSE
+  ) +
+  geom_segment(
+    data = base_data,
+    aes(
+      x = start,
+      y = 0.5,
+      xend = end,
+      yend = 0.5
+    ),
+    colour = "gray",
+    alpha = 0.8,
+    size = 0.2 ,
+    inherit.aes = FALSE
+  )
 
 
-plot <- p + 
-  geom_bar(aes(x=as.factor(id), y=Growth, fill=regioncode), stat="identity", alpha=0.5) + 
-  theme(legend.position="right") + labs(fill = "Region")
+plot <- p +
+  geom_bar(aes(x = as.factor(id), y = Growth, fill = regioncode),
+           stat = "identity",
+           alpha = 0.5) +
+  theme(legend.position = "right") + labs(fill = "Region")
 
 plot
 
-ggsave(filename = "NatHC.png",
-       plot = plot,
-       device='png',
-       height = 250, width = 300, dpi = 300,
-       limitsize = F, units = "mm")
+# ggsave(filename = "NatHC.png",
+#        plot = plot,
+#        device='png',
+#        height = 250, width = 300, dpi = 300,
+#        limitsize = F, units = "mm")
