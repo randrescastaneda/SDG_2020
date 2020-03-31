@@ -86,15 +86,12 @@ overall <- dta %>%
   ungroup() %>%
   drop_na()
 
-clist2 <- length(unique(projecty$countrycode))
-
-
 
 # ==== print (important stuff) ====
-cat(paste(
-  "Code ran:\n",
-  paste0( (clist2/clist)*100," % of original countries kept under rule.\n"),
-  paste("Full countries:", clist),"\n",
-  paste("Used countries:", clist2))
-)
+# cat(paste(
+#   "Code ran:\n",
+#   paste0( (clist2/clist)*100," % of original countries kept under rule.\n"),
+#   paste("Full countries:", clist),"\n",
+#   paste("Used countries:", clist2))
+# )
 
