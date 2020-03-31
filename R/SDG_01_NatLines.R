@@ -80,7 +80,8 @@ overall <- dta %>%
     rem_time = if_else(yspam-Period < 0, 0, yspam-Period), # Remaining time to 15-year period
     project  = Value*(1+GAGR)^rem_time,              # Projection
     Growthp  = ((project - Value0)/Value0),          # growth change using proection
-    dec = if_else(Growthp < 0, 1, 0)                 # Dummy for decrease or increase pov
+    dec = if_else(Growthp < 0, 1, 0),                 # Dummy for decrease or increase pov
+    countryname = gsub("(.*)(,.*)", "\\1", countryname) # remove part of the name after comma
   ) %>%
   ungroup() %>%
   drop_na()
