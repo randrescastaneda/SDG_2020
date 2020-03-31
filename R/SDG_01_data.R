@@ -204,9 +204,14 @@ cty_p <- cty_pred[beta < -1e-3
 
 # join regions names
 setDT(cr)
+
+cols  <- c("region", "countryname")
+icols <- paste0("i.", c("region", "countryname"))
+
 cty_p <- cty_p[cr,
-  on = c("countrycode"),
-  region := i.region]
+           on = c("countrycode"),
+           (cols)  := mget(icols)]
+
 
 # create subsample for repel labels
 set.seed(10101)
@@ -258,7 +263,6 @@ cty_bad <- povch %>%
 bad_ctrs <- cty_bad %>%
   filter(!(is.na(gr_pp))) %>%
   select(countryname, countrycode, gr_pp, no_poor, headcount) %>%
-  inner_join(cr, by = "countrycode") %>%
   mutate(
     countryname = gsub("(.*)(,.*)", "\\1", countryname) # remove part of the name after comma
   )

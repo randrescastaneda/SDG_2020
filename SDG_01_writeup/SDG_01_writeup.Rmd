@@ -145,12 +145,41 @@ rising welfare inequality are about `r scales::percent(max(pty$headcount), suffi
 
 If we assume that each country were to keep the same poverty-reduction trend of the last 20 years, we could divide the countries in the world in three groups. Those that will eventually eliminate poverty, those that won't eliminate poverty, and those that we jsut don't know. 
 
-Countries whose poverty trends have been negative during the last years will eventually eliminate poverty as long as the trend remains unchanged. The current poverty-reduction trends are not predictor of poverty levels in the future, as they do not take into account poitical, economic, or exogenous events that affect poverty levels. However, the trend provides us with sense of the current pace at which each country is reducing poverty. This pace may change in the future, but if it were to continue indefinetly as is, countries that are currently reducing poverty levels will eventually eliminate poverty completely. The question then is when would that happen. 
+Countries whose poverty trends have been negative during the last years will eventually eliminate poverty as long as the trend remains unchanged. The current poverty-reduction trends are not predictor of poverty levels in the future, as they do not take into account poitical, economic, or exogenous events that affect poverty levels. However, the trend provides us with sense of the current pace at which each country is reducing poverty. This pace may change in the future, but if it were to continue indefinetly as is, countries that are currently reducing poverty levels will eventually eliminate poverty completely. The question is the, when would that happen?
+
+```{r graduation}
+lower_year <- 2020
+
+cty_g <- cty_p %>% 
+  filter(year > lower_year) %>% 
+  arrange(-year) 
+
+shr_grd <- tabyl(cty_g, region)  # graduation share
+
+grd_per <- shr_grd %>%           # Africa share
+  mutate(
+    percent = scales::percent(percent, 
+                              suffix = "", 
+                              accuracy = 0.1)
+    ) %>% 
+  select(-n)
+
+avg_year <- cty_g %>%        # average year
+  group_by(region) %>% 
+  summarise(ymean = floor(mean(year)))
+
+```
 
 
-
-  
+Among all the countries that eventually would eliminate poverty after `r lower_year`, `r grd_per[grd_per$region == "SSA", "percent"]` percent are from Sub Saharan Africa, `r grd_per[grd_per$region == "LAC", "percent"]` percent are from Latin America, and `r grd_per[grd_per$region == "EAP", "percent"]` percent are from East Asia and Pacific. This proportion is expected as the number of countries in Africa is way larger than in any other region, but what is unexpected is the their year of graduation. In average, African countries would graduate in `r avg_year[avg_year$region == "SSA", "ymean"]`, whereas in other regions like East Asia and Pacific, the average year of graduation is `r avg_year[avg_year$region == "EAP", "ymean"]`. The current pace at which some countries in Africa are reducing poverty is so slow that, were they continue their current poverty-reduction trend, countries like `r cty_g[1, "countryname"]`, `r cty_g[2, "countryname"]`, and `r cty_g[3, "countryname"]` would eliminate poverty in `r cty_g[1, "year"]`, `r cty_g[2, "year"]`, and `r cty_g[3, "year"]`, respectively. 
 
 
 # National poverty rate
 
+National poverty lines are usually the monetary vaue of a basket of goods that meet certain criteria defined by countries as the essential statandard of living. Ideally, such a basket not only meets the criteria such a caloric intake, but also represents the consumption patterns of each country. Thus, the set of goods of the basket and their corresponding values are different across countries. If a household does not have enough resources to purchase the basket, it is concidered poor under national definitions. Goal 1 seeks to reduce the share of the population living in poverty by half, as defined by these national poverty lines.
+
+Graph `x` shows the progression of poverty in countries with enough data.  The bars represent the change in poverty respect to the initial value; poverty declines if a bar rises towards the centre of the circle and increases otherwise. A country accomplishes the poverty goal reduction once the corresponding bar breaks the red circle barrier on the graph. This red circle is hence indicating a poverty reduction of half of the initial value. Within the sample, 20 countries have accomplished the goal by 2015, as shown by the darker bars. The most numerous changes take place in Europe & Central Asia with six countries, followed by South Asia and East Asia & Pacific with four nations, Latin America & Caribbean with two, and Sub-Sharan Africa and Middle East & North Africa with one.
+
+Beyond the number of countries that have accomplished the goal, and considering the 15-year projections , indicated with the lighter colour bars, the regional performance seems to be diverse.  Despite the overall positive performance of East Asia & Pacific, some countries of this region as Micronesia, Tonga and Timor-Leste display worrying trends with an increase in poverty and, if persisting at the same course, two of them raising over half of the original value in 15 years. In other less performing regions as the Middle East & North Africa and Sub-Sharan Africa, the trends are more bothersome. In Sub-Sharan Africa, if the trend continues, only one other country may reach the goal, leaving the region trapped in poverty, while in the Middle East & North Africa no additional country seems to be close to escape poverty. Meanwhile, Latin America & Caribbean and Europe & Central Asia have more fortunate trends. Despite some countries slightly growth, most of the nations have reduced poverty meaningfully in these regions, nonetheless much the goal still far from accomplished. A similar scenario takes place in South Asia, but here Afghanistan presents an extremely worrying case. 
+
+Long story short, there are notable cases of successful poverty reduction, being some regions more successful than others, yet, the goal still far from accomplished. Moreover, poverty reduction needs to accelerate, especially in Sub-Sharan Africa, if we intend to achieve to reduce the share of the population living in poverty by half in the foreseeable future.
