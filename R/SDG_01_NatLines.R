@@ -50,17 +50,25 @@ clist <- length(unique(dta$countrycode))
 
 #------  Using yearly growth
 
+# Parameters
+year1   <- 2000
+year2   <- 2015
+yspam   <- year2 - year1
+min_per <- 5
+
+
 # keeping a minimum of years
+
 overall <- dta %>%
   group_by(countrycode) %>%
-  mutate( Iny =  ifelse(abs(Year - 2000) == min(abs(Year - 2000)),Year,0),
-          Fny =  ifelse(abs(Year - 2015) == min(abs(Year - 2015)),Year,0),
+  mutate( Iny =  if_else(abs(Year - year1) == min(abs(Year - year1)),Year,0),
+          Fny =  if_else(abs(Year - year2) == min(abs(Year - year2)),Year,0),
           Iny = max(Iny),
           Fny = max(Fny)
           ) %>%
   filter( Iny <= Year & Fny >= Year) %>%
   mutate(Period  = Fny - Iny) %>%
-  filter(Period > 5,
+  filter(Period > min_per,
          Year == Iny | Year == Fny) %>%
   arrange(countrycode, Year) %>%
   mutate(
@@ -69,10 +77,12 @@ overall <- dta %>%
     Value0   = max(Value0),                          # max value in first year
     Term     = paste(Iny, Fny, sep = "-"),           # info
     GAGR     = ((Value/Value0)^(1/Period) -1),       # Annualized growth
-    rem_time = if_else(15-Period < 0, 0, 15-Period), # Remaining time to 15-year period
+    rem_time = if_else(yspam-Period < 0, 0, yspam-Period), # Remaining time to 15-year period
     project  = Value*(1+GAGR)^rem_time,              # Projection
-    Growthp  = ((project - Value0)/Value0)           # growth change using proection
+    Growthp  = ((project - Value0)/Value0),          # growth change using proection
+    dec = if_else(Growthp < 0, 1, 0)                 # Dummy for decrease or increase pov
   ) %>%
+  ungroup() %>%
   drop_na()
 
 clist2 <- length(unique(projecty$countrycode))
