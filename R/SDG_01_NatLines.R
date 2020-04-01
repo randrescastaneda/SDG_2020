@@ -72,15 +72,15 @@ overall <- dta %>%
          Year == Iny | Year == Fny) %>%
   arrange(countrycode, Year) %>%
   mutate(
-    Growth   = Value/lag(Value) -1,                  # abs growth
-    Value0   = if_else(Year == Iny, Value,0),        # Value in first year
-    Value0   = max(Value0),                          # max value in first year
-    Term     = paste(Iny, Fny, sep = "-"),           # info
-    GAGR     = ((Value/Value0)^(1/Period) -1),       # Annualized growth
-    rem_time = if_else(yspam-Period < 0, 0, yspam-Period), # Remaining time to 15-year period
-    project  = Value*(1+GAGR)^rem_time,              # Projection
-    Growthp  = ((project - Value0)/Value0),          # growth change using proection
-    dec = if_else(Growthp < 0, 1, 0),                 # Dummy for decrease or increase pov
+    Growth      = Value/lag(Value) -1,                  # abs growth
+    Value0      = if_else(Year == Iny, Value,0),        # Value in first year
+    Value0      = max(Value0),                          # max value in first year
+    Term        = paste(Iny, Fny, sep = "-"),           # info
+    GAGR        = ((Value/Value0)^(1/Period) -1),       # Annualized growth
+    rem_time    = if_else(yspam-Period < 0, 0, yspam-Period), # Remaining time to 15-year period
+    project     = Value*(1+GAGR)^rem_time,              # Projection
+    Growthp     = ((project - Value0)/Value0),          # growth change using proection
+    dec         = if_else(Growthp < 0, 1, 0),                 # Dummy for decrease or increase pov
     countryname = gsub("(.*)(,.*)", "\\1", countryname) # remove part of the name after comma
   ) %>%
   ungroup() %>%

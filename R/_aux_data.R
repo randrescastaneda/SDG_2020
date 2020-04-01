@@ -36,6 +36,19 @@ cnames <- povcalnet(fill_gaps = TRUE, year = 2015) %>%
 
 cr <- povcalnet() %>%
   distinct(countrycode, countryname, regioncode) %>%
-  rename(region = regioncode)
+  rename(region = regioncode) %>%
+  mutate(
+    regionname = case_when(
+      region == "EAP" ~ "East Asia and Pacific",
+      region == "ECA" ~ "Europe and Central Asia",
+      region == "LAC" ~ "Latin America and the Caribbean",
+      region == "MNA" ~ "Middle East and North Africa",
+      region == "OHI" ~ "Other High Income countries",
+      region == "SAS" ~ "South Asia",
+      region == "SSA" ~ "Sub-saharan Africa",
+      TRUE ~ ""
+    ),
+    countryname = gsub("(.*)(,.*)", "\\1", countryname)
+  )
 
 write_rds(cr, "data/cty_regs_names.rds")

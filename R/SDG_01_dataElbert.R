@@ -80,7 +80,7 @@ write.csv(cty_rp,
           na="")
 
 
-# p <- ggplot(data = filter(cty, countrycode == "ARM"),
+# p <- ggplot(data = filter(cty, countrycode == "COL"),
 #             aes(x = year,
 #                 y = headcount)) +
 #   geom_point() +
@@ -88,5 +88,41 @@ write.csv(cty_rp,
 #               fullrange = TRUE,
 #               se = FALSE,
 #               color = "grey50")
-#
 # ggplotly(p)
+
+
+#--- National data
+
+nt_df <- overall %>%
+  select(
+    countrycode,
+    countryname,
+    projection = project,
+    year1      = Iny,
+    year2      = Fny,
+    pov1       = Value0,
+    pov2       = Value,
+    abs_gr     = Growth,
+    ann_gr     = GAGR,
+    abs_gr_p   = Growthp
+    )
+
+
+write.csv(nt_df,
+          file="data/SDG01_national_lines.csv",
+          row.names = FALSE,
+          col.names = TRUE,
+          na="")
+
+
+#---- Country projections
+
+bad_ctrs2 <- bad_ctrs %>%
+  select(-c(ymm, text, regionf, poor_pop))
+
+write.csv(bad_ctrs2,
+          file="data/SDG01_bad_countries.csv",
+          row.names = FALSE,
+          col.names = TRUE,
+          na="")
+

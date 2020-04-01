@@ -208,6 +208,42 @@ poverty-reduction trend, countries like `r add_and(worst_cty[["countryname"]])` 
 eliminate poverty in `r add_and(worst_cty[["year"]])`, respectively. Figure
 `r x` shows the graduation year of a subset of countries.
 
+```{r badcountries}
+
+wrs_reg <- bad_ctrs %>% 
+  tabyl(regionname) %>% 
+  filter(n == max(n)) %>% 
+  select(regionname) %>% 
+  pull
+
+
+wrs_regn <- bad_ctrs %>% 
+  tabyl(regionname) %>% 
+  summarise(
+    nsum = sum(n),
+    nmax = max(n)
+  )
+
+
+wrs3 <- bad_ctrs %>% 
+  arrange(-headcount)  %>% 
+  slice(2:4) %>% 
+  select(countryname) %>% 
+  pull() %>% 
+  add_and()
+
+wrs_gp <- bad_ctrs %>% 
+  arrange(-gr_pp) %>% 
+  slice(1:2) %>% 
+  transmute(
+    countryname = countryname, 
+    gr_pp       = percent(gr_pp, suffix = "", accuracy = 0.1)
+    )
+```
+
+
+though the graduation year for some of the countries above is more than `r paste(as.english(150))` years from now, some other countries won't ever graduate if they continue with the same poverty trend of the last two decades. `r wrs_reg` has largest share of these countries wirh `r wrs_regn[["nmax"]]` our of `r wrs_regn[["nsum"]]`. Among them, we find some of the poorest economies of the world like `r wrs3` and, even worst off,  countries like `r add_and(wrs_gp[["countryname"]])` have the highest annualized growth of the number of poor, with `r add_and(wrs_gp[["gr_pp"]])` percent, respectively . 
+
 National poverty rate
 =====================
 
@@ -251,7 +287,8 @@ failing <- overall %>%
 eap_cty <- failing %>% 
   filter(regioncode == "EAP") %>% 
   select(countryname) %>% 
-  pull()
+  pull() %>% 
+  add_and()
 
 n_eap <- paste(as.english(reg_goal[reg_goal$regioncode == "ECA", "n"]))
 n_sar <- paste(as.english(reg_goal[reg_goal$regioncode == "SAS", "n"]))
@@ -273,7 +310,7 @@ Beyond the number of countries that have accomplished the goal, and considering
 the `r yspam`-year projections, indicated with the lighter color
 bars, the regional performance seems to be diverse. Despite the overall positive
 performance of East Asia & Pacific, some countries of this region as
-`r add_and(eap_cty)` display worrying trends with an increase in poverty
+`r eap_cty` display worrying trends with an increase in poverty
 and two of them raising over half of the original value in
 `r yspam` years from now. In other less performing regions like
 the Middle East and North Africa and Sub-Sharan Africa, the trends are more
