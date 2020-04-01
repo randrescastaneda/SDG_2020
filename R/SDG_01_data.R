@@ -197,17 +197,17 @@ cty_p <- cty_pred[beta < -1e-3
                     .SD[which.max(year)],
                     by = countrycode
                     ][,
-                      countrycode := as.character(countrycode)  # for plotting
+                      countrycode := as.character(countrycode)  # for plotting, not factor
                       ][
                         year > 2018                         # for plotting
                         ]
 
 
 # join regions names
-setDT(cr)
 
-cols  <- c("region", "countryname")
-icols <- paste0("i.", c("region", "countryname"))
+setDT(cr)
+cols  <- c("region", "countryname", "regionname")
+icols <- paste0("i.", c("region", "countryname", "regionname"))
 
 cty_p <- cty_p[cr,
            on = c("countrycode"),
@@ -285,11 +285,16 @@ bad_ctrs <- cty_pred[
           no_poor := headcount*population*1e6,
           ][
             order(countrycode, year),
-            gr_pp := (no_poor/shift(no_poor, -1, NA, "lag"))^
-              (1/(year-shift(year, -1, NA, "lag")))-1,
+            gr_pp := (no_poor/shift(no_poor, 1, NA, "lag"))^
+              (1/(year-shift(year, 1, NA, "lag")))-1,
             by = .(countrycode)
             ][
-              region != "OHI" & headcount > 0.05
-              ]
+              region != "OHI" & headcount > 0.05 & !is.na(gr_pp)
+              ][
+                cr,
+                on = c("countrycode"),
+                (cols)  := mget(icols)
+                ]
+
 
 
