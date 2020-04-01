@@ -34,3 +34,8 @@ rc <- map_dfr(regions, region_country)
 cnames <- povcalnet(fill_gaps = TRUE, year = 2015) %>%
   distinct(countrycode, countryname)
 
+cr <- povcalnet() %>%
+  distinct(countrycode, countryname, regioncode) %>%
+  rename(region = regioncode)
+
+write_rds(cr, "data/cty_regs_names.rds")

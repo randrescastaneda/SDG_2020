@@ -1,24 +1,26 @@
 ---
 title: Goal 1. End poverty in all its forms everywhere
-subtitle: Your subtitle
+subtitle: The near future of global poverty
 author: R.Andres Castaneda
 date: Created `r Sys.Date()`
 output:
   redoc::redoc:
-    reference_docx: "template.docx"
-    highlight_outputs: TRUE
-    margins: 1 
-    line_numbers: FALSE 
+    reference_docx: template.docx
+    highlight_outputs: yes
+    margins: 1
+    line_numbers: no
 ---
 
 ```{r setup, include=FALSE}
 library(knitr)
 knitr::opts_chunk$set(
-  warning = FALSE,
-  collapse = TRUE,
-  message = FALSE,
-  echo = FALSE,
-  fig.retina = 3
+  collapse   = TRUE,
+  warning    = FALSE,
+  message    = FALSE,
+  echo       = FALSE,
+  fig.retina = 3 
+  # fig.width  = 8,
+  # fig.align  = "center"
 )
 knitr::opts_knit$set(
   root.dir = ".."
@@ -26,9 +28,12 @@ knitr::opts_knit$set(
 ```
 
 ```{r calculations}
+library("english")
+library("scales")
 
 source("R/SDG_01_data.R")
 source("R/SDG_01_charts.R")
+source("R/utils.R")
 
 # No. of poor
 npoor <- wld %>% 
@@ -39,7 +44,6 @@ npoor <- wld %>%
   pull()
 
 np <- (npoor[1] - npoor[2])
-
 
 # Headcounts
 hc <- wld %>% 
@@ -52,10 +56,9 @@ hc <- wld %>%
 tmp = "TEMP"
 x <- "x"
 
-#--------- regional poveryt
+#--------- regional poverty
 
 r <- povcalnet_wb() 
-
 
 #--------- CHN and IND poor population
 np_ic <- cty2 %>% 
@@ -64,22 +67,23 @@ np_ic <- cty2 %>%
   summarise(pop = sum(poor_pop)) %>% 
   ungroup() %>% 
   arrange(-year) %>% 
-  summarise(diff = diff(pop)) 
+  summarise(diff = diff(pop)) %>% 
+  pull()
 
-sh_np <- prettyNum((np_ic/10)/np , digits = 3)
+sh_np <- percent(np_ic/np, suffix = "", accuracy = 0.1)
 
 ```
 
-# The story behind Global poverty
+The story behind Global poverty
+===============================
 
-The first target of Goal 1 of the SDG is to eliminate extreme poverty by 2030.
-Based on the historical trend of the most recent data, the World seems to be
-going in the right direction to meet the goal. In 1990, `r hc[1]`
-percent of the population (`r prettyNum(npoor[1]/1000, digits = 2)` billion people) lived with
-less than \$1.9 a day (PPP 2011 prices). 25 years later,
-`r prettyNum((np/npoor[1])*100, digits = 2)` percent of theme escaped extreme poverty, leaving
-behind `r prettyNum(npoor[2], digits = 3)` million people (`r hc[2]` of the
-population).
+The first target of Goal 1 to eliminate extreme poverty by 2030. Based on the
+historical trend of the most recent data, the World seems to be going in the
+right direction to meet the goal. In 1990, `r hc[1]` percent of
+the population (`r prettyNum(npoor[1]/1000, digits = 2)` billion people) lived with less than
+\$1.9 a day (2011 PPP prices). 25 years later, `r prettyNum((np/npoor[1])*100, digits = 2)` percent
+of them escaped extreme poverty, leaving behind `r prettyNum(npoor[2], digits = 3)` million
+people (`r hc[2]` of the population).
 
 If we assume that the trend of poverty reduction will remain the same over the
 next decade as it has been during the last 25 years, Goal 1 would be met by
@@ -87,21 +91,21 @@ next decade as it has been during the last 25 years, Goal 1 would be met by
 Let's see why.
 
 First, the underlying data of the Global poverty rate in a given year are the
-poverty rates of all the countries in the world. In some of them, the poverty
-rate is high, but in others it is low. The dispersion of poverty rates in a
-given years is so wide that scale at which global poverty is usually analized
-must be increased to make room for all the poverty rates to fit the chart. At
+poverty rates of all the countries in the world. In some of them, poverty rates
+whereas in others they are low. The dispersion of country-poverty rates in a
+given year is so wide that the scale at which global poverty is usually analyzed
+must be enlarged to make room for all the poverty rates to fit in the chart. At
 this scale, the decreasing pace of global poverty does not seem that rapid
 anymore.
 
 How could it be then that the dispersion of poverty rates has remained
 relatively constant over time and yet global poverty rate has decreased? This is
-so because global poverty is a population-weigthed average of country poverty
+so because global poverty is a population-weighted average of country poverty
 rates. The larger the country the more it weighs in the global average.
 
-By looking closely at the underlying data, we find that the world-wide poverty
-story of the last 25 five years is mainly explained by the economic performance
-of two countries: China and India. Out of the `r prettyNum(np, digits = 2)` billion
+By looking closely at the underlying data, we find that the global poverty story
+of the last 25 five years has been driven mainly by the economic performance of
+two countries: China and India. Out of the `r prettyNum(np/1000, digits = 3)` billion
 people that escaped poverty from 1990 to 2015, `r np_ic` million
 (`r sh_np` percent) is due to these two countries. The other
 `r 100- as.numeric(sh_np)` percent is the contribution of the rest of the world.
@@ -117,38 +121,173 @@ chn_mm <- cty2 %>%
 
 China, in particular, has reduced its poverty rate from
 `r prettyNum(chn_mm[[1]]*100, digits = 2)` percent in 1993 to `r prettyNum(chn_mm[[2]]*100, digits = 2)` percent
-in 2015. The number of extreme poor in China is so small today that it bearly
+in 2015. The number of extreme poor in China is so small today that it barely
 counts in the global average. India, on the other, though it has reduced by half
 its poverty rate, it still has some room to contribute to reduce global poverty.
 
 During the same period, other countries have reduced their poverty rate as well,
 but many small countries still have poverty rates that are way higher than the
-world average. Unfortunately, most of those countries belong to Subsaharan
-Africa and in many of them poverty has increased during during the last decade.
+world average. Unfortunately, most of those countries belong to Sub-Saharan
+Africa and in many of them poverty has increased during the last decade.
 
 Other regions like Latin America and Europe and Central Asia are not doing that
 bad. Most of the their countries have poverty rates below the global average and
-the great majority has reduced their povety rates over the same period.
+the great majority has reduced their poverty rates over the same period.
 
-Summing up, this is how the world looks today. The higest poverty rates are
-concentrated in Africa and South Asia and only two countries, India and Nigeria.
-have `r x` of the poor. Yet, How do we expect it will look
-like inthe future?
+This is how the world looks today. The highest poverty rates are concentrated in
+Africa and South Asia and only two countries, India and Nigeria, have
+`r x` of the poor today. Then, how do we expect it will look
+like in the future?
 
 According to `r x`, if we assume an accelerated economic
 growth and a constant reduction of inequality in all the countries, the best
 projection of global poverty still fails to eliminate global poverty by 2030. In
 contrast, projections of poverty rates that assume poor economic growth and
-rising welfare inequality are about `r scales::percent(max(pty$headcount), suffix = "")` percent.
+rising welfare inequality are about `r percent(max(pty$headcount), suffix = "")` percent.
 
-# Different trends across countries
+Different trends across countries
+=================================
 
-If we assume that each country were to keep the same poverty trend reduction of the last 20 years, we can divide the countries in the world in three groups. Those that will eventually eliminate poverty, those that won't eliminate poverty, and those that we jsut don't know. 
+If we assume that each country was to keep the same poverty-reduction trend of
+the last 20 years, we could divide the countries in the world in three groups.
+Those that will eventually eliminate poverty, those that won't eliminate
+poverty, and those that we just don't know.
 
-Those countries whose poverty trends have been negative during the last years will eventually eliminate poverty as long as the trend remains unchanged. The current trend of reduction of poverty is not a predictor of poverty level of any sense, as it does not take into account poitical and economic events that highly affect poverty levels. However, the trend provides us with sense of the current pace at which each country is reducing poverty. This pace may change in the future, but if it were to continue indefinetly as is, each country with a negative-slope poverty reduction trend will eventually eliminate poverty. The question then is when. 
+Countries whose poverty trends have been negative during the last years will
+eventually eliminate poverty as long as the trends remain unchanged. The current
+poverty-reduction trends are not a predictor of poverty levels in the future, as
+they do not take into account poitical, economic, or exogenous events that
+affect poverty levels, but the trend provides us with a sense of the current
+pace at which each country is reducing poverty. This pace may change in the
+future, but if it were to continue indefinitely as is, countries that are
+currently reducing poverty levels will eventually eliminate poverty. The
+question is then, when would that happen?
 
-  
+```{r graduation}
+lower_year <- 2020
 
+cty_g <- cty_p %>% 
+  filter(year > lower_year) %>% 
+  arrange(-year) 
 
-# National poverty rate
+shr_grd <- tabyl(cty_g, region)  # graduation share
 
+grd_per <- shr_grd %>%           # Africa share
+  mutate(
+    percent = percent(percent, 
+                      suffix = "", 
+                      accuracy = 0.1)
+    ) %>% 
+  select(-n)
+
+avg_year <- cty_g %>%        # average year
+  group_by(region) %>% 
+  summarise(ymean = floor(mean(year)))
+
+worst_cty <- cty_g %>% 
+  slice(1:3) %>% 
+  select(countryname, year) %>% 
+  mutate(
+    year = as.character(year)
+  )
+
+```
+
+Among all the countries that eventually would eliminate poverty after
+`r lower_year`, `r grd_per[grd_per$region == "SSA", "percent"]` percent are from Sub
+Saharan Africa, `r grd_per[grd_per$region == "LAC", "percent"]` percent are from Latin America, and
+`r grd_per[grd_per$region == "EAP", "percent"]` percent are from East Asia and Pacific. This
+proportion is expected as the number of countries in Africa is way larger than
+in any other region, but what is unexpected is their year of graduation. In
+average, African countries would graduate in `r avg_year[avg_year$region == "SSA", "ymean"]`, whereas
+in other regions like East Asia and Pacific, the average year of graduation is
+`r avg_year[avg_year$region == "EAP", "ymean"]`. At least in these two countries, the average country
+won't meet the goal by 2030. The current pace at which some countries in Africa
+are reducing poverty is so slow that, were they to continue their current
+poverty-reduction trend, countries like `r add_and(worst_cty[["countryname"]])` would
+eliminate poverty in `r add_and(worst_cty[["year"]])`, respectively. Figure
+`r x` shows the graduation year of a subset of countries.
+
+National poverty rate
+=====================
+
+```{r natline}
+source("R/SDG_01_NatLines.R")
+```
+
+National poverty lines are usually the monetary value of a basket of goods that
+meet certain criteria---usually caloric intake---defined by countries as the
+essential standard of living. Ideally, such a basket not only meets the criteria
+but is also representative of the consumption patterns of a society, making the
+set of goods of the basket and their corresponding values different across
+countries. If a household does not have enough resources to purchase the basket,
+it is considered poor under national definitions. Goal 1 seeks to reduce the
+share of the population living in poverty by half, as defined by these national
+poverty lines.
+
+```{r natcalc}
+nat_dec <- tabyl(overall, dec) %>%           # Africa share
+  mutate(
+    percent = percent(percent, 
+                      suffix = "", 
+                      accuracy = 0.1)
+  )
+
+n_goal <- overall %>% 
+  filter(Growthp < -.5) %>%        # met the goal
+  summarise(n_distinct(countrycode)) %>% 
+  pull()
+
+reg_goal <- overall %>% 
+  filter(Growthp < -.5) %>%        
+  tabyl(regioncode)
+
+# failing countries 
+failing <- overall %>% 
+  filter(Growthp > 0) %>% 
+  arrange(regioncode, -Growthp) %>% 
+  select(regioncode, countrycode, countryname, Growthp)
+
+eap_cty <- failing %>% 
+  filter(regioncode == "EAP") %>% 
+  select(countryname) %>% 
+  pull()
+
+n_eap <- paste(as.english(reg_goal[reg_goal$regioncode == "ECA", "n"]))
+n_sar <- paste(as.english(reg_goal[reg_goal$regioncode == "SAS", "n"]))
+
+```
+
+Figure `r x` shows the progression of poverty in countries
+with enough data. The bars represent the change in poverty respect to the
+initial value. Poverty declines if a bar rises towards the center of the circle
+and increases otherwise. A country accomplishes the poverty goal reduction once
+the corresponding bar cross the red circle barrier on the graph, which indicates
+a poverty reduction of half of the initial value. Within the sample,
+`r n_goal` countries have accomplished the goal by
+`r year2`, as shown by the darker bars. The most numerous
+changes take place in Europe & Central Asia with `r n_eap`
+countries, followed by South Asia with `r n_sar`.
+
+Beyond the number of countries that have accomplished the goal, and considering
+the `r yspam`-year projections, indicated with the lighter color
+bars, the regional performance seems to be diverse. Despite the overall positive
+performance of East Asia & Pacific, some countries of this region as
+`r add_and(eap_cty)` display worrying trends with an increase in poverty
+and two of them raising over half of the original value in
+`r yspam` years from now. In other less performing regions like
+the Middle East and North Africa and Sub-Sharan Africa, the trends are more
+bothersome. In Sub-Sharan Africa, if the trend continues, only one of two
+countries may reach the goal, leaving the region trapped in poverty. In the
+Middle East & North Africa no additional country seems to be close to escape
+poverty. Meanwhile, Latin America & Caribbean and Europe & Central Asia have
+more fortunate trends. Despite the modest growth of some countries, most of the
+nations have reduced poverty meaningfully. Nonetheless, we are still far from
+accomplishing the goal. A similar scenario takes place in South Asia, but here
+Afghanistan presents an extremely worrying case.
+
+In short, there are notable cases of successful poverty reduction, in which some
+regions are more successful than others. Yet, the goal is still far from being
+accomplished. Poverty reduction needs to accelerate, especially in Sub-Sharan
+Africa, if we intend to reduce the share of the population living in poverty by
+half in the foreseeable future.

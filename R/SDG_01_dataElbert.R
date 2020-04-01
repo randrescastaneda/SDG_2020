@@ -63,3 +63,30 @@ write.csv(lm_wld,
           col.names = TRUE,
           na="")
 
+
+# projectios by country
+
+cty_rp <- cty %>%
+  select(countrycode, year, headcount, region) %>%
+  bind_rows(cty_p) %>%
+  select(-beta) %>%
+  arrange(countrycode, year)
+
+
+write.csv(cty_rp,
+          file="data/SDG01_Country_graduate_year.csv",
+          row.names = FALSE,
+          col.names = TRUE,
+          na="")
+
+
+# p <- ggplot(data = filter(cty, countrycode == "ARM"),
+#             aes(x = year,
+#                 y = headcount)) +
+#   geom_point() +
+#   stat_smooth(method = "lm",
+#               fullrange = TRUE,
+#               se = FALSE,
+#               color = "grey50")
+#
+# ggplotly(p)

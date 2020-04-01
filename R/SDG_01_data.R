@@ -21,6 +21,7 @@ library("data.table")
 library("povcalnetR")
 library("haven")
 library("janitor")
+library("broom")
 
 #----------------------------------------------------------
 #   subfunctions
@@ -51,17 +52,19 @@ f_steps <- function(k, zero = TRUE) {
 regs <- c("EAP", "ECA", "LAC", "MNA", "SAS", "SSA", "OHI")
 reg <-  map(regs, get_countries)
 
-cr <-  as_tibble(countrycode = NULL,
-                 region = NULL) # country and regions
+cr <- read_rds("data/cty_regs_names.rds")
 
-
-for (r in seq_along(regs)) {
-
-  a <- tibble(countrycode = reg[[r]],
-              region =  regs[r])
-
-  cr <- bind_rows(cr, a)
-}
+# cr <-  as_tibble(countrycode = NULL,
+#                  region = NULL) # country and regions
+#
+#
+# for (r in seq_along(regs)) {
+#
+#   a <- tibble(countrycode = reg[[r]],
+#               region =  regs[r])
+#
+#   cr <- bind_rows(cr, a)
+# }
 
 st_year <- 1990
 
@@ -70,7 +73,7 @@ wld <- povcalnet_wb() %>%
   filter(year > st_year, regioncode == "WLD") %>%
   mutate(
     poor_pop = round(headcount * population, 0),
-    headcount = round(headcount, 3)
+    headcount = round(headcount, 5)
   )
 
 # Data at country level
@@ -83,7 +86,7 @@ cty <- povcalnet(fill_gaps = TRUE) %>%
            (n == 2 & datatype == "consumption")) %>%
   mutate(
     poor_pop = round(headcount * population, 0),
-    headcount = round(headcount, 3)
+    headcount = round(headcount, 5)
   ) %>%
   inner_join(cr) %>%
   mutate(text = paste0("Country: ", countryname, "\n",
@@ -100,7 +103,8 @@ cty <- povcalnet(fill_gaps = TRUE) %>%
          population,
          poor_pop,
          region, regionf,
-         text)
+         text) %>%
+  arrange(countrycode, year)
 
 #----------------------------------------------------------
 #   Prepare forcasted data
@@ -168,43 +172,46 @@ rm(pr_temp, pr_25)    # remove unnecessary data
 #   Countries trends typology
 #----------------------------------------------------------
 
-# fixed effects model of poverty over time
-cty_fit <- lm( headcount ~ year
-               + factor(countrycode) - 1,
-               data = cty)
+y_pred <- tibble(year = c(1990:2250))
 
-# simulation database
-cty_pred <- expand.grid(countrycode = unique(cty$countrycode),
-                        year = c(1990:2250)) %>%
-  arrange(countrycode, year) %>%
+cty_pred <- cty %>%
+  nest(-countrycode) %>%                                         # Split in several dataframes
+  mutate(fit       = map(data, ~lm(headcount ~year, data = .)),  # regression
+         headcount = map(fit, predict, newdata = y_pred),        # predict in new data
+         beta      = map(fit, ~tidy(.)[["estimate"]][2]),        # extract beta
+         year      = map(y_pred, cbind),                         # add years
+         beta      = map(rep(beta, length(y_pred)), cbind)       # add beta
+  ) %>%
+  unnest(c(headcount, year, beta)) %>%
+  select(countrycode, year, headcount, beta) %>%
   setDT()
 
-# predict poverty rates following the same trend
-cty_pred$headcount <- predict(cty_fit, newdata = cty_pred)
-
-zero_pov <- 0
+zero_pov <- 1/1e4
 
 # clean data
-cty_p <- cty_pred[,
-                  minh := min(headcount),
-                  by = .(countrycode)
-                  ][
-                    headcount  %inrange% c(zero_pov:100)  # keep positive headcount
-                    ][minh < 0,                    # only those that elimiate pov.
-                      .SD[which.max(year)],
-                      by = countrycode
-                      ][,
-                        countrycode := as.character(countrycode)  # for plotting
-                        ][
-                          year > 2018                         # for plotting
-                          ]
+
+cty_p <- cty_pred[beta < -1e-3
+                  & headcount  %inrange% c(zero_pov:100)
+                  ][,                    # only those that elimiate pov.
+                    .SD[which.max(year)],
+                    by = countrycode
+                    ][,
+                      countrycode := as.character(countrycode)  # for plotting
+                      ][
+                        year > 2018                         # for plotting
+                        ]
 
 
 # join regions names
 setDT(cr)
+
+cols  <- c("region", "countryname")
+icols <- paste0("i.", c("region", "countryname"))
+
 cty_p <- cty_p[cr,
-  on = c("countrycode"),
-  region := i.region]
+           on = c("countrycode"),
+           (cols)  := mget(icols)]
+
 
 # create subsample for repel labels
 set.seed(10101)
@@ -256,7 +263,6 @@ cty_bad <- povch %>%
 bad_ctrs <- cty_bad %>%
   filter(!(is.na(gr_pp))) %>%
   select(countryname, countrycode, gr_pp, no_poor, headcount) %>%
-  inner_join(cr, by = "countrycode") %>%
   mutate(
     countryname = gsub("(.*)(,.*)", "\\1", countryname) # remove part of the name after comma
   )
