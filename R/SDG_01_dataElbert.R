@@ -109,7 +109,19 @@ nt_df <- overall %>%
 
 
 write.csv(nt_df,
-          file="data/national_lines.csv",
+          file="data/SDG01_national_lines.csv",
+          row.names = FALSE,
+          col.names = TRUE,
+          na="")
+
+
+#---- Country projections
+
+bad_ctrs2 <- bad_ctrs %>%
+  select(-c(ymm, text, regionf, poor_pop))
+
+write.csv(bad_ctrs2,
+          file="data/SDG01_bad_countries.csv",
           row.names = FALSE,
           col.names = TRUE,
           na="")
