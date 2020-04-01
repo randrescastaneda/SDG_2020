@@ -1,7 +1,5 @@
 
 # library
-library(plotly)
-library(ggplot2)
 library(ggforce)
 library(hrbrthemes)
 library(viridis)
@@ -118,14 +116,13 @@ p <-
   )
 
 
-plot <- p +
+p_natlines <- p +
   geom_bar(aes(x = as.factor(id), y = Growth, fill = regioncode),
            stat = "identity",
            alpha = 0.5) +
   theme(legend.position = "right") + labs(fill = "Region")
 
-plot
-
+plot(p_natlines)
 # ggsave(filename = "NatHC.png",
 #        plot = plot,
 #        device='png',
