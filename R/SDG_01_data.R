@@ -104,7 +104,8 @@ cty <- povcalnet(fill_gaps = TRUE) %>%
          poor_pop,
          region, regionf,
          text) %>%
-  arrange(countrycode, year)
+  arrange(countrycode, year) %>%
+  ungroup()
 
 #----------------------------------------------------------
 #   Prepare forcasted data
@@ -260,10 +261,35 @@ cty_bad <- povch %>%
     gr_pp = (no_poor/lag(no_poor))^(1/(year-lag(year)))-1
   )
 
-bad_ctrs <- cty_bad %>%
-  filter(!(is.na(gr_pp))) %>%
-  select(countryname, countrycode, gr_pp, no_poor, headcount) %>%
-  mutate(
-    countryname = gsub("(.*)(,.*)", "\\1", countryname) # remove part of the name after comma
-  )
+# bad_ctrs <- cty_bad %>%
+#   filter(!(is.na(gr_pp))) %>%
+#   select(countryname, countrycode, gr_pp, no_poor, headcount, region) %>%
+#   mutate(
+#     countryname = gsub("(.*)(,.*)", "\\1", countryname) # remove part of the name after comma
+#   )
+
+setDT(cty)
+bad_ctrs <- cty_pred[
+  beta > 0,
+  .(countrycode = unique(countrycode))
+  ][
+    cty,
+    on = "countrycode",
+    nomatch = 0
+    ][,
+      ymm := if_else(year == min(year) | year == max(year), 1, 0),
+      by = .(countrycode)
+      ][
+        ymm == 1
+        ][,
+          no_poor := headcount*population*1e6,
+          ][
+            order(countrycode, year),
+            gr_pp := (no_poor/shift(no_poor, -1, NA, "lag"))^
+              (1/(year-shift(year, -1, NA, "lag")))-1,
+            by = .(countrycode)
+            ][
+              region != "OHI" & headcount > 0.05
+              ]
+
 
