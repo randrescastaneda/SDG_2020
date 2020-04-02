@@ -29,7 +29,7 @@ source("R/povcalnet_iterate.R")
 
 rcv_dist <- function(country, year, qtl = 500) {
 
-  print(paste("workging on", cty, year))
+  print(paste("workging on", country, year))
   tryCatch(
     expr = {
       # Your code...
@@ -81,16 +81,18 @@ cty_yr <- as.list(
   )
 
 
-cty_yr <- list(
-  country  = c("ARG", "ARG", "COL", "COL"),
-  year     =  c(2002, 2015, 2002, 2015)
-)
+# cty_yr <- list(
+#   country  = c("ARG", "ARG", "COL", "COL"),
+#   year     =  c(2002, 2015, 2002, 2015)
+# )
 
 
-rvd_dists <- pmap(cty_yr, rcv_dist, qtl = 10)
+rvd_dists <- pmap(cty_yr, rcv_dist, qtl = 500)
 
 names(rvd_dists) <- as_tibble(cty_yr) %>%
   transmute(paste0(country,year))  %>%
   pull()
 
-rvd_dists
+str(rvd_dists)
+
+write_rds(rvd_dists, "data/recovered_dist.rds")
