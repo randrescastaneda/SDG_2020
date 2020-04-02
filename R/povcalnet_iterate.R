@@ -100,7 +100,8 @@ povcalnet_iterate <- function(country = NULL,
           year = year
         ) %>%
           dplyr::filter(regioncode == region) %>%
-          dplyr::select(headcount) %>% pull
+          dplyr::select(headcount) %>%
+          dplyr::pull()
       } else {
         attempt <- povcalnet(
           country = country,
@@ -110,7 +111,8 @@ povcalnet_iterate <- function(country = NULL,
           aggregate = aggregate,
           fill_gaps = fill_gaps
         ) %>%
-          dplyr::select(headcount) %>% dplyr::pull
+          dplyr::select(headcount) %>%
+          dplyr::pull()
       }
 
 
@@ -156,7 +158,8 @@ povcalnet_iterate <- function(country = NULL,
             year = year
           ) %>%
             dplyr::filter(regioncode == region) %>%
-            dplyr::select(headcount) %>% pull
+            dplyr::select(headcount) %>%
+            dplyr::pull()
         } else {
           attempt <- povcalnet(
             country = country,
@@ -166,7 +169,8 @@ povcalnet_iterate <- function(country = NULL,
             aggregate = aggregate,
             fill_gaps = fill_gaps
           ) %>%
-            dplyr::select(headcount) %>% dplyr::pull
+            dplyr::select(headcount) %>%
+            dplyr::pull()
         }
 
         # assess if the value of delta has to chanbe
