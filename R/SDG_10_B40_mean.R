@@ -104,8 +104,10 @@ mdf <- povcalnet(fill_gaps = TRUE) %>%   # Load povcalnet data
 #----------------------------------------------------------
 
 #--------- pallete
-
 sw <- c("#34495e", "#3498db", "#2ecc71", "#f1c40f", "#e74c3c", "#9b59b6", "#1abc9c", "#f39c12", "#d35400")
+
+sw <- c("#3969AC", "#F2B701", "#A5AA99", "#E68310", "#7F3C8D", "#11A579", "#E73F74", "#80BA5A", "#008695", "#CF1C90", "#f97b72", "#4b4b8f")
+
 scales::show_col(sw)
 
 #--------- relationship between b40 share of mean and Gini
