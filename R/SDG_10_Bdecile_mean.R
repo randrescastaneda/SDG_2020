@@ -22,10 +22,17 @@ library("data.table")
 library("janitor")
 library("broom")
 library("caret")
+library("povcalnetR")
 
+source("R/_aux_data.R")
 #----------------------------------------------------------
 #   subfunctions
 #----------------------------------------------------------
+
+
+#--------- extract mean of whatever the bottom is
+
+
 decile_mean <- function(x, mdf) {
   # name <- quo_name(paste0("b", x,"0m"))
   df <- mdf %>%
@@ -42,13 +49,56 @@ decile_mean <- function(x, mdf) {
     )
   return(df)
 }
-# d <- unique(mdf$decile)
-# ndf <- map_df(d, decile_mean, mdf) %>%
-#   arrange(countrycode,  year, decile, datayear)
+
+#--------- linear model by decile
+lm_decile <- function(df) {
+  lm <- df %>%
+    nest(data = -decile) %>%                                   # Split in several dataframes
+    mutate(lm        = map(data, ~lm(gini ~rbdm,  data = .)),  # regression
+           beta      = map(lm, ~tidy(.)[["estimate"]][2]),     # extract beta
+           results   = map(lm, glance),                        # add beta
+           fit       = map(lm, augment, se_fit = TRUE)         # add beta
+    )
+
+  lm_res <- lm  %>%
+    unnest(results) %>%
+    select(-c(data, lm, beta, fit))
+
+  lm_fit <- lm  %>%
+    unnest(fit) %>%
+    select(-c(data, lm, beta, results))
+
+  lm_loss <- lm_fit %>%
+    group_by(decile) %>%
+    summarise(
+      mse = (sum(gini-.fitted)^2)/length(gini),   # Mean squared error
+      mae =  sum(abs(gini-.fitted))/length(gini)  # Mean absolute error
+    ) %>%
+    left_join(
+      lm_res %>%
+        select(decile, r.squared, adj.r.squared)
+    )
+
+  r <- list(lm = lm,
+       res = lm_res,
+       fit = lm_fit,
+       loss = lm_loss)
+
+  return(r)
+}
+
+#--------- Split data in K sections
+
+k_split <- function(df, k) {
+  folds <- split(sample(nrow(df), nrow(df), replace=F), (1:k))
+  # lapply(folds, function(idxs) df[idxs, ])
+  r <- purrr::map(folds, ~df[.x, ])
+  return(r)
+}
 
 
 #----------------------------------------------------------
-#   Set up
+#   Prepare Data
 #----------------------------------------------------------
 
 
@@ -157,64 +207,41 @@ ggplotly(p_bd)
 # Regression
 #----------------------------------------------------------
 
-lm <- mdf %>%
-  nest(data = -decile) %>%                                   # Split in several dataframes
-  mutate(lm        = map(data, ~lm(gini ~rbdm,  data = .)),  # regression
-         beta      = map(lm, ~tidy(.)[["estimate"]][2]),     # extract beta
-         results   = map(lm, glance),                        # add beta
-         fit       = map(lm, augment, se_fit = TRUE)         # add beta
-  )
+lm <- lm_decile(mdf)
 
-lm_res <- lm  %>%
-  unnest(results) %>%
-  select(-c(data, lm, beta, fit))
-
-lm_fit <- lm  %>%
-  unnest(fit) %>%
-  select(-c(data, lm, beta, results))
-
-#--------- loss function
-lm_fit %>%
-  group_by(decile) %>%
-  summarise(
-    mse = (sum(gini-.fitted)^2)/length(gini),   # Mean squared error
-    mae =  sum(abs(gini-.fitted))/length(gini)  # Mean absolute error
-  ) %>%
-  left_join(
-    lm_res %>%
-    select(decile, r.squared, adj.r.squared)
-  )
+print(lm$res)
+print(lm$fit)
+print(lm$loss)
 
 
 #----------------------------------------------------------
 # cross validate
 #----------------------------------------------------------
+
 # control
-ctrl <- trainControl(method = "cv",
-                     number = 5)
 
-cvm <- mdf %>%
-  nest(data = -decile) %>%                                   # Split in several dataframes
-  mutate(cvm = map(data, ~train(gini ~ rbdm,
-                               data = .,
-                               method = "lm",
-                               trControl = ctrl
-                               )
-                   )
-  )
+kmdf <- k_split(mdf, 10)    # split data in 5
 
-cv <- train(gini ~ rbdm,
-      data = mdf,
-      method = "lm",
-      trControl = ctrl
-)
+klm <- map(kmdf,lm_decile) # create lists, one for each model
 
+#---- extract info
 
+tbk <- tibble(klm=klm) %>%   # need to be in dataframe to unnest
+  unnest_wider(klm)          # make it wide, where each list is a column
 
-,   # cross validation
-beta      = map(lm, ~tidy(.)[["estimate"]][2]),     # extract beta
-results   = map(lm, glance),                        # add beta
-fit       = map(lm, augment, se_fit = TRUE)         # add beta
+df_loss <- tbk$loss %>%
+  map_df(rbind) %>%
+  group_by(decile) %>%
+  summarise_all(mean)
+
+ggplot(data = df_loss,
+       aes(x = decile,
+           y = mae)
+       ) +
+  geom_point() +
+  geom_line()  +
+  scale_x_continuous(breaks = c(1:10))
+
 
 #----------------------------------------------------------
 #
