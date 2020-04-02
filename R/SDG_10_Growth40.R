@@ -64,12 +64,17 @@ p <- ggplot(data) +
   ) +
   xlab("Growth") +
   ylab("") +
-  geom_text(data=data, aes(y=id, x = -7, label = countrycode), angle = 90, alpha=0.6, size=3) +
-  geom_text(data=a, aes(y=mean, x = 12, label = region), angle = 0, alpha=0.6, size=5) +
+  geom_text(data=data, aes(y=id, x = -5.5, label = countrycode), angle = 90, alpha=0.6, size=4) +
+  geom_text(data=a, aes(y=mean, x = 10.5, label = region), angle = 0, alpha=0.6, size=8) +
   geom_segment(data= a, aes(y=max, yend=max, x=-5, xend=10), color=rgb(0,0,0,0.3)) +
   geom_vline(xintercept = 0, color = "red",  linetype="dashed")
 
 p
 
+# ggsave(filename = "G_B40.png",
+#        plot = p,
+#        device='png',
+#        height = 300, width = 500, dpi = 300,
+#        limitsize = F, units = "mm")
 
 
