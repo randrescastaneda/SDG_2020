@@ -21,51 +21,6 @@ add_and <- function(x) {
 
 source("R/povcalnet_iterate.R")
 library("povcalnetR")
-
-# rcv_dist <- function(country,
-#                      year,
-#                      step = .05,
-#                      pl = 0.01) {
-#   print(paste("workging on", country, year))
-#   h <- 0
-#   pl <- pl
-#   r <- tibble()
-#
-#
-#   tryCatch(
-#     expr = {
-#       while (h <= .9999) {
-#         df <- povcalnet(
-#           country = country,
-#           povline = pl,
-#           year = year,
-#           fill_gaps = TRUE
-#         )
-#         r  <- bind_rows(r, df)
-#         pl <-  pl + step
-#         h  <- df[["headcount"]]
-#       }
-#
-#       return(r)
-#     },
-#     # end of expr section
-#
-#     error = function(e) {
-#       re <- list(message = e$message,
-#                  iteration = pl)
-#       return(re)
-#     } # end of error section
-#
-#   ) # End of trycatch
-#
-# }
-#
-
-
-
-
-
-
 rcv_dist <- function(country,
                      year,
                      step = .05,
