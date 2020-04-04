@@ -43,17 +43,21 @@ cty_yr <- as.list(
 
 
 # cty_yr <- list(
-#   country  = c("ARG", "ARG", "COL", "COL"),
-#   year     =  c(2002, 2015, 2002, 2015)
-# )
+#    country  = c("ARG", "ARG", "COL", "COL"),
+#    year     =  c(2002, 2015, 2002, 2015)
+#  )
 
 
+# rvd_dists <- pmap(cty_yr, rcv_dist, step = 10, pl = 1)
 rvd_dists <- pmap(cty_yr, rcv_dist, step = .5, pl = .5)
 
 names(rvd_dists) <- as_tibble(cty_yr) %>%
   transmute(paste0(country,year))  %>%
   pull()
 
+
 str(rvd_dists)
 
 write_rds(rvd_dists, "data/recovered_dist.rds")
+
+
