@@ -38,13 +38,18 @@ rcv_dist <- function(country, year, qtl = 500) {
                                   goal = .999,
                                   tolerance = 4) %>%
         select(threshold) %>%
-        pull()
+        pull() %>%
+        ceiling()
 
       step <- round(max_th/qtl, digits = 2)
 
       pls <- seq(from = 0.01,
                  to = max_th,
                  by = step)
+
+      if (pls[length(pls)] < max_th) {
+        pls <- c(pls, max_th)
+      }
 
       pb <- progress_bar$new(total = length(pls))
       povcalcall <- function(pl, country, year) {
