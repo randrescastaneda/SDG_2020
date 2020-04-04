@@ -12,7 +12,7 @@ add_and <- function(x) {
     y <- paste(x[1], "and", x[2])
   }
   else {
-    y <- c(x[1:lx-1], paste("and", x[lx]))
+    y <- c(x[1:lx - 1], paste("and", x[lx]))
     y <- paste(y, collapse = ", ")
   }
   return(y)
@@ -21,48 +21,105 @@ add_and <- function(x) {
 
 source("R/povcalnet_iterate.R")
 library("povcalnetR")
-rcv_dist <- function(country, year, qtl = 500) {
 
+# rcv_dist <- function(country,
+#                      year,
+#                      step = .05,
+#                      pl = 0.01) {
+#   print(paste("workging on", country, year))
+#   h <- 0
+#   pl <- pl
+#   r <- tibble()
+#
+#
+#   tryCatch(
+#     expr = {
+#       while (h <= .9999) {
+#         df <- povcalnet(
+#           country = country,
+#           povline = pl,
+#           year = year,
+#           fill_gaps = TRUE
+#         )
+#         r  <- bind_rows(r, df)
+#         pl <-  pl + step
+#         h  <- df[["headcount"]]
+#       }
+#
+#       return(r)
+#     },
+#     # end of expr section
+#
+#     error = function(e) {
+#       re <- list(message = e$message,
+#                  iteration = pl)
+#       return(re)
+#     } # end of error section
+#
+#   ) # End of trycatch
+#
+# }
+#
+
+
+
+
+
+
+rcv_dist <- function(country,
+                     year,
+                     step = .05,
+                     pl = 0.01,
+                     maxiter = 5,
+                     giveup_lim  = 10) {
   print(paste("workging on", country, year))
-  tryCatch(
-    expr = {
-      # Your code...
-      max_th <- povcalnet_iterate(country = country,
-                                  year = year,
-                                  goal = .999,
-                                  tolerance = 4) %>%
-        select(threshold) %>%
-        pull() %>%
-        ceiling()
+  h      <- 0
+  pl     <- pl
+  r      <- tibble()
+  giveup <- 0
+  f  <- 0  # no failure
 
-      step <- round(max_th/qtl, digits = 2)
+  while (h <= .9999) {
+    tryCatch(
+      expr = {
+        # Your code...
+        h0 <- h
+        df <- povcalnet(
+          country = country,
+          povline = pl,
+          year = year,
+          fill_gaps = TRUE
+        )
 
-      pls <- seq(from = 0.01,
-                 to = max_th,
-                 by = step)
+        h  <- df[["headcount"]]
 
-      if (pls[length(pls)] < max_th) {
-        pls <- c(pls, max_th)
-      }
+        # if not identical poverty, then save
+        if (!(identical(round(h, digits = 4), round(h0, digits = 4)))) {
+          r  <- bind_rows(r, df)
+        }
 
-      pb <- progress_bar$new(total = length(pls))
-      povcalcall <- function(pl, country, year) {
-        pb$tick()
-        df <- povcalnet(country = country, povline = pl, year = year)
-        return(df)
-      }
+        pl <-  pl + step
+        f  <- 0  # no failure
+      },
+      # end of expr section
 
-      cty_data <- map_df(pls, povcalcall, country = country, year = year)
+      error = function(e) {
+        f <-  f + 1
+        if (f > maxiter) {
+          pl <-  pl + step
+          giveup <- giveup + 1
+        }
+        if (giveup > giveup_lim) {
+          re <- list(message = e$message,
+                     iteration = pl)
+          return(re)
+        }
+      } # end of finally section
 
+    ) # End of trycatch
 
-      return(cty_data)
-    }, # end of expr section
+  } # end of while
 
-    error = function(e) {
-      return(e$message)
-    } # end of error section
-
-  ) # End of trycatch
+  return(r)
 
 }
-

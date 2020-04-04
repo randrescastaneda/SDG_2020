@@ -25,15 +25,16 @@ library("janitor")
 #----------------------------------------------------------
 source("R/utils.R")
 
+
 #----------------------------------------------------------
 #   prepare data
 #----------------------------------------------------------
 
 lc <- read_rds("data/recovered_dist.rds")
-dfr <- rcv_dist(country = "COL", year = 2015)
+dfr <- rcv_dist(country = "COL", year = 2015,  step = 1, pl = 1)
 
-df <- dfr
-df <- lc$COL2015 %>%
+.df <- lc$COL2015 %>%
+df <- dfr %>%
   arrange(povertyline) %>%
   mutate(
     population = population*1e6,

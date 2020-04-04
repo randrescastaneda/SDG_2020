@@ -26,51 +26,7 @@ library("progress")
 #   subfunctions
 #----------------------------------------------------------
 source("R/povcalnet_iterate.R")
-
-rcv_dist <- function(country, year, qtl = 500) {
-
-  print(paste("workging on", country, year))
-  tryCatch(
-    expr = {
-      # Your code...
-      max_th <- povcalnet_iterate(country = country,
-                                  year = year,
-                                  goal = .999,
-                                  tolerance = 4) %>%
-        select(threshold) %>%
-        pull() %>%
-        ceiling()
-
-      step <- round(max_th/qtl, digits = 2)
-
-      pls <- seq(from = 0.01,
-                 to = max_th,
-                 by = step)
-
-      if (pls[length(pls)] < max_th) {
-        pls <- c(pls, max_th)
-      }
-
-      pb <- progress_bar$new(total = length(pls))
-      povcalcall <- function(pl, country, year) {
-        pb$tick()
-        df <- povcalnet(country = country, povline = pl, year = year)
-        return(df)
-      }
-
-      cty_data <- map_df(pls, povcalcall, country = country, year = year)
-
-
-      return(cty_data)
-    }, # end of expr section
-
-    error = function(e) {
-      return(e$message)
-    } # end of error section
-
-  ) # End of trycatch
-
-}
+source("R/utils.R")
 
 #----------------------------------------------------------
 #   Set up
@@ -92,7 +48,7 @@ cty_yr <- as.list(
 # )
 
 
-rvd_dists <- pmap(cty_yr, rcv_dist, qtl = 500)
+rvd_dists <- pmap(cty_yr, rcv_dist, step = .5, pl = .5)
 
 names(rvd_dists) <- as_tibble(cty_yr) %>%
   transmute(paste0(country,year))  %>%
