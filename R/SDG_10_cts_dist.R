@@ -23,14 +23,16 @@ library("janitor")
 #----------------------------------------------------------
 #   subfunctions
 #----------------------------------------------------------
-
+source("R/utils.R")
 
 #----------------------------------------------------------
 #   prepare data
 #----------------------------------------------------------
 
 lc <- read_rds("data/recovered_dist.rds")
+dfr <- rcv_dist(country = "COL", year = 2015)
 
+df <- dfr
 df <- lc$COL2015 %>%
   arrange(povertyline) %>%
   mutate(
@@ -100,3 +102,17 @@ h <- df$headcount[20]
 z <- df$povertyline[20]
 n <- N*h
 (z*(n-G*N))/n
+
+
+
+
+aa <- povcalnet_iterate(country = "COL",
+                  year = 2015,
+                  goal = .999,
+                  tolerance = 4)
+
+dta <- df %>%
+  select(welfare, weight, gini)
+
+
+haven::write_dta(dta, paste0(tdirp, "/dftest.dta"))
