@@ -32,7 +32,7 @@ rcv_dist <- function(country,
   pl     <- pl
   r      <- tibble()
   giveup <- 0
-  f  <- 0  # no failure
+  f      <- 0  # no failure
 
   while (h <= .9999) {
     tryCatch(
@@ -65,9 +65,8 @@ rcv_dist <- function(country,
           giveup <- giveup + 1
         }
         if (giveup > giveup_lim) {
-          re <- list(message = e$message,
-                     iteration = pl)
-          return(re)
+          r <- tibble(message = e$message,
+                      iteration = pl)
         }
       } # end of finally section
 
