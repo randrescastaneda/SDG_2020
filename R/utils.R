@@ -48,6 +48,12 @@ rcv_dist <- function(country,
 
         h  <- df[["headcount"]]
 
+        if (length(h) == 0) {
+          r <- tibble(message = paste("NO data available in", country, year),
+                      iteration = pl)
+          h <- 1.1
+        }
+
         # if not identical poverty, then save
         if (!(identical(round(h, digits = 4), round(h0, digits = 4)))) {
           r  <- bind_rows(r, df)
