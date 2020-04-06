@@ -31,10 +31,10 @@ source("R/utils.R")
 #----------------------------------------------------------
 
 lc <- read_rds("data/recovered_dist.rds")
-dfr <- rcv_dist(country = "COL", year = 2015,  step = 1, pl = 1)
+dfr <- rcv_dist(country = "COL", year = 2015,  step = 0.5, pl = 0.5)
 
-.df <- lc$COL2015 %>%
-df <- dfr %>%
+# df <- dfr %>%
+df <- lc$COL2015 %>%
   arrange(povertyline) %>%
   mutate(
     population = population*1e6,
@@ -117,3 +117,12 @@ dta <- df %>%
 
 
 haven::write_dta(dta, paste0(tdirp, "/dftest.dta"))
+
+
+
+walk(lc, ~ if (length(unique(.x$regioncode)) > 1) {
+      print(paste(unique(.x$countrycode), unique(.x$year)))
+   }
+)
+
+

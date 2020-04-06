@@ -37,14 +37,17 @@ year <- c(1993,2002, 2015)
 cts <- unique(cr$countrycode)
 
 cty_yr <- as.list(
-  expand.grid(year = year,
-  country = cts)
+  expand.grid(
+    year = year,
+    country = cts,
+    stringsAsFactors = FALSE
   )
+)
 
 
 # cty_yr <- list(
-#    country  = c("ARG", "ARG", "COL", "COL"),
-#    year     =  c(2002, 2015, 2002, 2015)
+#    country  = c("ARG", "COL"),
+#    year     =  c(2015, 2015)
 #  )
 
 

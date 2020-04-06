@@ -37,7 +37,6 @@ rcv_dist <- function(country,
   while (h <= .9999) {
     tryCatch(
       expr = {
-        # Your code...
         h0 <- h
         df <- povcalnet(
           country = country,
@@ -51,8 +50,16 @@ rcv_dist <- function(country,
         if (length(h) == 0) {
           r <- tibble(message = paste("NO data available in", country, year),
                       iteration = pl)
-          h <- 1.1
+          break
         }
+
+        # Only save if h > h0. Sometimes, API does not work correctly.
+        if (h < h0) {
+          f <- f + 1
+          pl <-  pl + step
+          break
+        }
+
 
         # if not identical poverty, then save
         if (!(identical(round(h, digits = 4), round(h0, digits = 4)))) {
