@@ -93,8 +93,12 @@ rcv_dist <- function(country,
           r <- tibble(message = e$message,
                       iteration = pl)
         }
-      } # end of finally section
+      }, # end of error section
 
+      warning = function(w) {
+        print(paste("warning in", country, year, pl))
+        print(w)
+      }
     ) # End of trycatch
 
   } # end of while
@@ -102,3 +106,24 @@ rcv_dist <- function(country,
   return(r)
 
 }
+
+
+tryCatch(
+  expr = {
+    # Your code...
+    Code
+  }, # end of expr section
+
+  error = function(e) {
+    # Do this if an error is caught...
+  }, # end of error section
+
+  warning = function(w) {
+    # Do this if an warning is caught...
+  }, # end of warning section
+
+  finally = {
+    # Do this at the end before quitting the tryCatch structure...
+  } # end of finally section
+
+) # End of trycatch
