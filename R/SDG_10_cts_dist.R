@@ -172,25 +172,23 @@ lc <- Filter(function(x) !(is.null(dim(x))), lc)  # remove null element of list
 
 
 
-
-
 gt <- lc %>%   # Gini total
   map_dbl(gini,welfare, weight) %>%
-  tibble(gini = .,
+  tibble(gt = .,
         id = attr(., "names")
         )
 
 g95 <- lc %>%
   map(~.x[.x[["q"]] < 20,]) %>%
   map_dbl(gini,welfare, weight) %>%
-  tibble(gini = .,
+  tibble(g95 = .,
          id = attr(., "names")
   )
 
 g0595 <- lc %>%
   map(~.x[.x[["q"]] > 1 & .x[["q"]] < 20,]) %>%
   map_dbl(gini,welfare, weight) %>%
-  tibble(gini = .,
+  tibble(g0595 = .,
          id = attr(., "names")
   )
 
@@ -198,7 +196,7 @@ g0595 <- lc %>%
 g90 <- lc %>%
   map(~.x[.x[["q"]] < 19,]) %>%
   map_dbl(gini,welfare, weight) %>%
-  tibble(gini = .,
+  tibble(g90 = .,
          id = attr(., "names")
   )
 
@@ -206,50 +204,16 @@ g90 <- lc %>%
 g1090 <- lc %>%
   map(~.x[.x[["q"]] > 2 & .x[["q"]] < 19,]) %>%
   map_dbl(gini,welfare, weight) %>%
-  tibble(gini = .,
+  tibble(g1090 = .,
          id = attr(., "names")
   )
 
-
-
-
-
-a <- lc %>%
-  map(~{.x[.x$q < 20,]})
-
-a <- lc %>%
-  map(~print(.x[["q"]]))
-
-a <- lc %>%
-  map(filter, q < 20)
-
-a <- lc %>%
-  map(~filter(.x$q < 20))
-
-
-a <- lc %>%
-  map(ff)
-
-
-filter(df, q < 20)
-
-ovv_info(df, one_val_var)
-
-gini(df, welfare, weight)
-
-a <- eq_quantiles(df, welfare, weight)
-
-
-lc2 %>%
-  map(eq_quantiles, welfare, weight, 20)
-
-
-
-walk(lc, ~ if (is.null(dim(.x))) {
-  print(paste(unique(.x$countrycode), unique(.x$year)))
-}
-)
-
+gdf <- gt %>%
+  inner_join(g95)   %>%
+  inner_join(g0595) %>%
+  inner_join(g90)   %>%
+  inner_join(g1090) %>%
+  select(id, everything())
 
 
 
@@ -311,5 +275,47 @@ y    <- y[ordy]      # order welfare
 
 N    <- sum(w)       # population size
 cw   <- cumsum(w)    # Cumulative weights
+
+
+
+
+
+
+a <- lc %>%
+  map(~{.x[.x$q < 20,]})
+
+a <- lc %>%
+  map(~print(.x[["q"]]))
+
+a <- lc %>%
+  map(filter, q < 20)
+
+a <- lc %>%
+  map(~filter(.x$q < 20))
+
+
+a <- lc %>%
+  map(ff)
+
+
+filter(df, q < 20)
+
+ovv_info(df, one_val_var)
+
+gini(df, welfare, weight)
+
+a <- eq_quantiles(df, welfare, weight)
+
+
+lc2 %>%
+  map(eq_quantiles, welfare, weight, 20)
+
+
+
+walk(lc, ~ if (is.null(dim(.x))) {
+  print(paste(unique(.x$countrycode), unique(.x$year)))
+}
+)
+
 
 
