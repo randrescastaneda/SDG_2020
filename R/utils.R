@@ -23,6 +23,7 @@ source("R/povcalnet_iterate.R")
 library("povcalnetR")
 rcv_dist <- function(country,
                      year,
+                     coverage,
                      step = .05,
                      pl = 0.01,
                      maxiter = 5,
@@ -42,7 +43,8 @@ rcv_dist <- function(country,
           country = country,
           povline = pl,
           year = year,
-          fill_gaps = TRUE
+          fill_gaps = TRUE,
+          coverage = coverage
         )
 
         h  <- df[["headcount"]]
@@ -97,7 +99,9 @@ rcv_dist <- function(country,
 
       warning = function(w) {
         print(paste("warning in", country, year, pl))
-        print(w)
+        print(w$message)
+        pl <-  pl + step
+        f  <- 0  # no failure
       }
     ) # End of trycatch
 
@@ -106,24 +110,3 @@ rcv_dist <- function(country,
   return(r)
 
 }
-
-
-tryCatch(
-  expr = {
-    # Your code...
-    Code
-  }, # end of expr section
-
-  error = function(e) {
-    # Do this if an error is caught...
-  }, # end of error section
-
-  warning = function(w) {
-    # Do this if an warning is caught...
-  }, # end of warning section
-
-  finally = {
-    # Do this at the end before quitting the tryCatch structure...
-  } # end of finally section
-
-) # End of trycatch

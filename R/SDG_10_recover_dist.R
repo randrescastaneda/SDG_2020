@@ -33,21 +33,30 @@ source("R/utils.R")
 #----------------------------------------------------------
 cr <- read_rds("data/cty_regs_names.rds")
 
-year <- c(1993,2002, 2015)
+years <- c(1993,2002, 2015)
 cts <- unique(cr$countrycode)
 
-cty_yr <- as.list(
-  expand.grid(
-    year = year,
-    country = cts,
-    stringsAsFactors = FALSE
-  )
-)
+cty_yr <- expand.grid(year = years,
+                      country = cts,
+                      coverage = "national",
+                      stringsAsFactors = FALSE) %>%
+  mutate(
+    coverage = if_else(country == "ARG", "urban", coverage)
+  ) %>%
+  filter(!(country  %in% c("IND", "IDN", "CHN") )) %>%
+  bind_rows(
+      expand.grid(year = years,
+                  country = c("IND", "IDN", "CHN"),
+                  coverage = c("urban", "rural"),
+                  stringsAsFactors = FALSE)
+  ) %>%
+  as.list()
 
 
 # cty_yr <- list(
-#    country  = c("ARG", "COL"),
-#    year     =  c(2015, 2015)
+#    country  = c("CHN", "CHN"),
+#    year     =  c(2015, 2015),
+#    coverage =  c("urban", "rural")
 #  )
 
 
@@ -55,7 +64,7 @@ cty_yr <- as.list(
 rvd_dists <- pmap(cty_yr, rcv_dist, step = .5, pl = .5)
 
 names(rvd_dists) <- as_tibble(cty_yr) %>%
-  transmute(paste0(country,year))  %>%
+  transmute(paste0(country,year, coverage))  %>%
   pull()
 
 
