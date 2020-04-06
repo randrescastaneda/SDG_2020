@@ -19,6 +19,7 @@
 library("tidyverse")
 library("data.table")
 library("janitor")
+library("Hmisc")
 
 #----------------------------------------------------------
 #   subfunctions
@@ -26,17 +27,19 @@ library("janitor")
 source("R/utils.R")
 
 
-gini <- function(x, y, w) {
+gini <- function(x, y, w = NULL) {
+
   y <- deparse(substitute(y))
   w <- deparse(substitute(w))
 
-  if (length(w) == 0) {
+  y    <- x[[y]]   # welfare
+
+  if (w == "NULL") {
     w = rep(1, times = length(y))
   } else {
     w    <- x[[w]]    # weigth
   }
 
-  y    <- x[[y]]   # welfare
   ordy <- order(y)     # order of y
 
   w    <- w[ordy]      #order weight
@@ -57,7 +60,33 @@ gini <- function(x, y, w) {
   return(gini)
 }
 
+eq_quantiles <- function(x, y, w, nq = 10, name = "q") {
+  tryCatch(
+    expr = {
+      y <- enquo(y)
+      w <- enquo(w)
 
+      df <- x %>%
+        arrange(!! y) %>%
+        mutate(
+          N  = sum(!!w),
+          cw = cumsum(!!w),
+          !! name :=  floor(cw/((N+1)/nq)) + 1
+        ) %>%
+        select(-c(N,cw))
+
+    }, # end of expr section
+
+    error = function(e) {
+      df <- tibble(
+        message = e$message
+      )
+    }
+
+  ) # End of trycatch
+
+  return(df)
+}
 
 create_welf <- function(x) {
   tryCatch(
@@ -82,18 +111,34 @@ create_welf <- function(x) {
 
           # per capita
           welfare    = welfare/weight
-        )
+        ) %>%
+        select(povertyline, headcount, popshr, weight, welfare)
+
     }, # end of expr section
 
     error = function(e) {
-      df <- tibble(
-        message = e$message
-      )
+      print(e$message)
     }
 
   ) # End of trycatch
 
   return(df)
+}
+
+ovv_info <- function(df, one_val_var){
+  tryCatch(
+    expr = {
+      df %>%
+        summarise_at(one_val_var,
+                     unique)
+    }, # end of expr section
+
+    error = function(e) {
+      tibble(
+        message = e$message
+      )
+    } # end of finally section
+  ) # End of trycatch
 }
 
 
@@ -104,10 +149,30 @@ create_welf <- function(x) {
 
 # dfr <- rcv_dist(country = "COL", year = 2015,  step = 0.5, pl = 0.5)
 lc <- read_rds("data/recovered_dist.rds")
-lc <- lc %>%
-  map(create_welf)
+lc <- Filter(function(x) !(is.null(dim(x))), lc)  # remove null element of list
 
-# df <- lc$COL2015
+# unique-value variables
+one_val_var <- lc[[1]] %>%
+  map(n_distinct) %>%
+  imap_dfr(~tibble(value = .x,
+                   var   = .y)) %>%
+  filter(value == 1) %>%
+  select(var) %>%
+  pull()
+
+lc_info <- lc %>%
+  map(ovv_info, one_val_var)
+
+# create variables
+lc <- lc %>%
+  map(create_welf) %>%
+  map(eq_quantiles, welfare, weight, 20)
+
+lc <- Filter(function(x) !(is.null(dim(x))), lc)  # remove null element of list
+
+
+
+
 
 gt <- lc %>%   # Gini total
   map_dbl(gini,welfare, weight) %>%
@@ -115,24 +180,81 @@ gt <- lc %>%   # Gini total
         id = attr(., "names")
         )
 
+g95 <- lc %>%
+  map(~.x[.x[["q"]] < 20,]) %>%
+  map_dbl(gini,welfare, weight) %>%
+  tibble(gini = .,
+         id = attr(., "names")
+  )
+
+g0595 <- lc %>%
+  map(~.x[.x[["q"]] > 1 & .x[["q"]] < 20,]) %>%
+  map_dbl(gini,welfare, weight) %>%
+  tibble(gini = .,
+         id = attr(., "names")
+  )
+
+
+g90 <- lc %>%
+  map(~.x[.x[["q"]] < 19,]) %>%
+  map_dbl(gini,welfare, weight) %>%
+  tibble(gini = .,
+         id = attr(., "names")
+  )
+
+
+g1090 <- lc %>%
+  map(~.x[.x[["q"]] > 2 & .x[["q"]] < 19,]) %>%
+  map_dbl(gini,welfare, weight) %>%
+  tibble(gini = .,
+         id = attr(., "names")
+  )
+
+
+
+
+
+a <- lc %>%
+  map(~{.x[.x$q < 20,]})
+
+a <- lc %>%
+  map(~print(.x[["q"]]))
+
+a <- lc %>%
+  map(filter, q < 20)
+
+a <- lc %>%
+  map(~filter(.x$q < 20))
+
+
+a <- lc %>%
+  map(ff)
+
+
+filter(df, q < 20)
+
+ovv_info(df, one_val_var)
+
+gini(df, welfare, weight)
+
+a <- eq_quantiles(df, welfare, weight)
+
+
+lc2 %>%
+  map(eq_quantiles, welfare, weight, 20)
+
+
+
+walk(lc, ~ if (is.null(dim(.x))) {
+  print(paste(unique(.x$countrycode), unique(.x$year)))
+}
+)
 
 
 
 
 
 
-
-#----------------------------------------------------------
-#
-#----------------------------------------------------------
-
-#----------------------------------------------------------
-#
-#----------------------------------------------------------
-
-#----------------------------------------------------------
-#
-#----------------------------------------------------------
 
 #----------------------------------------------------------
 #
@@ -166,5 +288,28 @@ walk(lc, ~ if (length(unique(.x$regioncode)) > 1) {
       print(paste(unique(.x$countrycode), unique(.x$year)))
    }
 )
+
+
+
+
+
+
+y <- deparse(substitute(y))
+y    <- x[[y]]   # welfare
+
+w <- deparse(substitute(w))
+if (w == "NULL") {
+  w = rep(1, times = length(y))
+} else {
+  w    <- x[[w]]    # weigth
+}
+
+ordy <- order(y)     # order of y
+
+w    <- w[ordy]      #order weight
+y    <- y[ordy]      # order welfare
+
+N    <- sum(w)       # population size
+cw   <- cumsum(w)    # Cumulative weights
 
 
