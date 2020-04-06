@@ -42,9 +42,9 @@ rcv_dist <- function(country,
         df <- povcalnet(
           country = country,
           povline = pl,
+          coverage = coverage,
           year = year,
-          fill_gaps = TRUE,
-          coverage = coverage
+          fill_gaps = TRUE
         )
 
         h  <- df[["headcount"]]
@@ -53,6 +53,7 @@ rcv_dist <- function(country,
         if (length(h) == 0) {
           f <- f + 1
           pl <-  pl + step
+          h <- h0
           if (f <= maxiter) {
             next
           } else {
@@ -99,9 +100,7 @@ rcv_dist <- function(country,
 
       warning = function(w) {
         print(paste("warning in", country, year, pl))
-        print(w$message)
-        pl <-  pl + step
-        f  <- 0  # no failure
+        print(w)
       }
     ) # End of trycatch
 

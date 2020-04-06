@@ -54,9 +54,10 @@ cty_yr <- expand.grid(year = years,
 
 
 # cty_yr <- list(
-#    country  = c("CHN", "CHN"),
-#    year     =  c(2015, 2015),
-#    coverage =  c("urban", "rural")
+#    country  = c("XKX", "XKX"),
+#    year     =  c(1993, 2002),
+#    # coverage =  c("urban", "rural")
+#    coverage =  c("national", "national")
 #  )
 
 
@@ -73,3 +74,6 @@ str(rvd_dists)
 write_rds(rvd_dists, "data/recovered_dist.rds")
 
 
+
+
+# a <- rcv_dist(country = "XKX", year = 1993,coverage = "national", step = 20, pl = 1)
