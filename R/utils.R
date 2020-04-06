@@ -47,19 +47,31 @@ rcv_dist <- function(country,
 
         h  <- df[["headcount"]]
 
+        # is legnth of h is zero, try five times
         if (length(h) == 0) {
-          r <- tibble(message = paste("NO data available in", country, year),
-                      iteration = pl)
-          break
+          f <- f + 1
+          pl <-  pl + step
+          if (f <= maxiter) {
+            next
+          } else {
+            r <- tibble(message = paste("NO data available in", country, year),
+                        iteration = pl)
+            break
+          }
         }
 
         # Only save if h > h0. Sometimes, API does not work correctly.
         if (h < h0) {
           f <- f + 1
           pl <-  pl + step
-          break
+          if (f <= maxiter) {
+            next
+          } else {
+            r <- tibble(message = paste("headcount lower at higher pl", country, year),
+                        iteration = pl)
+            break
+          }
         }
-
 
         # if not identical poverty, then save
         if (!(identical(round(h, digits = 4), round(h0, digits = 4)))) {
