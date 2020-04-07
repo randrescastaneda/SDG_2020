@@ -51,4 +51,16 @@ cr <- povcalnet() %>%
     countryname = gsub("(.*)(,.*)", "\\1", countryname)
   )
 
+inc_gr <- WDI::WDI(indicator = c("SP.POP.TOTL"),
+                   start = 2018,
+                   end = 2018,
+                   extra = TRUE) %>%
+  select(countrycode = iso3c,
+         incomegroup = income,
+         lending)
+
+cr <- cr %>%
+  left_join(inc_gr, by = "countrycode")
+
+
 write_rds(cr, "data/cty_regs_names.rds")

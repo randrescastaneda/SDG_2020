@@ -26,40 +26,6 @@ library("Hmisc")
 #----------------------------------------------------------
 source("R/utils.R")
 
-
-gini <- function(x, y, w = NULL) {
-
-  y <- deparse(substitute(y))
-  w <- deparse(substitute(w))
-
-  y    <- x[[y]]   # welfare
-
-  if (w == "NULL") {
-    w = rep(1, times = length(y))
-  } else {
-    w    <- x[[w]]    # weigth
-  }
-
-  ordy <- order(y)     # order of y
-
-  w    <- w[ordy]      #order weight
-  y    <- y[ordy]      # order welfare
-
-  N    <- sum(w)       # population size
-  Y    <- sum(y*w)     # total welfare
-
-  cw   <- cumsum(w)    # Cumulative weights
-  cy   <- cumsum(y*w)  # Cumulative welfare
-
-  sn   <-  w/N         # share of population
-  my   <- weighted.mean(y, w, na.rm = TRUE)
-
-  i    <- (2*cw - w + 1)/2
-  t2   <- y*(N - i + 1)
-  gini <- 1+(1/N) - (2/(my*N^2))*sum(t2*w)
-  return(gini)
-}
-
 eq_quantiles <- function(x, y, w, nq = 10, name = "q") {
   tryCatch(
     expr = {
@@ -129,8 +95,8 @@ ovv_info <- function(df, one_val_var){
   tryCatch(
     expr = {
       df %>%
-        summarise_at(one_val_var,
-                     unique)
+        slice(1) %>%
+        select(one_val_var)
     }, # end of expr section
 
     error = function(e) {
@@ -164,158 +130,149 @@ lc_info <- lc %>%
   map(ovv_info, one_val_var)
 
 # create variables
-lc <- lc %>%
+lc2 <- lc %>%
   map(create_welf) %>%
   map(eq_quantiles, welfare, weight, 20)
 
-lc <- Filter(function(x) !(is.null(dim(x))), lc)  # remove null element of list
-
-
-
-gt <- lc %>%   # Gini total
-  map_dbl(gini,welfare, weight) %>%
-  tibble(gt = .,
-        id = attr(., "names")
-        )
-
-g95 <- lc %>%
-  map(~.x[.x[["q"]] < 20,]) %>%
-  map_dbl(gini,welfare, weight) %>%
-  tibble(g95 = .,
-         id = attr(., "names")
-  )
-
-g0595 <- lc %>%
-  map(~.x[.x[["q"]] > 1 & .x[["q"]] < 20,]) %>%
-  map_dbl(gini,welfare, weight) %>%
-  tibble(g0595 = .,
-         id = attr(., "names")
-  )
-
-
-g90 <- lc %>%
-  map(~.x[.x[["q"]] < 19,]) %>%
-  map_dbl(gini,welfare, weight) %>%
-  tibble(g90 = .,
-         id = attr(., "names")
-  )
-
-
-g1090 <- lc %>%
-  map(~.x[.x[["q"]] > 2 & .x[["q"]] < 19,]) %>%
-  map_dbl(gini,welfare, weight) %>%
-  tibble(g1090 = .,
-         id = attr(., "names")
-  )
-
-gdf <- gt %>%
-  inner_join(g95)   %>%
-  inner_join(g0595) %>%
-  inner_join(g90)   %>%
-  inner_join(g1090) %>%
-  select(id, everything())
-
-
-
+lc2 <- Filter(function(x) !(is.null(dim(x))), lc2)  # remove null element of list
+write_rds(lc2, "data/cts_dist.rds")
 
 
 
 #----------------------------------------------------------
+# jumps in Gap
+#----------------------------------------------------------
+
+y <- lc$DZA1993national %>%
+  filter(regioncode == "XX") %>%
+  arrange(povertyline) %>%
+  mutate(
+    population = population*1e6,
+    popshr     = if_else (row_number() > 1,         # population share
+                          headcount - lag(headcount),
+                          headcount),
+    weight     = population*popshr, # people below threshold
+
+    # cumm welfare
+    welfare   = povertyline*(population*headcount - population*povertygap),
+
+    # cnvert to bin from cumm
+    # welfare   =  if_else (row_number() > 1,
+    #                       welfare - lag(welfare),
+    #                       welfare),
+    #
+    # # per capita
+    # welfare    = welfare/weight
+  ) %>%
+  select(povertyline, headcount, povertygap, population, popshr, weight, welfare)
+
+View(y)
+
+ggplot(y, aes(x = povertyline, y = povertygap)) +
+  geom_point() +
+  geom_line()
+
+ggplot(y, aes(x = povertyline, y = headcount)) +
+  geom_point() +
+  geom_line()
+
+
+
+
+
+# N <-  df$population[1]
+# G <-  df$povertygap[20]
+# m <- df$mean[1]
+# Y <- N*m
+# h <- df$headcount[20]
+# z <- df$povertyline[20]
+# n <- N*h
+# (z*(n-G*N))/n
 #
-#----------------------------------------------------------
-N <-  df$population[1]
-G <-  df$povertygap[20]
-m <- df$mean[1]
-Y <- N*m
-h <- df$headcount[20]
-z <- df$povertyline[20]
-n <- N*h
-(z*(n-G*N))/n
-
-
-
-
-aa <- povcalnet_iterate(country = "COL",
-                  year = 2015,
-                  goal = .999,
-                  tolerance = 4)
-
-dta <- df %>%
-  select(welfare, weight, gini)
-
-
-haven::write_dta(dta, paste0(tdirp, "/dftest.dta"))
-
-
-
-walk(lc, ~ if (length(unique(.x$regioncode)) > 1) {
-      print(paste(unique(.x$countrycode), unique(.x$year)))
-   }
-)
-
-
-
-
-
-
-y <- deparse(substitute(y))
-y    <- x[[y]]   # welfare
-
-w <- deparse(substitute(w))
-if (w == "NULL") {
-  w = rep(1, times = length(y))
-} else {
-  w    <- x[[w]]    # weigth
-}
-
-ordy <- order(y)     # order of y
-
-w    <- w[ordy]      #order weight
-y    <- y[ordy]      # order welfare
-
-N    <- sum(w)       # population size
-cw   <- cumsum(w)    # Cumulative weights
-
-
-
-
-
-
-a <- lc %>%
-  map(~{.x[.x$q < 20,]})
-
-a <- lc %>%
-  map(~print(.x[["q"]]))
-
-a <- lc %>%
-  map(filter, q < 20)
-
-a <- lc %>%
-  map(~filter(.x$q < 20))
-
-
-a <- lc %>%
-  map(ff)
-
-
-filter(df, q < 20)
-
-ovv_info(df, one_val_var)
-
-gini(df, welfare, weight)
-
-a <- eq_quantiles(df, welfare, weight)
-
-
-lc2 %>%
-  map(eq_quantiles, welfare, weight, 20)
-
-
-
-walk(lc, ~ if (is.null(dim(.x))) {
-  print(paste(unique(.x$countrycode), unique(.x$year)))
-}
-)
-
-
-
+#
+#
+#
+# aa <- povcalnet_iterate(country = "COL",
+#                   year = 2015,
+#                   goal = .999,
+#                   tolerance = 4)
+#
+# dta <- df %>%
+#   select(welfare, weight, gini)
+#
+#
+# haven::write_dta(dta, paste0(tdirp, "/dftest.dta"))
+#
+#
+#
+# walk(lc, ~ if (length(unique(.x$regioncode)) > 1) {
+#       print(paste(unique(.x$countrycode), unique(.x$year)))
+#    }
+# )
+#
+#
+#
+#
+#
+#
+# y <- deparse(substitute(y))
+# y    <- x[[y]]   # welfare
+#
+# w <- deparse(substitute(w))
+# if (w == "NULL") {
+#   w = rep(1, times = length(y))
+# } else {
+#   w    <- x[[w]]    # weigth
+# }
+#
+# ordy <- order(y)     # order of y
+#
+# w    <- w[ordy]      #order weight
+# y    <- y[ordy]      # order welfare
+#
+# N    <- sum(w)       # population size
+# cw   <- cumsum(w)    # Cumulative weights
+#
+#
+#
+#
+#
+#
+# a <- lc %>%
+#   map(~{.x[.x$q < 20,]})
+#
+# a <- lc %>%
+#   map(~print(.x[["q"]]))
+#
+# a <- lc %>%
+#   map(filter, q < 20)
+#
+# a <- lc %>%
+#   map(~filter(.x$q < 20))
+#
+#
+# a <- lc %>%
+#   map(ff)
+#
+#
+# filter(df, q < 20)
+#
+# ovv_info(df, one_val_var)
+#
+# gini(df, welfare, weight)
+#
+# a <- eq_quantiles(df, welfare, weight)
+#
+#
+# lc2 %>%
+#   map(eq_quantiles, welfare, weight, 20)
+#
+#
+#
+# map(lc, ~ if (is.null(dim(.x))) {
+#   print(paste(unique(.x$countrycode), unique(.x$year)))
+# }
+# )
+#
+#
+#
