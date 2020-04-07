@@ -69,7 +69,7 @@ names(rvd_dists) <- as_tibble(cty_yr) %>%
   pull()
 
 
-str(rvd_dists)
+# str(rvd_dists)
 
 write_rds(rvd_dists, "data/recovered_dist.rds")
 
