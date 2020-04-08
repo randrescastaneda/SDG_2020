@@ -1,0 +1,58 @@
+---
+output:
+  xaringan::moon_reader:
+    seal: false
+    css: ["css/sfah.css", "css/fonts.css", "default"]
+    self_contained: false
+    lib_dir: libs
+    mathjax: "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_HTMLorMML"
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: "16:9"
+      titleSlideClass: ["left", "middle", "inverse"]
+---
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+library(knitr)
+library(data.tree)
+
+knitr::opts_chunk$set(
+  warning = FALSE,
+  collapse = TRUE,
+  message = FALSE,
+  echo = FALSE,
+  fig.retina = 3
+)
+knitr::opts_knit$set(
+  root.dir = ".."
+)
+# options(knitr.table.format = "html")
+library(fontawesome) # from github: https://github.com/rstudio/fontawesome
+
+```
+
+class: inverse, right, bottom
+background-image: url(img/abst1.jpg)
+background-size: cover
+## SDG Atlas 2020
+
+## Goal 10: Inequality
+
+---
+```{r calculations}
+
+source("R/SDG_01_data.R")
+source("R/SDG_01_charts.R")
+
+```
+
+
+.left-column[
+.small[From 1990 to 2015,  billion people have escaped extreme poverty around the world. Yet,  since goal 1 aims to reduce extreme poverty to 3 percent of the population by 2030, at least  million still need to pull out of poverty.]
+]
+
+.right-column[
+This is the right column
+]
