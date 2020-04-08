@@ -58,6 +58,17 @@ gini <- function(x, y, w = NULL) {
   return(gini)
 }
 
+palette <- c("#1D6996", "#EDAD08", "#0F8554", "#5F4690",
+             "#66C5CC", "#F6CF71", "#F89C74", "#DCB0F2",
+             "#E17C05", "#CC503E", "#94346E", "#6F4070",
+             "#855C75", "#D9AF6B", "#AF6458", "#736F4C",
+             "#68855C", "#9C9C5E", "#A06177", "#8C785D",
+             "#FE88B1", "#C9DB74", "#8BE0A4", "#B497E7",
+             "#38A6A5", "#73AF48", "#87C55F", "#9EB9F3",
+             "#526A83", "#625377", "#994E95", "#666666",
+             "#467378", "#7C7C7C", "#D3B484", "#B3B3B3"
+             )
+scales::show_col(palette[1:12])
 
 lc2 <- read_rds("data/cts_dist.rds")
 cr  <- read_rds("data/cty_regs_names.rds")
@@ -116,6 +127,15 @@ gt_w <- g0100 %>%
   ) %>%
   left_join(cr, by = "countrycode")
 
+#--------- remove unnecessary objects
+rm(list=ls(pattern = "g\\d+"))
+rm(lc2)
+
+#----------------------------------------------------------
+#   wrangling data
+#----------------------------------------------------------
+
+
 gt_l <- gt_w %>%
   pivot_longer(cols           = starts_with("g"),
                names_to       = "gini_type",
@@ -134,7 +154,7 @@ gt_l <- gt_w %>%
 xvar <- "g1090"
 ggplot(data = gt_w,
        aes(x = get(xvar),
-           y = gt,
+           y = g0100,
            color = region)
 ) +
   geom_point() +
@@ -181,44 +201,231 @@ gt_l <- gt_w %>%
 
 
 #----------------------------------------------------------
-# Charts
+# prepare for Charts
 #----------------------------------------------------------
 
 
-# high difference
-n_ctries <- 20
+#--------- Find countries with largest changes
+n_ctries    <- 20
+slted_types <- c("0100", "0095", "0595", "0090", "1090")
+slted_types <- c("0100", "0095")
 
 gdf_p <- gt_l %>%
+  filter(gini_type  %in% slted_types) %>%
   arrange(year, -drg) %>%
   distinct(year, countrycode) %>%
   group_by(year) %>%
   filter(row_number() <= n_ctries) %>%
-  inner_join(gt_l, by = c("year", "countrycode")) %>%
+  inner_join(gt_l %>%
+               filter(gini_type  %in% slted_types),
+             by = c("year", "countrycode")) %>%
   ungroup() %>%
   filter(year == 2015)
+
+
+#--------- setup colors
+
+uniq_cty <- unique(gdf_p$countryname)
+uniq_reg <- unique(gdf_p$region)
+uniq_ing <- unique(gdf_p$incomegroup)
+
+cty_color <-  setNames(
+  rep(palette, ceiling(length(uniq_cty)/length(palette)))[1:length(uniq_cty)],
+  uniq_cty
+)
+
+reg_color <- gdf_p %>%
+  distinct(region, countryname) %>%
+  left_join (
+    tibble(
+      region = uniq_reg,
+      color  = rep(palette, ceiling(length(uniq_reg)/length(palette)))[1:length(uniq_reg)]
+    ),
+    by = "region"
+  ) %>%
+  select(countryname, color) %>%
+  tibble::deframe()
+
+
+#----------------------------------------------------------
+#   plot charts
+#----------------------------------------------------------
+
+#------------ Basic
+newggslopegraph(dataframe   = gdf_p,
+                Times       = gini_type,
+                Measurement = rg,
+                Grouping    = countryname,
+                LineColor   = "gray")
+
+# largest change
+cst_color <- gdf_p %>%
+  arrange(-drg) %>%
+  distinct(countryname) %>%
+  mutate(
+    color = if_else(row_number() == 1, palette[[1]], "gray80")
+  ) %>%
+  deframe()
 
 newggslopegraph(dataframe   = gdf_p,
                 Times       = gini_type,
                 Measurement = rg,
-                Grouping    = countryname)
+                Grouping    = countryname,
+                LineColor   = cst_color)
+
+# second largest change
+cst_color <- gdf_p %>%
+  arrange(-drg) %>%
+  distinct(countryname) %>%
+  mutate(
+    color = c(palette[1:2], rep("gray80", n()-2))
+  ) %>%
+  deframe()
+
+newggslopegraph(dataframe   = gdf_p,
+                Times       = gini_type,
+                Measurement = rg,
+                Grouping    = countryname,
+                LineColor   = cst_color)
+
+
+# Other remarkable examples
+cst_color <- gdf_p %>%
+  arrange(-drg) %>%
+  distinct(countryname) %>%
+  mutate(
+    color = c(palette[1:5], rep("gray80", n()-5))
+  ) %>%
+  deframe()
+
+newggslopegraph(dataframe   = gdf_p,
+                Times       = gini_type,
+                Measurement = rg,
+                Grouping    = countryname,
+                LineColor   = cst_color)
+
+
+#--------- highlight specific groups
+
+# Assign colors to countries
+ing_color <- gdf_p %>%
+  distinct(incomegroup, countryname) %>%
+  left_join (
+    tibble(
+      incomegroup = uniq_ing,
+      color  = rep(palette, ceiling(length(uniq_ing)/length(palette)))[1:length(uniq_ing)]
+    ),
+    by = "incomegroup"
+  )
+
+
+# High Income countries
+cst_color <- ing_color %>%
+  mutate(
+    color = if_else(incomegroup == uniq_ing[1], color, "gray80")
+  ) %>%
+  select(countryname, color) %>%
+  tibble::deframe()
+
+newggslopegraph(dataframe   = gdf_p,
+                  Times       = gini_type,
+                  Measurement = rg,
+                  Grouping    = countryname,
+                  LineColor   = cst_color)
+
+
+newggslopegraph(dataframe   = gdf_p,
+                Times       = gini_type,
+                Measurement = g,
+                Grouping    = countryname,
+                LineColor   = cst_color)
 
 
 
+# Low income income countries
+cst_color <- ing_color %>%
+    mutate(
+      color = if_else(incomegroup == uniq_ing[3], color, "gray80")
+    ) %>%
+    select(countryname, color) %>%
+    tibble::deframe()
 
+newggslopegraph(dataframe   = gdf_p,
+                  Times       = gini_type,
+                  Measurement = rg,
+                  Grouping    = countryname,
+                  LineColor   = cst_color)
+
+
+# Lower middle income countries
+cst_color <- ing_color %>%
+    mutate(
+      color = if_else(incomegroup == uniq_ing[2], color, "gray80")
+    ) %>%
+    select(countryname, color) %>%
+    tibble::deframe()
+
+newggslopegraph(dataframe   = gdf_p,
+                  Times       = gini_type,
+                  Measurement = rg,
+                  Grouping    = countryname,
+                  LineColor   = cst_color)
+
+
+# Upper middle income countries
+cst_color <- ing_color %>%
+    mutate(
+      color = if_else(incomegroup == uniq_ing[4], color, "gray80")
+    ) %>%
+    select(countryname, color) %>%
+    tibble::deframe()
+
+newggslopegraph(dataframe   = gdf_p,
+                  Times       = gini_type,
+                  Measurement = rg,
+                  Grouping    = countryname,
+                  LineColor   = cst_color)
+
+
+
+# By income group
+
+uniq_ing <- unique(gdf_p$incomegroup)
+ing_color <- gdf_p %>%
+  distinct(incomegroup, countryname) %>%
+  left_join (tibble(incomegroup = uniq_ing,
+                    color  = rep(palette, ceiling(
+                      length(uniq_ing) / length(palette)
+                    ))[1:length(uniq_ing)]),
+             by = "incomegroup") %>%
+  select(countryname, color) %>%
+  tibble::deframe()
+
+newggslopegraph(
+  dataframe   = gdf_p,
+  Times       = gini_type,
+  Measurement = rg,
+  Grouping    = countryname,
+  LineColor   = ing_color
+)
 
 
 #################################################################
 
 
-gdf_p <- gt_l %>%
-  group_by(year, ) %>%
-  top_n(20, drg) %>%
-  group_by(countrycode, coverage, year) %>%
-  filter(n() == 5) %>%
-  filter(year == 2015)
-
-
-
+custom_colors <- pivot_wider(newgdp,
+                             id_cols = Country,
+                             names_from = Year,
+                             values_from = GDP) %>%
+  mutate(difference = Year1979 - Year1970) %>%
+  mutate(trend = case_when(
+    difference >= 2 ~ "green",
+    difference <= -1 ~ "red",
+    TRUE ~ "gray"
+  )
+  ) %>%
+  select(Country, trend) %>%
+  tibble::deframe()
 
 
 #----------------------------------------------------------

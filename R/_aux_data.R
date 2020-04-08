@@ -55,7 +55,10 @@ inc_gr <- WDI::WDI(indicator = c("SP.POP.TOTL"),
                    start = 2018,
                    end = 2018,
                    extra = TRUE) %>%
-  select(countrycode = iso3c,
+  mutate(
+    iso3c = if_else(iso2c == "MK", "MKD", as.character(iso3c))
+  ) %>%
+  distinct(countrycode = iso3c,
          incomegroup = income,
          lending)
 
