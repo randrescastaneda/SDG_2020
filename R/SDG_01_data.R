@@ -176,7 +176,7 @@ rm(pr_temp, pr_25)    # remove unnecessary data
 y_pred <- tibble(year = c(1990:2250))
 
 cty_pred <- cty %>%
-  nest(-countrycode) %>%                                         # Split in several dataframes
+  nest(data = -countrycode) %>%                        # Split in several dataframes
   mutate(fit       = map(data, ~lm(headcount ~year, data = .)),  # regression
          headcount = map(fit, predict, newdata = y_pred),        # predict in new data
          beta      = map(fit, ~tidy(.)[["estimate"]][2]),        # extract beta
@@ -185,7 +185,7 @@ cty_pred <- cty %>%
   ) %>%
   unnest(c(headcount, year, beta)) %>%
   select(countrycode, year, headcount, beta) %>%
-  setDT()
+  as.data.table()
 
 zero_pov <- 1/1e4
 

@@ -12,9 +12,100 @@ add_and <- function(x) {
     y <- paste(x[1], "and", x[2])
   }
   else {
-    y <- c(x[1:lx-1], paste("and", x[lx]))
+    y <- c(x[1:lx - 1], paste("and", x[lx]))
     y <- paste(y, collapse = ", ")
   }
   return(y)
 }
 
+
+source("R/povcalnet_iterate.R")
+library("povcalnetR")
+rcv_dist <- function(country,
+                     year,
+                     coverage,
+                     step = .05,
+                     pl = 0.01,
+                     maxiter = 5,
+                     giveup_lim  = 10) {
+  print(paste("workging on", country, year))
+  h      <- 0
+  pl     <- pl
+  r      <- tibble()
+  giveup <- 0
+  f      <- 0  # no failure
+
+  while (h <= .9999) {
+    tryCatch(
+      expr = {
+        h0 <- h
+        df <- povcalnet(
+          country = country,
+          povline = pl,
+          coverage = coverage,
+          year = year,
+          fill_gaps = TRUE
+        )
+
+        h  <- df[["headcount"]]
+
+        # is legnth of h is zero, try five times
+        if (length(h) == 0) {
+          f <- f + 1
+          pl <-  pl + step
+          h <- h0
+          if (f <= maxiter) {
+            next
+          } else {
+            r <- tibble(message = paste("NO data available in", country, year),
+                        iteration = pl)
+            break
+          }
+        }
+
+        # Only save if h > h0. Sometimes, API does not work correctly.
+        if (h < h0) {
+          f <- f + 1
+          pl <-  pl + step
+          if (f <= maxiter) {
+            next
+          } else {
+            r <- tibble(message = paste("headcount lower at higher pl", country, year),
+                        iteration = pl)
+            break
+          }
+        }
+
+        # if not identical poverty, then save
+        if (!(identical(round(h, digits = 4), round(h0, digits = 4)))) {
+          r  <- bind_rows(r, df)
+        }
+
+        pl <-  pl + step
+        f  <- 0  # no failure
+      },
+      # end of expr section
+
+      error = function(e) {
+        f <-  f + 1
+        if (f > maxiter) {
+          pl <-  pl + step
+          giveup <- giveup + 1
+        }
+        if (giveup > giveup_lim) {
+          r <- tibble(message = e$message,
+                      iteration = pl)
+        }
+      }, # end of error section
+
+      warning = function(w) {
+        print(paste("warning in", country, year, pl))
+        print(w)
+      }
+    ) # End of trycatch
+
+  } # end of while
+
+  return(r)
+
+}
