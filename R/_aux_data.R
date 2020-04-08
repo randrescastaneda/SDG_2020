@@ -34,7 +34,7 @@ rc <- map_dfr(regions, region_country)
 cnames <- povcalnet(fill_gaps = TRUE, year = 2015) %>%
   distinct(countrycode, countryname)
 
-cr <- povcalnet() %>%
+cr <- povcalnetR::povcalnet() %>%
   distinct(countrycode, countryname, regioncode) %>%
   rename(region = regioncode) %>%
   mutate(
@@ -56,7 +56,8 @@ inc_gr <- WDI::WDI(indicator = c("SP.POP.TOTL"),
                    end = 2018,
                    extra = TRUE) %>%
   mutate(
-    iso3c = if_else(iso2c == "MK", "MKD", as.character(iso3c))
+    iso3c  = if_else(iso2c == "MK", "MKD", as.character(iso3c)),
+    income = if_else(iso2c == "MK", "Upper middle income", as.character(income)),
   ) %>%
   distinct(countrycode = iso3c,
          incomegroup = income,
