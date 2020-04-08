@@ -1,5 +1,5 @@
 # auxiliary data. This script is to re executed in other scripts
-
+library("tidyverse")
 library("povcalnetR")
 #--------- Load data
 
@@ -31,40 +31,58 @@ rc <- map_dfr(regions, region_country)
 
 #--------- countrynames
 
-cnames <- povcalnet(fill_gaps = TRUE, year = 2015) %>%
-  distinct(countrycode, countryname)
+if (interactive()) {
 
-cr <- povcalnetR::povcalnet() %>%
-  distinct(countrycode, countryname, regioncode) %>%
-  rename(region = regioncode) %>%
-  mutate(
-    regionname = case_when(
-      region == "EAP" ~ "East Asia and Pacific",
-      region == "ECA" ~ "Europe and Central Asia",
-      region == "LAC" ~ "Latin America and the Caribbean",
-      region == "MNA" ~ "Middle East and North Africa",
-      region == "OHI" ~ "Other High Income countries",
-      region == "SAS" ~ "South Asia",
-      region == "SSA" ~ "Sub-saharan Africa",
-      TRUE ~ ""
-    ),
-    countryname = gsub("(.*)(,.*)", "\\1", countryname)
-  )
+  cnames <- povcalnet(fill_gaps = TRUE, year = 2015) %>%
+    distinct(countrycode, countryname)
 
-inc_gr <- WDI::WDI(indicator = c("SP.POP.TOTL"),
-                   start = 2018,
-                   end = 2018,
-                   extra = TRUE) %>%
-  mutate(
-    iso3c  = if_else(iso2c == "MK", "MKD", as.character(iso3c)),
-    income = if_else(iso2c == "MK", "Upper middle income", as.character(income)),
-  ) %>%
-  distinct(countrycode = iso3c,
-         incomegroup = income,
-         lending)
+  cr <- povcalnetR::povcalnet() %>%
+    distinct(countrycode, countryname, regioncode) %>%
+    rename(region = regioncode) %>%
+    mutate(
+      regionname = case_when(
+        region == "EAP" ~ "East Asia and Pacific",
+        region == "ECA" ~ "Europe and Central Asia",
+        region == "LAC" ~ "Latin America and the Caribbean",
+        region == "MNA" ~ "Middle East and North Africa",
+        region == "OHI" ~ "Other High Income countries",
+        region == "SAS" ~ "South Asia",
+        region == "SSA" ~ "Sub-saharan Africa",
+        TRUE ~ ""
+      ),
+      countryname = gsub("(.*)(,.*)", "\\1", countryname)
+    )
 
-cr <- cr %>%
-  left_join(inc_gr, by = "countrycode")
+  inc_gr <- WDI::WDI(indicator = c("SP.POP.TOTL"),
+                     start = 2018,
+                     end = 2018,
+                     extra = TRUE) %>%
+    mutate(
+      iso3c  = if_else(iso2c == "MK", "MKD", as.character(iso3c)),
+      income = if_else(iso2c == "MK", "Upper middle income", as.character(income)),
+    ) %>%
+    distinct(countrycode = iso3c,
+           incomegroup = income,
+           lending)
+
+  cr <- cr %>%
+    left_join(inc_gr, by = "countrycode")
+
+  write_rds(cr, "data/cty_regs_names.rds")
+}
 
 
-write_rds(cr, "data/cty_regs_names.rds")
+
+plain <- theme(
+  #axis.text = element_blank(),
+  #axis.line = element_blank(),
+  #axis.ticks = element_blank(),
+  panel.border = element_blank(),
+  panel.grid = element_blank(),
+  panel.background = element_rect(fill = "white"),
+  #axis.title = element_blank(),
+  plot.title = element_text(hjust = 0.5),
+  # legend.position = "bottom",
+  legend.position = "none",
+  legend.box = "horizontal"
+)

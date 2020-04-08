@@ -17,7 +17,7 @@
 #----------------------------------------------------------
 
 library("tidyverse")
-library("plotly")
+# library("plotly")
 
 
 #----------------------------------------------------------
@@ -30,7 +30,7 @@ library("plotly")
 #----------------------------------------------------------
 #   Aux data
 #----------------------------------------------------------
-source("R/_aux_data.R")
+# source("R/_aux_data.R")
 
 
 #----------------------------------------------------------
@@ -38,8 +38,33 @@ source("R/_aux_data.R")
 #----------------------------------------------------------
 
 minyear <- 1999
+df_fg <- povcalnet(fill_gaps = TRUE)
 
-df_g <- povcalnet(fill_gaps = TRUE) %>%   # Load povcalnet data
+#--------- Average and median Gini
+avg_gini <- df_fg %>%
+  group_by(year) %>%
+  summarise(ginisa  = mean(gini, na.rm = TRUE),
+            ginimd  = median(gini, na.rm = TRUE),
+            giniwa  = weighted.mean(gini, population, na.rm = TRUE)
+            ) %>%
+  pivot_longer(
+    cols = -year,
+    names_to = c(".value", "type"),
+    names_pattern = "(gini)(.*)"
+  ) %>%
+  mutate(
+    type2 = case_when(
+      type == "sa" ~ "Simple Avg.",
+      type == "wa" ~ "Weighted Avg.",
+      type == "md" ~ "Median",
+      TRUE ~ ""
+    )
+  ) %>%
+  ungroup() %>%
+  filter(year >= 1990)
+
+#-------------- min and max year
+df_g <- df_fg %>%   # Load povcalnet data
   group_by(countrycode) %>%
   filter(year  %in%  c(minyear, max(year))) %>%
   group_by(countrycode, year) %>%
@@ -63,14 +88,33 @@ df_g <- povcalnet(fill_gaps = TRUE) %>%   # Load povcalnet data
   ) %>%
   ungroup()
 
-#--------- Charts
+#----------------------------------------------------------
+#   CHARTS
+#----------------------------------------------------------
+
+#--------- evolution of average and median gini
+p_av_g <- ggplot(data = filter(avg_gini, type != "wa"),
+                 aes(
+                   x = year,
+                   y = gini,
+                   color = type2
+                 )) +
+  geom_point() +
+  geom_line() +
+  plain +
+  theme(
+    legend.title=element_blank(),
+    legend.position = "bottom"
+    )
+# p_av_g
 
 
-p_g <- ggplot(data = df_g,
-              aes(text = text)) +
-  geom_point(aes(x = gini_1,
-                 y = gini_2,
-                 color = region)) +
+p_g <- ggplot(data = filter(df_g, gini_1 != gini_2),
+              aes(x = gini_1,
+                  y = gini_2,
+                  color = region)) +
+  geom_point(size = 2,
+             show.legend = FALSE) +
   geom_abline(intercept = 0 ,
               slope = 1,
               color = "grey50") +
@@ -82,7 +126,20 @@ p_g <- ggplot(data = df_g,
   theme(
     legend.position = "",
   )
-p_g
 
-ggplotly(p_g, tooltip = "text")
+p_g +
+  ggforce::geom_mark_hull(
+    aes(filter = region == 'LAC',
+        fill = region,
+        label = region),
+    show.legend = FALSE,
+    expand = unit(2, "mm"),
+    concavity = 1
+  )
+
+
+p_g +
+  ggforce::geom_mark_hull()
+
+# ggplotly(p_g, tooltip = "text")
 
