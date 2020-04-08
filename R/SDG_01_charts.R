@@ -453,7 +453,7 @@ p10 <- ggplot() +
                  fill = regionf),
              alpha = .7,
              pch = 21) +
-  scale_fill_manual(values = clr_point) +
+  scale_fill_manual(values = sw) +
   scale_size(range = c(1, 15)) +
   geom_line(data = wld,
             aes(x = year,  y = headcount),
@@ -482,7 +482,7 @@ p11 <- ggplot() +
                  fill = region),
              alpha = .7,
              pch = 21) +
-  scale_fill_manual(values = clr_point) +
+  scale_fill_manual(values = sw) +
   geom_line(data = subset(pr_wld_act, year >= 2018),
             aes(x = year,
                 y = headcount,
