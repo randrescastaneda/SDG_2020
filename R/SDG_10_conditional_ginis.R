@@ -131,33 +131,52 @@ gt_l <- gt_w %>%
   ) %>%
   ungroup()
 
+xvar <- "g1090"
+ggplot(data = gt_w,
+       aes(x = get(xvar),
+           y = gt,
+           color = region)
+) +
+  geom_point() +
+  geom_abline(intercept = 0, slope = 1) +
+  xlim(.1, .7) + ylim(.1, .7)
+
 
 
 gt_l <- gt_w %>%
-  group_by(countrycode, year, coverage) %>%
+  group_by(year) %>%
+
+  # create ranking of gini (rg)
   mutate_at(
-  # across(starts_with("g"), ~ order(.x), .names = "r{col}")  for dplyr 1.0.0
-  # create ranking
-    vars(starts_with("g")), list(r = ~order(.))
+    vars(starts_with("g")), list(r = ~rank(.))
   ) %>%
   rename_at(
     vars(ends_with("_r")),
-    list(~ paste("r", gsub("_r", "", .), sep = "_"))
+    list(~ paste("r", gsub("_r", "", .), sep = ""))
     ) %>%
-  pivot_longer(cols           = starts_with("g"),
-               names_to       = "gini_type",
-               names_prefix   = "g",
-               values_to      = "value",
-               values_drop_na = TRUE) %>%
+
+  # create difference in ranking (drg)
+  mutate_at(
+    vars(starts_with("rg")), list(d = ~ abs(rg0100 -.))
+  ) %>%
+  rename_at(
+    vars(ends_with("_d")),
+    list(~ paste("d", gsub("_d", "", .), sep = ""))
+  ) %>%
+
+  # reshape to long format
+  pivot_longer(
+    -c(id, countrycode, year, coverage, countryname, region, regionname, incomegroup, lending),
+    names_to      = c(".value", "gini_type"),
+    names_pattern = "(d?r?g)([\\d]+)"
+  ) %>%
+
+  # change type to chart
   mutate(gini_type     = ordered(gini_type, levels = c("0100", "0095", "0595", "0090", "1090")),
          countrycode   = as.factor(countrycode),
-         value         = round(value, digits = 3)) %>%
-  group_by(countrycode, year, coverage) %>%
-  mutate(
-    rank = order(value)
-  ) %>%
-  ungroup() %>%
-  pivot
+         g             = round(g, digits = 3)
+         ) %>%
+  ungroup()
 
 
 
@@ -166,30 +185,47 @@ gt_l <- gt_w %>%
 #----------------------------------------------------------
 
 
+# high difference
+numb_countries <- 20
+hdiff <- gt_l %>%
+  arrange(year, -drg) %>%
+  group_by(year) %>%
+  mutate(
+    idr = if_else(row_number() == 1, 1,
+                  if_else(countrycode == lag(countrycode),
+                          0, 1)
+                  ),
+    idr = cumsum(idr)
+  ) %>%
+  filter(idr <= numb_countries) %>%
+  distinct(year, countrycode)
 
 gdf_p <- gt_l %>%
-  filter(year == 2015, region  %in% c("SSA"))
+  group_by(countrycode, coverage, year) %>%
+  filter(n() == 5) %>%
+  filter(year == 2015)
+
 
 newggslopegraph(dataframe   = gdf_p,
                 Times       = gini_type,
-                Measurement = value,
-                Grouping    = countrycode)
+                Measurement = rg,
+                Grouping    = countryname)
 
 
 
 
 
 
+#################################################################
 
-xvar <- "g1090"
-ggplot(data = gt_w,
-       aes(x = get(xvar),
-           y = gt,
-           color = region)
-       ) +
-  geom_point() +
-  geom_abline(intercept = 0, slope = 1) +
-  xlim(.1, .7) + ylim(.1, .7)
+
+gdf_p <- gt_l %>%
+  group_by(year, ) %>%
+  top_n(20, drg) %>%
+  group_by(countrycode, coverage, year) %>%
+  filter(n() == 5) %>%
+  filter(year == 2015)
+
 
 
 
