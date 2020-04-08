@@ -186,25 +186,16 @@ gt_l <- gt_w %>%
 
 
 # high difference
-numb_countries <- 20
-hdiff <- gt_l %>%
-  arrange(year, -drg) %>%
-  group_by(year) %>%
-  mutate(
-    idr = if_else(row_number() == 1, 1,
-                  if_else(countrycode == lag(countrycode),
-                          0, 1)
-                  ),
-    idr = cumsum(idr)
-  ) %>%
-  filter(idr <= numb_countries) %>%
-  distinct(year, countrycode)
+n_ctries <- 20
 
 gdf_p <- gt_l %>%
-  group_by(countrycode, coverage, year) %>%
-  filter(n() == 5) %>%
+  arrange(year, -drg) %>%
+  distinct(year, countrycode) %>%
+  group_by(year) %>%
+  filter(row_number() <= n_ctries) %>%
+  inner_join(gt_l, by = c("year", "countrycode")) %>%
+  ungroup() %>%
   filter(year == 2015)
-
 
 newggslopegraph(dataframe   = gdf_p,
                 Times       = gini_type,
