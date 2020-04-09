@@ -109,3 +109,19 @@ rcv_dist <- function(country,
   return(r)
 
 }
+
+plain <- theme(
+  #axis.text = element_blank(),
+  #axis.line = element_blank(),
+  #axis.ticks = element_blank(),
+  panel.border = element_blank(),
+  panel.grid = element_blank(),
+  panel.background = element_rect(fill = "white"),
+  #axis.title = element_blank(),
+  plot.title = element_text(hjust = 0.5),
+  # legend.position = "bottom",
+  legend.position = "none",
+  legend.box = "horizontal"
+)
+
+

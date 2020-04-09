@@ -43,7 +43,6 @@ background-size: cover
 
 ---
 ```{r auxdata}
-source("R/_aux_data.R")
 source("R/SDG_10_Gini_Change.R")
 
 ```
@@ -61,9 +60,18 @@ p_av_g +
 ]
 
 ---
+.left-column[
+.small[When we look at the trends at the region level, it is not very clear where the action is happening]
+]
+.right-column[
+```{r giniregs}
+p_av_gr
+```
+]
+---
 
 .left-column[
-bla bla bla
+.small[SO, let's look at in a differnet way]
 ]
 .right-column[
 ```{r gini45}
@@ -73,7 +81,7 @@ p_g
 
 ---
 .left-column[
- bla bla 
+.small[LAC is the region that consistently has reduced inequality in most countries. This makes sense because inequality is measured with income-based welfare, which is by definition higher than consumption-based welfare,  so there is more room to improve. ]
 ]
 .right-column[
 ```{r gini45lac}
@@ -88,3 +96,48 @@ p_g +
   )
 ``` 
 ]
+
+---
+.left-column[
+.small[When we look at other regions, we don't find the same patterns.]
+]
+.right-column[
+```{r gini45SSA}
+p_g +
+  ggforce::geom_mark_hull(
+    aes(filter = region == 'SSA',
+        fill = region,
+        label = regionname),
+    show.legend = FALSE,
+    expand = unit(2, "mm"),
+    concavity = 1
+  )
+```
+]
+
+---
+.left-column[
+.small[When we look at other regions, we don't find the same patterns.]
+]
+.right-column[
+```{r gini45EAP}
+
+p_g +
+  ggforce::geom_mark_hull(
+    aes(filter = region == 'EAP',
+        fill = region,
+        label = regionname),
+    show.legend = FALSE,
+    expand = unit(2, "mm"),
+    concavity = 1
+  )
+```
+]
+
+---
+class: inverse
+## Another way to see inequality
+---
+
+
+
