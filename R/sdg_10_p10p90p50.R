@@ -17,23 +17,21 @@
 #----------------------------------------------------------
 
 library("tidyverse")
-library("plotly")
+# library("plotly")
 library("povcalnetR")
 
 
 #----------------------------------------------------------
 #   subfunctions
 #----------------------------------------------------------
-
-
-
+source("R/utils.R")
 
 #----------------------------------------------------------
 #   Aux data
 #----------------------------------------------------------
-source("R/_aux_data.R")
-
-
+cr <- read_rds("data/cty_regs_names.rds")
+load("data/dfc.RData")
+load("data/dfr.RData")
 
 #----------------------------------------------------------
 #   filtered dfc data
@@ -50,10 +48,15 @@ dfc_1 <- dfc %>%
     names_prefix = "p",
     id_cols = c(countrycode, year)
   ) %>%
-  filter(year == lyear) %>%
+  filter(year == lyear,
+         !is.na(p50),
+         !is.na(p90),
+         !is.na(p10)) %>%
   # merge regions and country names
-  left_join(cnames) %>%  left_join(rc) %>%
-  arrange(p50)
+  left_join(cr, by = "countrycode") %>%
+  arrange(p50) %>%
+  mutate(fcountrycode = factor(countrycode, countrycode),
+         r9010       = p90/p10)
 
 #----------------------------------------------------------
 #   Gini data
@@ -77,19 +80,33 @@ df_g <- povcalnet(fill_gaps = TRUE) %>%   # Load povcalnet data
          population) %>%
   arrange(countrycode)
 
-
-dfc_1g <- dfc_1 %>%
-  left_join(df_g) %>%
-  mutate(countrycode = factor(countrycode, countrycode))
+#
+# dfc_1g <- dfc_1 %>%
+#   left_join(df_g) %>%
+#   mutate(countrycode = factor(countrycode, countrycode))
 
 
 #----------------------------------------------------------
 #   charts
 #----------------------------------------------------------
 
+# dfc_1 <-  dfc_1 %>%
+#   arrange(r9010) %>%
+#   mutate(fcountrycode = factor(countrycode, countrycode))
+
+set.seed(1010)
+
+sm_dfc <- c(1,sample(nrow(dfc_1), 20, prob = nrow(dfc_1)/dfc_1$r9010 ), nrow(dfc_1))
+
+dfc_rep <- dfc_1[sm_dfc,] %>%
+  mutate(
+    text = paste0(countryname, " (", round(r9010, digits = 1), ")")
+  )
+
+
 #--------- without Gini
-p_p10p90 <- ggplot(data = dfc_1g,
-                   aes(x = countrycode,
+p_p10p90 <- ggplot(data = dfc_1,
+                   aes(x = fcountrycode,
                        y = p50)) +
   geom_point() +
   geom_errorbar(aes(ymin = p10,
@@ -99,33 +116,67 @@ p_p10p90 <- ggplot(data = dfc_1g,
   theme_classic() +
   theme(
     axis.text.x = element_text(angle = 90,
-                               size = 5)
-  )
-p_p10p90
+                               size = 5),
+    legend.position = c(.2, .8),
+    legend.direction = "horizontal",
+    legend.title = element_blank()
+  )  +
+  labs(x = "Country code",
+       y = "Dollar at day 2011 PPP")
 
-ggplotly(p_p10p90)
+# p_p10p90
+
+p_p10p90l <- p_p10p90 +
+  ggrepel::geom_label_repel(
+    data = dfc_rep,
+    aes(label = text),
+    show.legend = FALSE,
+    force = 20,
+    box.padding = 1.2,
+    # max.overlaps = 2,
+    segment.curvature = 0.5,
+    # segment.ncp = 3,
+    # segment.angle = 20,
+    nudge_y = 5
+  )
+
+
+
+
+
+# ggplotly(p_p10p90)
 
 
 # ggplotly(p_p10p90, tooltip = "text")
 
 #--------- with Gini
+#
+# adj_scale <- 150
+# ggplot(data = dfc_1g) +
+#   geom_point(aes(x = countrycode,
+#                 y = p50)) +
+#   geom_point(aes(x = countrycode,
+#                  y = gini*adj_scale,
+#                  color = region)) +
+#   scale_y_continuous(sec.axis = sec_axis(~./adj_scale, name = "Gini Index")) +
+#   geom_errorbar(aes(x = countrycode,
+#                     ymin = p10,
+#                     ymax = p90,
+#                     color = region),
+#                 width = 0.5) +
+#   theme_classic() +
+#   theme(
+#     axis.text.x = element_text(angle = 90,
+#                                size = 5)
+#   )
+#
 
-adj_scale <- 150
-ggplot(data = dfc_1g) +
-  geom_point(aes(x = countrycode,
-                y = p50)) +
-  geom_point(aes(x = countrycode,
-                 y = gini*adj_scale,
-                 color = region)) +
-  scale_y_continuous(sec.axis = sec_axis(~./adj_scale, name = "Gini Index")) +
-  geom_errorbar(aes(x = countrycode,
-                    ymin = p10,
-                    ymax = p90,
-                    color = region),
-                width = 0.5) +
-  theme_classic() +
-  theme(
-    axis.text.x = element_text(angle = 90,
-                               size = 5)
-  )
 
+library(ggrepel)
+p <- ggplot(mtcars,
+            aes(wt, mpg, label = rownames(mtcars), colour = factor(cyl))) +
+  geom_point()
+p
+
+p + geom_text_repel(nudge_x = ifelse(mtcars$cyl == 6, 1, 0),
+                    nudge_y = ifelse(mtcars$cyl == 6, 8, 0))
