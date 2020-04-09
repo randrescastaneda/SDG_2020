@@ -94,14 +94,6 @@ df_g <- povcalnet(fill_gaps = TRUE) %>%   # Load povcalnet data
 #   arrange(r9010) %>%
 #   mutate(fcountrycode = factor(countrycode, countrycode))
 
-set.seed(1010)
-
-sm_dfc <- c(1,sample(nrow(dfc_1), 20, prob = nrow(dfc_1)/dfc_1$r9010 ), nrow(dfc_1))
-
-dfc_rep <- dfc_1[sm_dfc,] %>%
-  mutate(
-    text = paste0(countryname, " (", round(r9010, digits = 1), ")")
-  )
 
 
 #--------- without Gini
@@ -125,6 +117,39 @@ p_p10p90 <- ggplot(data = dfc_1,
        y = "Dollar at day 2011 PPP")
 
 # p_p10p90
+
+dfc_ex <- dfc_1 %>%
+  filter(countrycode == "CAN") %>%
+  mutate(
+    text = paste0(countryname, " (", round(r9010, digits = 1), ")")
+  )
+
+
+p_p10p90 +
+  ggrepel::geom_label_repel(
+    data = dfc_ex,
+    aes(label = text,
+        y = p90),
+    show.legend = FALSE,
+    force = 20,
+    box.padding = 1.2,
+    # max.overlaps = 2,
+    segment.curvature = 0.5,
+    # segment.ncp = 3,
+    # segment.angle = 20,
+    nudge_y = 5
+  )
+
+
+
+#--------- labels with 90/10 ratio
+
+set.seed(1010)
+sm_dfc <- c(1,sample(nrow(dfc_1), 20, prob = nrow(dfc_1)/dfc_1$r9010 ), nrow(dfc_1))
+dfc_rep <- dfc_1[sm_dfc,] %>%
+  mutate(
+    text = paste0(countryname, " (", round(r9010, digits = 1), ")")
+  )
 
 p_p10p90l <- p_p10p90 +
   ggrepel::geom_label_repel(
