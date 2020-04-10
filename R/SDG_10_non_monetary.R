@@ -5,6 +5,8 @@ library(tidyverse)
 library(data.table)
 library(hrbrthemes)
 library(ggplot2)
+library(treemap)
+library(treemapify)
 
 # Source get_WDI function
 source("R/get_WDI.R")
@@ -58,6 +60,7 @@ for (ind in indList){
   print(paste("Graphing", ind))
   
   skip <- F
+  is_dummy <- F
   
   # get data 
   tryCatch(
@@ -80,12 +83,21 @@ for (ind in indList){
   
   data <- WDI %>% mutate(indv = get(ind))
   
+  
+  # check if indicator is a dummy 
+  tryCatch(
+    is_dummy <<- identical(c(as.numeric(levels(as.factor(data$indv)))), c(0,1), attrib.as.set = TRUE),
+    error=function(e){
+      print(paste("Could not test if",ind,"is dummy."))
+    }
+  )
+  
   # rearrange data by value
   data <- data %>%
     rowwise() %>%
     arrange(indv)
   
-  #data$id <- seq(1, nrow(data))
+  if (is_dummy == F){
   
   # empy space between regions
   empty_bar <- 1
@@ -108,38 +120,48 @@ for (ind in indList){
   lbb <- min(data$indv, na.rm = T) - (sd(data$indv, na.rm = T)/3)
   
   
-  # Plot
-  p <- ggplot(data) +
-    geom_segment( aes(y=id, yend=id, x=0, xend=indv), color=rgb(0,0,0,0.3)) +
-    geom_point( aes(y=id, x=indv), color=rgb(0.2,0.7,0.1,0.5), size=3 ) +
-    coord_flip()+
-    theme_minimal() +
-    theme(
-      axis.text.x = element_blank(),
-      axis.title.x = element_blank(),
-    ) +
-    xlab("") +
-    ylab("") +
-    ggtitle(codebook[1,1]) +
-    geom_text(data=data, aes(y=id, x = lbb, label = countrycode), angle = 90, alpha=0.6) +
-    geom_text(data=separators, aes(y=mean, x = lbt, label = region), angle = 0, alpha=0.6) +
-    geom_segment(data= separators, aes(y=max, yend=max, x=lbb, xend=lbt), color=rgb(0,0,1,0.2)) +
-    geom_vline(xintercept = 0, color = "black",  linetype="dashed") +
-    geom_vline(xintercept = mean_world, color = "red",  linetype="dashed")
+  # --- Plot
+  
+    # If not dummy
+    p <- ggplot(data) +
+      geom_segment( aes(y=id, yend=id, x=0, xend=indv), color=rgb(0,0,0,0.3)) +
+      geom_point( aes(y=id, x=indv), color=rgb(0.2,0.7,0.1,0.5), size=3 ) +
+      coord_flip()+
+      theme_minimal() +
+      theme(
+        axis.text.x = element_blank(),
+        axis.title.x = element_blank(),
+      ) +
+      xlab("") +
+      ylab("") +
+      ggtitle(codebook[1,1]) +
+      geom_text(data=data, aes(y=id, x = lbb, label = countrycode), angle = 90, alpha=0.6) +
+      geom_text(data=separators, aes(y=mean, x = lbt, label = region), angle = 0, alpha=0.6) +
+      geom_segment(data= separators, aes(y=max, yend=max, x=lbb, xend=lbt), color=rgb(0,0,1,0.2)) +
+      geom_vline(xintercept = 0, color = "black",  linetype="dashed") +
+      geom_vline(xintercept = mean_world, color = "red",  linetype="dashed")
+  }
+  else{
+    # if dummy
     
+    data <- data %>% mutate(value = 10)
+    
+    p <- ggplot(data, aes(area = value, fill = indv, 
+                    label = countrycode, subgroup = region)) +
+      geom_treemap() +
+      geom_treemap_subgroup_border() +
+      geom_treemap_subgroup_text(place = "centre", grow = T, alpha = 0.5, colour =
+                                   "black", fontface = "italic", min.size = 0) +
+      geom_treemap_text(colour = "white", place = "topleft", reflow = T)
+  
+  }
   
   ggsave(filename = paste0(ind,".png"), path = dirsave,
     plot = p,
     device='png',
-    height = 300, width = 500, dpi = 300,
+    height = 200, width = 500, dpi = 300,
     limitsize = F, units = "mm")
   
   print("Plot saved :)")
   
 }
-
-
-
-
-
-
