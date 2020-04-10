@@ -144,42 +144,101 @@ source("R/SDG_10_p10p90p50.R")
 ```
 
 .left-column[
-.small[Here, countries are organized by their median, from lowest to highest. The length of the bars is the monetary distance between the 90th to the 10th percentiles. It seems that there is more inequality within the rich countries than within poor countries, as the length of the bars is way higher among the former than among the latter.]
+Here, countries are organized according to their median, from lowest to highest.
+]
+.right-column[
+```{r p50}
+p_p50
+```
+]
+
+---
+.left-column[
+From `r dfc_p50[["countryname"]][1]` to `r dfc_p50[["countryname"]][nrow(dfc_p50)]`.
+]
+.right-column[
+```{r p50l}
+p_p50 +
+  geom_label_repel(
+    data = dfc_p50,
+    aes(label = text,
+        fill  = region),
+    show.legend = FALSE,
+    force = 20,
+    box.padding = 1.2,
+    # max.overlaps = 2,
+    segment.curvature = 0.5,
+    # segment.ncp = 3,
+    # segment.angle = 20,
+    nudge_y = 5
+  )
+
+```
+]
+---
+.left-column[
+Now, let's remove the labels and add the monetary distance between the 10th and 90th percentiles. 
+]
+.right-column[
+```{r p50l2}
+p_p50
+```
+]
+---
+.left-column[
+Now, let's remove the labels and add the monetary distance between the 10th and 90th percentiles. 
+
+Done.
 ]
 .right-column[
 ```{r p1090g}
 p_p10p90
 ```
 ]
-
 ---
 .left-column[
-.small[Yet, that is a visual ilusion because the 90th/10th relation is generally higher in poorer countries than in rich countries.]
+Based on the length of the bars, it seems that there is more inequality within the rich countries than within poor countries, as the bars are way higher among the former than among the latter.
 ]
 .right-column[
 ```{r p1090g2}
 p_p10p90
 ```
 ]
-
 ---
 .left-column[
-.small[Yet, that is a visual ilusion because the 90th/10th relation is generally higher in poorer countries than in rich countries.]
+Yet, that is a visual ilusion because the ratio between the 90th percentile to the 10th percentile is higher in poorer countries than in rich countries.
 ]
 .right-column[
-```{r p1090gl}
-p_p10p90l
+```{r p1090g3}
+p_p10p90
 ```
 ]
 
 ---
+```{r}
+sp90   <- paste0("$",round(dfc_rep[["p90"]], digits = 2))
+sp10   <- paste0("$",round(dfc_rep[["p10"]], digits = 2))
+sr9010 <- round(dfc_rep[["r9010"]], digits = 2)
+
+```
+
 
 .left-column[
-.small[See for instance the case of... and ]
+Take for instance `r dfc_rep[["countryname"]][1]`, whose 90th percentile (`r sp90[1]`) is `r sr9010[1]` higher than the 10th percentile (`r sp10[1]`). 
 ]
 .right-column[
 ```{r p1090gl2}
-p_p10p90l
+p_p10p902
 ```
 ]
 
+---
+
+.left-column[
+Take for instance `r dfc_rep[["countryname"]][1]`, whose 90th percentile (`r sp90[1]`) is `r sr9010[1]` higher than the 10th percentile (`r sp10[1]`). In contrast, `r dfc_rep[["countryname"]][nrow(dfc_rep)]`'s  90th percentile (`r sp90[nrow(dfc_rep)]`) is `r sr9010[nrow(dfc_rep)]` higher than its 10th percentile (`r sp10[nrow(dfc_rep)]`). 
+]
+.right-column[
+```{r p1090gl3}
+p_p10p903
+```
+]

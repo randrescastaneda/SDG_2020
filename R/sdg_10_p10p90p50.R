@@ -19,6 +19,7 @@
 library("tidyverse")
 # library("plotly")
 library("povcalnetR")
+library("ggrepel")
 
 
 #----------------------------------------------------------
@@ -94,17 +95,10 @@ df_g <- povcalnet(fill_gaps = TRUE) %>%   # Load povcalnet data
 #   arrange(r9010) %>%
 #   mutate(fcountrycode = factor(countrycode, countrycode))
 
-
-
-#--------- without Gini
-p_p10p90 <- ggplot(data = dfc_1,
+p_p50 <- ggplot(data = dfc_1,
                    aes(x = fcountrycode,
                        y = p50)) +
   geom_point() +
-  geom_errorbar(aes(ymin = p10,
-                    ymax = p90,
-                    color = region),
-                width = .5) +
   theme_classic() +
   theme(
     axis.text.x = element_text(angle = 90,
@@ -114,22 +108,21 @@ p_p10p90 <- ggplot(data = dfc_1,
     legend.title = element_blank()
   )  +
   labs(x = "Country code",
-       y = "Dollar at day 2011 PPP")
+       y = "Dollar at day 2011 PPP")+
+  ylim(0, max(dfc_1$p90))
 
-# p_p10p90
-
-dfc_ex <- dfc_1 %>%
-  filter(countrycode == "CAN") %>%
+set.seed(10123)
+sm_p50 <- c(1,sample(nrow(dfc_1), 10 ), nrow(dfc_1))
+dfc_p50 <- dfc_1[sm_p50,] %>%
   mutate(
-    text = paste0(countryname, " (", round(r9010, digits = 1), ")")
+    text = paste0(countryname, " ($", round(p50, digits = 2), " a day)")
   )
 
-
-p_p10p90 +
+p_p50 +
   ggrepel::geom_label_repel(
-    data = dfc_ex,
+    data = dfc_p50,
     aes(label = text,
-        y = p90),
+        fill  = region),
     show.legend = FALSE,
     force = 20,
     box.padding = 1.2,
@@ -142,19 +135,100 @@ p_p10p90 +
 
 
 
+#--------- p90/p10
+p_p10p90 <- p_p50 +
+  geom_errorbar(aes(ymin = p10,
+                    ymax = p90,
+                    color = region),
+                width = .5)
+
+
+# p_p10p90
+
+dfc_ex <- dfc_1 %>%
+  filter(countrycode == "COL") %>%
+  mutate(
+    t90 = paste0(countryname, " 90th percentile ($", round(p90, digits = 1), " a day)"),
+    t10 = paste0(countryname, " 10th percentile ($", round(p10, digits = 1), " a day)")
+  )
+
+
+p_p10p90 +
+  ggrepel::geom_label_repel(
+    data = dfc_ex,
+    aes(label = t90,
+        y = p90),
+    show.legend = FALSE,
+    force = 20,
+    # box.padding = 5,
+    segment.ncp = 2,
+    segment.angle = 20,
+    segment.curvature = 0.5,
+    nudge_y = 10,
+    nudge_x = -10,
+    arrow = arrow(length = unit(0.02, "npc"))
+  ) +
+  ggrepel::geom_label_repel(
+    data = dfc_ex,
+    aes(label = t10,
+        y = p10),
+    show.legend = FALSE,
+    force = 20,
+    box.padding = 1.2,
+    segment.curvature = 0.5,
+    nudge_y = -2,
+    arrow = arrow(length = unit(0.01, "npc"))
+  )
+
+
+
 #--------- labels with 90/10 ratio
 
 set.seed(1010)
 sm_dfc <- c(1,sample(nrow(dfc_1), 20, prob = nrow(dfc_1)/dfc_1$r9010 ), nrow(dfc_1))
 dfc_rep <- dfc_1[sm_dfc,] %>%
   mutate(
-    text = paste0(countryname, " (", round(r9010, digits = 1), ")")
+    text = paste0(countryname, " (", round(r9010, digits = 1), ")"),
+    col1 = if_else(row_number() == 1, "a", "b"),
+    col2 = if_else(row_number()  %in% c(1, n()),  "a", "b")
   )
 
 p_p10p90l <- p_p10p90 +
-  ggrepel::geom_label_repel(
+  geom_label_repel(
     data = dfc_rep,
     aes(label = text),
+    show.legend = FALSE,
+    force = 20,
+    box.padding = 1.2,
+    # max.overlaps = 2,
+    segment.curvature = 0.5,
+    # segment.ncp = 3,
+    # segment.angle = 20,
+    nudge_y = 5
+  )
+
+
+
+p_p10p902 <- p_p10p90 +
+  geom_label_repel(
+    data = dfc_rep,
+    aes(label = text,
+        fill = col1),
+    show.legend = FALSE,
+    force = 20,
+    box.padding = 1.2,
+    # max.overlaps = 2,
+    segment.curvature = 0.5,
+    # segment.ncp = 3,
+    # segment.angle = 20,
+    nudge_y = 5
+  )
+
+p_p10p903 <- p_p10p90 +
+  geom_label_repel(
+    data = dfc_rep,
+    aes(label = text,
+        fill = col2),
     show.legend = FALSE,
     force = 20,
     box.padding = 1.2,
@@ -196,12 +270,12 @@ p_p10p90l <- p_p10p90 +
 #   )
 #
 
-
-library(ggrepel)
-p <- ggplot(mtcars,
-            aes(wt, mpg, label = rownames(mtcars), colour = factor(cyl))) +
-  geom_point()
-p
-
-p + geom_text_repel(nudge_x = ifelse(mtcars$cyl == 6, 1, 0),
-                    nudge_y = ifelse(mtcars$cyl == 6, 8, 0))
+#
+# library(ggrepel)
+# p <- ggplot(mtcars,
+#             aes(wt, mpg, label = rownames(mtcars), colour = factor(cyl))) +
+#   geom_point()
+# p
+#
+# p + geom_text_repel(nudge_x = ifelse(mtcars$cyl == 6, 1, 0),
+#                     nudge_y = ifelse(mtcars$cyl == 6, 8, 0))
