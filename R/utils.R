@@ -1,3 +1,6 @@
+library("tidyverse")
+library("povcalnetR")
+
 add_and <- function(x) {
   if (!(is.character(x))) {
     warning("`x` must be character. coercing to character")
@@ -156,3 +159,78 @@ add_and <- function(x) {
   }
   return(y)
 }
+
+
+gini <- function(y, w = NULL) {
+
+  # if (dplyr::is_grouped_df(.data)) {
+  #   return(dplyr::do(.data, gini(.)))
+  # }
+  #
+  # y <- deparse(substitute(y))
+  # w <- deparse(substitute(w))
+  #
+  # y    <- .data[[y]]   # welfare
+  #
+  # if (w == "NULL") {
+  #   w = rep(1, times = length(y))
+  # } else {
+  #   w    <- .data[[w]]    # weigth
+  # }
+
+  ordy <- order(y)     # order of y
+
+  w    <- w[ordy]      #order weight
+  y    <- y[ordy]      # order welfare
+
+  N    <- sum(w)       # population size
+  Y    <- sum(y*w)     # total welfare
+
+  cw   <- cumsum(w)    # Cumulative weights
+  cy   <- cumsum(y*w)  # Cumulative welfare
+
+  sn   <-  w/N         # share of population
+  my   <- weighted.mean(y, w, na.rm = TRUE)
+
+  i    <- (2*cw - w + 1)/2
+  t2   <- y*(N - i + 1)
+  gini <- 1+(1/N) - (2/(my*N^2))*sum(t2*w, na.rm = TRUE)
+  return(gini)
+}
+
+# gini <- function(.data, y, w = NULL) {
+#
+#   if (dplyr::is_grouped_df(.data)) {
+#     return(dplyr::do(.data, gini(.)))
+#   }
+#
+#   y <- deparse(substitute(y))
+#   w <- deparse(substitute(w))
+#
+#   y    <- .data[[y]]   # welfare
+#
+#   if (w == "NULL") {
+#     w = rep(1, times = length(y))
+#   } else {
+#     w    <- .data[[w]]    # weigth
+#   }
+#
+#   ordy <- order(y)     # order of y
+#
+#   w    <- w[ordy]      #order weight
+#   y    <- y[ordy]      # order welfare
+#
+#   N    <- sum(w)       # population size
+#   Y    <- sum(y*w)     # total welfare
+#
+#   cw   <- cumsum(w)    # Cumulative weights
+#   cy   <- cumsum(y*w)  # Cumulative welfare
+#
+#   sn   <-  w/N         # share of population
+#   my   <- weighted.mean(y, w, na.rm = TRUE)
+#
+#   i    <- (2*cw - w + 1)/2
+#   t2   <- y*(N - i + 1)
+#   gini <- 1+(1/N) - (2/(my*N^2))*sum(t2*w, na.rm = TRUE)
+#   return(gini)
+# }
