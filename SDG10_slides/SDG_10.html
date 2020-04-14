@@ -20,7 +20,7 @@ background-size: cover
 ## Goal 10: Reduce inequality within and among countries
 
 ---
-&lt;img src="SDG_10_files/figure-html/ginichange-1.png" width="720" /&gt;
+
 
 class: center, middle
 
@@ -28,7 +28,7 @@ class: center, middle
 
 --
 
-.big[Unfortunately, there is no data available for a representative set of countries in any year to build a comparable trend of global inequality over time]
+.big[Unfortunately, there is no data available to create a representative set of countries in any year to build a comparable trend of global inequality over time]
 
 --
 
@@ -133,14 +133,22 @@ When we look at other regions, we don't find the same patterns.
 
 class: center, middle
 
-## So, inequality is decreasing in LAC and in some other countries, but it is also increasing in others. Can we know something globally?  
+.big[So, inequality is decreasing in LAC and in some other countries, but it is also increasing in others. So what?...] 
+
+--
+
+### What is a reduction in the Gini actually saying? 
+
+--
+
+### Where is the action happening within the distribution of the countries? 
 
 ---
 class: inverse, center, middle
 ## Another way to see inequality
 ---
 
-&lt;img src="SDG_10_files/figure-html/p1090-calc-1.png" width="720" /&gt;
+
 
 .left-column[
 Here, countries are organized according to their median, from lowest to highest.
@@ -150,10 +158,14 @@ Here, countries are organized according to their median, from lowest to highest.
 ]
 
 ---
+
 .left-column[
 Here, countries are organized according to their median, from lowest to highest.
 
-From Central African Republic to Luxembourg.
+From Central African Republic to Luxembourg. 
+
+By just looking at the chart we can see that the typical person in Luxembourg is 0 time richer than the typical person in Central African Republic
+
 ]
 .right-column[
 &lt;img src="SDG_10_files/figure-html/p50l-1.png" width="720" /&gt;
@@ -169,7 +181,6 @@ Now, let's remove the labels and add the monetary distance between the 10th and 
 .left-column[
 Now, let's remove the labels and add the monetary distance between the 10th and 90th percentiles. 
 
-Done.
 ]
 .right-column[
 &lt;img src="SDG_10_files/figure-html/p1090g-1.png" width="720" /&gt;
@@ -177,8 +188,6 @@ Done.
 
 ---
 .left-column[
-Now, let's remove the labels and add the monetary distance between the 10th and 90th percentiles. 
-
 As in this randome case, the upper limit of the bar represents the 90th percentile of the distribution, whereas the lower limit represents the 10th percentile of the distribution. 
 ]
 .right-column[
@@ -205,7 +214,7 @@ Yet, that is a visual ilusion because the ratio between the 90th percentile to t
 
 
 .left-column[
-Take for instance Central African Republic, whose 90th percentile ($3.29) is 10.9 higher than its 10th percentile ($0.3). 
+Take for instance Central African Republic, whose 90th percentile ($3.29) is 10.9 times higher than its 10th percentile ($0.3). 
 ]
 .right-column[
 &lt;img src="SDG_10_files/figure-html/p1090gl2-1.png" width="720" /&gt;
@@ -222,14 +231,25 @@ Take for instance Central African Republic, whose 90th percentile ($3.29) is 10.
 
 ---
 .left-column[
-
+Yet, this chart does not imply either that the richer the country is the lower their p90/p10 ratio is. 
+if we keep the countries sorted by their median and but we plot the p90/p10 ration in the Y axis
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/p1090-4-1.png" width="720" /&gt;
+]
+---
+.left-column[
+Yet, this chart does not imply either that the richer the country is the lower their p90/p10 ratio is. 
+if we keep the countries sorted by their median and but we plot the p90/p10 ration in the Y axis, this is what we got
 ]
 .right-column[
 &lt;img src="SDG_10_files/figure-html/rj-1.png" width="720" /&gt;
 ]
 ---
 .left-column[
-There is a strong reranking.
+If we reorganize the countries according to their p90/p10 ratio, we see a strong re-ranking.
+
+So, is there any relationship between welfare and inequality? 
 ]
 .right-column[
 &lt;img src="SDG_10_files/figure-html/ro-1.png" width="720" /&gt;
@@ -239,24 +259,7 @@ There is a strong reranking.
 Even though there is a sort of quadratic relation between the Gini and the 90/10 ratio, it is difficult the explain the high variability. 
 ]
 .right-column[
-
-```
-## # A tibble: 126 x 13
-##    countrycode  year       p10       p50      p90 countryname region regionname
-##    &lt;chr&gt;       &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt; &lt;chr&gt;       &lt;chr&gt;  &lt;chr&gt;     
-##  1 CAF          2015 0.3016885 0.9648470 3.289138 Central Af~ SSA    Sub-sahar~
-##  2 MDG          2015 0.4628807 1.090282  3.053799 Madagascar  SSA    Sub-sahar~
-##  3 SSD          2015 0.3051901 1.105992  3.298814 South Sudan SSA    Sub-sahar~
-##  4 COD          2015 0.4943846 1.240888  3.423709 Congo       SSA    Sub-sahar~
-##  5 BDI          2015 0.5968512 1.243568  3.089983 Burundi     SSA    Sub-sahar~
-##  6 MWI          2015 0.6532858 1.332229  3.341074 Malawi      SSA    Sub-sahar~
-##  7 GNB          2015 0.5593104 1.433030  4.440311 Guinea-Bis~ SSA    Sub-sahar~
-##  8 MOZ          2015 0.6026522 1.528972  4.913052 Mozambique  SSA    Sub-sahar~
-##  9 LSO          2015 0.4073438 1.674930  6.341074 Lesotho     SSA    Sub-sahar~
-## 10 RWA          2015 0.8144694 1.758433  4.868913 Rwanda      SSA    Sub-sahar~
-## # ... with 116 more rows, and 5 more variables: incomegroup &lt;chr&gt;,
-## #   lending &lt;fct&gt;, fcountrycode &lt;fct&gt;, r9010 &lt;dbl&gt;, gini &lt;dbl&gt;
-```
+&lt;img src="SDG_10_files/figure-html/p9010g-1.png" width="720" /&gt;
 ]
 ---
 
@@ -270,7 +273,7 @@ class: center, middle
 
 ## What happen to inequality ranking if we removed the top 5% of all the countries?
 
-&lt;img src="SDG_10_files/figure-html/conditionalgini-1.png" width="720" /&gt;
+
 
 ---
 .left-column[
@@ -281,7 +284,7 @@ This is how the ranking of some countries changes when we compare the full Gini 
 ]
 ---
 .left-column[
-The most remarcable change is by Seychelles
+The most remarkable change in ranking happens in Seychelles
 ]
 .right-column[
 &lt;img src="SDG_10_files/figure-html/g0095-2-1.png" width="720" /&gt;
@@ -290,7 +293,7 @@ The most remarcable change is by Seychelles
 
 ---
 .left-column[
-The most remarcable change is by Seychelles, followed by Myanmar
+The most remarkable change in ranking happens in Seychelles, followed by Myanmar
 ]
 .right-column[
 &lt;img src="SDG_10_files/figure-html/g0095-3-1.png" width="720" /&gt;
@@ -298,7 +301,7 @@ The most remarcable change is by Seychelles, followed by Myanmar
 
 ---
 .left-column[
-The most remarcable change is by Seychelles, followed by Croatia and Sao Tome and Principe, Burkina Faso, and Rwanda
+The most remarkable change in ranking happens in Seychelles, followed by Myanmar and Sao Tome and Principe, Burkina Faso, and Rwanda
 ]
 .right-column[
 &lt;img src="SDG_10_files/figure-html/g0095-4-1.png" width="720" /&gt;
@@ -341,6 +344,28 @@ Yet, if some countries move down in the global ranking, others must go up. This 
 .right-column[
 &lt;img src="SDG_10_files/figure-html/p_0095-lm-1.png" width="720" /&gt;
 ]
+---
+
+class: middle, center
+
+.big[the top of the distribution highly affects the ranking of global inquality]
+
+--
+
+.big[can we create a global disitribution?]
+
+---
+
+.big[let's take the median of each country, that is not affected by the outliers of the top, and plot a Gini coefficient for the world.]
+
+
+--
+
+.big[let's see how it has changed over time]
+
+---
+
+.big[The main problem is not the inequality wihtin countries but between countries. ]
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
