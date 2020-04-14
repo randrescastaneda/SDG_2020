@@ -1,4 +1,5 @@
 ---
+title: "SDG 10"
 output:
   xaringan::moon_reader:
     seal: false
@@ -47,12 +48,25 @@ source("R/SDG_10_Gini_Change.R")
 
 ```
 
+class: center, middle
+
+## Is inequality increasing in the world?
+
+--
+
+.big[Unfortunately, there is no data available for a representative set of countries in any year to build a comparable trend of global inequality over time]
+
+--
+
+.big[So, let's look at the data and find out why]
+
+---
 .left-column[
-.small[From the mid 90's to 2010, the *average* Gini coefficient decreased steadly. Since then, the trend has reverted and the average inequality is increasing rapidly.]
+By using **only** available data, the *average* Gini coefficient decreased steadly from the mid 90's to 2010. Since then, the trend reverted and the average inequality is increasing rapidly.
 ]
 
 .right-column[
-```{r giniav}
+```{r giniav-noint}
 p_av_g +
   geom_vline(xintercept = c(1996, 2010, 2013),
              color = "gray70")
@@ -61,7 +75,43 @@ p_av_g +
 
 ---
 .left-column[
-.small[When we look at the trends at the region level, it is not very clear where the action is happening]
+However, when we interpolate linearly to account for countries with missing data in some years but with at least two data points five years appart, the story changes. 
+]
+
+.right-column[
+```{r giniav-noint2}
+p_av_g +
+  geom_vline(xintercept = c(1996, 2010, 2013),
+             color = "gray70")
+```
+]
+
+---
+
+.left-column[
+However, when we interpolate linearly to account for countries with missing data in some years but with at least two data points five years appart, the story changes. 
+
+Now, inequality in average seems to be decreasing globally. 
+]
+
+.right-column[
+```{r giniav}
+p_av_g_int +
+  geom_vline(xintercept = c(1996, 2010, 2013),
+             color = "gray70")
+```
+]
+
+---
+
+class: center, middle
+
+## So, where is the action happening?
+
+---
+
+.left-column[
+When we look at the trends at the region level, it is not very clear where the action is happening
 ]
 .right-column[
 ```{r giniregs}
@@ -71,7 +121,17 @@ p_av_gr
 ---
 
 .left-column[
-.small[SO, let's look at in a differnet way]
+SO, let's look at in a differnet way
+]
+.right-column[
+```{r giniregs2}
+p_av_gr
+```
+]
+---
+
+.left-column[
+SO, let's look at in a differnet way
 ]
 .right-column[
 ```{r gini45}
@@ -80,8 +140,21 @@ p_g
 ]
 
 ---
+
 .left-column[
-.small[LAC is the region that consistently has reduced inequality in most countries. This makes sense because inequality is measured with income-based welfare, which is by definition higher than consumption-based welfare,  so there is more room to improve. ]
+SO, let's look at in a differnet way, 
+
+Here we have all the countries of the world and their corresponding Gini coefficient of the closest year to 2000 and 2018. 
+]
+.right-column[
+```{r gini45-2}
+p_g
+```
+]
+
+---
+.left-column[
+LAC is the region that consistently has reduced inequality in most countries. This makes sense because inequality is measured with income-based welfare, which is by definition higher than consumption-based welfare,  so there is more room to improve.
 ]
 .right-column[
 ```{r gini45lac}
@@ -99,7 +172,7 @@ p_g +
 
 ---
 .left-column[
-.small[When we look at other regions, we don't find the same patterns.]
+When we look at other regions, we don't find the same patterns.
 ]
 .right-column[
 ```{r gini45SSA}
@@ -133,9 +206,14 @@ p_g +
   )
 ```
 ]
+---
+
+class: center, middle
+
+## So, inequality is decreasing in LAC and in some other countries, but it is also increasing in others. Can we know something globally?  
 
 ---
-class: inverse
+class: inverse, center, middle
 ## Another way to see inequality
 ---
 
@@ -154,6 +232,8 @@ p_p50
 
 ---
 .left-column[
+Here, countries are organized according to their median, from lowest to highest.
+
 From `r dfc_p50[["countryname"]][1]` to `r dfc_p50[["countryname"]][nrow(dfc_p50)]`.
 ]
 .right-column[
@@ -195,6 +275,19 @@ Done.
 p_p10p90
 ```
 ]
+
+---
+.left-column[
+Now, let's remove the labels and add the monetary distance between the 10th and 90th percentiles. 
+
+As in this randome case, the upper limit of the bar represents the 90th percentile of the distribution, whereas the lower limit represents the 10th percentile of the distribution. 
+]
+.right-column[
+```{r p1090gc}
+p_p10p90lc
+```
+]
+
 ---
 .left-column[
 Based on the length of the bars, it seems that there is more inequality within the rich countries than within poor countries, as the bars are way higher among the former than among the latter.
@@ -224,7 +317,7 @@ sr9010 <- round(dfc_rep[["r9010"]], digits = 2)
 
 
 .left-column[
-Take for instance `r dfc_rep[["countryname"]][1]`, whose 90th percentile (`r sp90[1]`) is `r sr9010[1]` higher than the 10th percentile (`r sp10[1]`). 
+Take for instance `r dfc_rep[["countryname"]][1]`, whose 90th percentile (`r sp90[1]`) is `r sr9010[1]` higher than its 10th percentile (`r sp10[1]`). 
 ]
 .right-column[
 ```{r p1090gl2}
@@ -242,3 +335,139 @@ Take for instance `r dfc_rep[["countryname"]][1]`, whose 90th percentile (`r sp9
 p_p10p903
 ```
 ]
+
+---
+.left-column[
+
+]
+.right-column[
+```{r rj}
+p_r9010_j
+```
+]
+---
+.left-column[
+There is a strong reranking.
+]
+.right-column[
+```{r ro}
+p_r9010_o
+```
+]
+---
+.left-column[
+Even though there is a sort of quadratic relation between the Gini and the 90/10 ratio, it is difficult the explain the high variability. 
+]
+.right-column[
+```{r p9010g}
+p_9010_g
+```
+]
+---
+
+class: center, middle, inverse
+
+## what is happening in the tails?
+
+---
+
+class: center, middle
+
+## What happen to inequality ranking if we removed the top 5% of all the countries?
+
+```{r conditionalgini}
+source("R/SDG_10_conditional_ginis.R")
+```
+
+---
+.left-column[
+This is how the ranking of some countries changes when we compare the full Gini and the 0-95% Gini
+]
+.right-column[
+```{r g0095-1}
+p_0095_1
+```
+]
+---
+.left-column[
+The most remarcable change is by `r names(cc1)[1]`
+]
+.right-column[
+```{r g0095-2}
+p_0095_2
+```
+]
+
+
+---
+.left-column[
+The most remarcable change is by `r names(cc1)[1]`, followed by `r names(cc1)[2]`
+]
+.right-column[
+```{r g0095-3}
+p_0095_3
+```
+]
+
+---
+.left-column[
+The most remarcable change is by `r names(cc1)[1]`, followed by `r names(cc1)[2]` and `r add_and(names(cc1)[3:5])`
+]
+.right-column[
+```{r g0095-4}
+p_0095_4
+```
+]
+
+---
+.left-column[
+
+Even though the Gini coefficient is lower for all the countries after removing the top 5%, all high income countries (with the exception of *Seychelles*) descended in the global inequality ranking.
+]
+.right-column[
+```{r p_0095-h}
+p_0095_h
+```
+]
+
+---
+.left-column[
+
+... and the same happens to upper-middle-income countries
+]
+.right-column[
+```{r p_0095-u}
+p_0095_um
+```
+]
+
+
+---
+.left-column[
+
+Yet, if some countries move down in the global ranking, others must go up. This the case for low-income countries
+]
+.right-column[
+```{r p_0095-l}
+p_0095_l
+```
+]
+
+
+---
+.left-column[
+
+Yet, if some countries move down in the global ranking, others must go up. This the case for low-income countries and lower-middle-income countries
+]
+.right-column[
+```{r p_0095-lm}
+p_0095_lm
+```
+]
+---
+
+class: middle, center
+
+## What if we remove the tails? say the bottom 10 and the top10
+---
+

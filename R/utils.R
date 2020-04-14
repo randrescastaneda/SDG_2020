@@ -124,4 +124,35 @@ plain <- theme(
   legend.box = "horizontal"
 )
 
+palette <- c("#1D6996", "#EDAD08", "#0F8554", "#DCB0F2",
+             "#66C5CC", "#F6CF71", "#F89C74", "#5F4690",
+             "#E17C05", "#CC503E", "#94346E", "#6F4070",
+             "#855C75", "#D9AF6B", "#AF6458", "#736F4C",
+             "#68855C", "#9C9C5E", "#A06177", "#8C785D",
+             "#FE88B1", "#C9DB74", "#8BE0A4", "#B497E7",
+             "#38A6A5", "#73AF48", "#87C55F", "#9EB9F3",
+             "#526A83", "#625377", "#994E95", "#666666",
+             "#467378", "#7C7C7C", "#D3B484", "#B3B3B3"
+)
+# scales::show_col(palette[1:12])
 
+
+add_and <- function(x) {
+  if (!(is.character(x))) {
+    warning("`x` must be character. coercing to character")
+    x <- as.character(x)
+  }
+
+  lx <- length(x)
+  if (lx == 1) {
+    y <- x
+  }
+  else if (lx == 2) {
+    y <- paste(x[1], "and", x[2])
+  }
+  else {
+    y <- c(x[1:lx-1], paste("and", x[lx]))
+    y <- paste(y, collapse = ", ")
+  }
+  return(y)
+}

@@ -108,7 +108,7 @@ p_p50 <- ggplot(data = dfc_1,
     legend.title = element_blank()
   )  +
   labs(x = "Country code",
-       y = "Dollar at day 2011 PPP")+
+       y = "Dollar a day 2011 PPP")+
   ylim(0, max(dfc_1$p90))
 
 set.seed(10123)
@@ -153,7 +153,7 @@ dfc_ex <- dfc_1 %>%
   )
 
 
-p_p10p90 +
+p_p10p90lc <- p_p10p90 +
   ggrepel::geom_label_repel(
     data = dfc_ex,
     aes(label = t90,
@@ -238,6 +238,95 @@ p_p10p903 <- p_p10p90 +
     # segment.angle = 20,
     nudge_y = 5
   )
+
+
+
+# plotting the rank
+p_r9010_j <- ggplot(data = dfc_1,
+       aes(x = fcountrycode,
+           y = r9010)) +
+  geom_point(aes(color = region)) +
+  theme_classic() +
+  theme(
+    axis.text.x = element_text(angle = 90,
+                               size = 5),
+    legend.position = c(.8, .8),
+    legend.direction = "horizontal",
+    legend.title = element_blank()
+  )  +
+  labs(x = "Country code",
+       y = "Dollar a day 2011 PPP")+
+  ylim(0, max(dfc_1$r9010))
+
+
+
+dfc_2 <- dfc_1 %>%
+  arrange(-r9010) %>%
+  mutate(fcountrycode = factor(countrycode, countrycode))
+
+
+dfc_rep2 <- dfc_2[1,] %>%
+  mutate(
+    text = paste0(countryname, " (", round(r9010, digits = 1), ")"),
+    col1 = "a"
+  ) %>%
+  bind_rows(dfc_rep)
+
+p_r9010_o <- ggplot(data = dfc_2,
+       aes(x = fcountrycode,
+           y = r9010)) +
+  geom_point(aes(color = region,
+                 size = p50)) +
+  theme_classic() +
+  theme(
+    axis.text.x = element_text(angle = 90,
+                               size = 5),
+    legend.position = c(.8, .8),
+    legend.direction = "horizontal",
+    legend.title = element_blank()
+  )  +
+  labs(x = "Country code",
+       y = "Dollar a day 2011 PPP")+
+  ylim(0, max(dfc_1$r9010))+
+  geom_label_repel(
+    data =  dfc_rep2,
+    aes(label = text,
+        fill = col2),
+    show.legend = FALSE,
+    force = 20,
+    box.padding = 1.2,
+    # max.overlaps = 2,
+    segment.curvature = 0.5,
+    # segment.ncp = 3,
+    # segment.angle = 20,
+    nudge_y = 5
+  )
+
+# relationship between p9010 and Gini
+
+dfc_9010_g <- dfc_1 %>%
+  left_join(povcalnetR::povcalnet(fill_gaps = TRUE,
+                                  year      = 2015) %>%
+              select(countrycode, gini),
+            by = "countrycode")
+
+p_9010_g <- ggplot(data = dfc_9010_g,
+       aes(x = gini,
+           y = r9010)) +
+  geom_point(aes(color = region)) +
+  geom_smooth(method = "lm",
+              formula = y ~ x + I(x^2)) +
+  theme_classic() +
+  theme(
+    legend.position = c(.2, .7),
+    # legend.direction = "horizontal",
+    legend.title = element_blank()
+  )  +
+  labs(x = "Gini coef.",
+       y = "90/10 ratio")
+
+
+
 
 
 

@@ -34,6 +34,33 @@ cr <- read_rds("data/cty_regs_names.rds")
 # Gini data
 #----------------------------------------------------------
 
+# no interpolation
+
+avg_gin_noint <- povcalnet(fill_gaps = TRUE) %>%
+  group_by(year) %>%
+  summarise(ginisa  = mean(gini, na.rm = TRUE),
+            ginimd  = median(gini, na.rm = TRUE),
+            giniwa  = weighted.mean(gini, population, na.rm = TRUE)
+  ) %>%
+  pivot_longer(
+    cols = -year,
+    names_to = c(".value", "type"),
+    names_pattern = "(gini)(.*)"
+  ) %>%
+  mutate(
+    type2 = case_when(
+      type == "sa" ~ "Simple Avg.",
+      type == "wa" ~ "Weighted Avg.",
+      type == "md" ~ "Median",
+      TRUE ~ ""
+    )
+  ) %>%
+  ungroup() %>%
+  filter(year >= 1990)
+
+
+
+# Interpolating
 minyear <- 1999
 df_fg <- povcalnet(fill_gaps = TRUE) %>%
   left_join(select(cr, -countryname),
@@ -123,8 +150,24 @@ df_g <- df_fg %>%   # Load povcalnet data
 #   CHARTS
 #----------------------------------------------------------
 
-#--------- evolution of average and median gini
-p_av_g <- ggplot(data = filter(avg_gini, type != "wa"),
+#--------- evolution of average and median gini NOT interpolating
+p_av_g <- ggplot(data = filter(avg_gin_noint, type != "wa"),
+                 aes(
+                   x = year,
+                   y = gini,
+                   color = type2
+                 )) +
+  geom_point() +
+  geom_line() +
+  plain +
+  theme(
+    legend.title=element_blank(),
+    legend.position = "bottom"
+    )
+# p_av_g
+
+#--------- evolution of average and median gini interpolating
+p_av_g_int <- ggplot(data = filter(avg_gini, type != "wa"),
                  aes(
                    x = year,
                    y = gini,
