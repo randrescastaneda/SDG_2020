@@ -255,7 +255,7 @@ p_r9010_j <- ggplot(data = dfc_1,
     legend.title = element_blank()
   )  +
   labs(x = "Country code",
-       y = "Dollar a day 2011 PPP")+
+       y = "P90/P10 ratio")+
   ylim(0, max(dfc_1$r9010))
 
 
@@ -286,7 +286,7 @@ p_r9010_o <- ggplot(data = dfc_2,
     legend.title = element_blank()
   )  +
   labs(x = "Country code",
-       y = "Dollar a day 2011 PPP")+
+       y = "P90/P10 ratio")+
   ylim(0, max(dfc_1$r9010))+
   geom_label_repel(
     data =  dfc_rep2,

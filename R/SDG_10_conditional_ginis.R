@@ -25,38 +25,7 @@ library("CGPfunctions")
 #   subfunctions
 #----------------------------------------------------------
 source("R/utils.R")
-gini <- function(x, y, w = NULL) {
 
-  y <- deparse(substitute(y))
-  w <- deparse(substitute(w))
-
-  y    <- x[[y]]   # welfare
-
-  if (w == "NULL") {
-    w = rep(1, times = length(y))
-  } else {
-    w    <- x[[w]]    # weigth
-  }
-
-  ordy <- order(y)     # order of y
-
-  w    <- w[ordy]      #order weight
-  y    <- y[ordy]      # order welfare
-
-  N    <- sum(w)       # population size
-  Y    <- sum(y*w)     # total welfare
-
-  cw   <- cumsum(w)    # Cumulative weights
-  cy   <- cumsum(y*w)  # Cumulative welfare
-
-  sn   <-  w/N         # share of population
-  my   <- weighted.mean(y, w, na.rm = TRUE)
-
-  i    <- (2*cw - w + 1)/2
-  t2   <- y*(N - i + 1)
-  gini <- 1+(1/N) - (2/(my*N^2))*sum(t2*w)
-  return(gini)
-}
 
 
 lc2 <- read_rds("data/cts_dist.rds")
@@ -67,21 +36,21 @@ cr  <- read_rds("data/cty_regs_names.rds")
 
 
 g0100 <- lc2 %>%   # Gini total
-  map_dbl(gini,welfare, weight) %>%
+  map_dbl(~gini(.$welfare, .$weight)) %>%
   tibble(g0100 = .,
          id = attr(., "names")
   )
 
 g0095 <- lc2 %>%
   map(~.x[.x[["q"]] < 20,]) %>%
-  map_dbl(gini,welfare, weight) %>%
+  map_dbl(~gini(.$welfare, .$weight)) %>%
   tibble(g0095 = .,
          id = attr(., "names")
   )
 
 g0595 <- lc2 %>%
   map(~.x[.x[["q"]] > 1 & .x[["q"]] < 20,]) %>%
-  map_dbl(gini,welfare, weight) %>%
+  map_dbl(~gini(.$welfare, .$weight)) %>%
   tibble(g0595 = .,
          id = attr(., "names")
   )
@@ -89,7 +58,7 @@ g0595 <- lc2 %>%
 
 g0090 <- lc2 %>%
   map(~.x[.x[["q"]] < 19,]) %>%
-  map_dbl(gini,welfare, weight) %>%
+  map_dbl(~gini(.$welfare, .$weight)) %>%
   tibble(g0090 = .,
          id = attr(., "names")
   )
@@ -97,7 +66,7 @@ g0090 <- lc2 %>%
 
 g1090 <- lc2 %>%
   map(~.x[.x[["q"]] > 2 & .x[["q"]] < 19,]) %>%
-  map_dbl(gini,welfare, weight) %>%
+  map_dbl(~gini(.$welfare, .$weight)) %>%
   tibble(g1090 = .,
          id = attr(., "names")
   )
@@ -237,7 +206,7 @@ reg_color <- gdf_p %>%
 
 
 #----------------------------------------------------------
-#   plot charts
+#   0095 charts
 #----------------------------------------------------------
 
 #------------ Basic
@@ -378,24 +347,38 @@ p_0095_lm <- newggslopegraph(dataframe   = gdf_p,
 
 
 
+#----------------------------------------------------------
+#   contrast gini
+#----------------------------------------------------------
 
-# By income group
-# uniq_ing <- unique(gdf_p$incomegroup)
-# ing_color <- gdf_p %>%
-#   distinct(incomegroup, countryname) %>%
-#   left_join (tibble(incomegroup = uniq_ing,
-#                     color  = rep(palette, ceiling(
-#                       length(uniq_ing) / length(palette)
-#                     ))[1:length(uniq_ing)]),
-#              by = "incomegroup") %>%
-#   select(countryname, color) %>%
-#   tibble::deframe()
-#
-# newggslopegraph(
-#   dataframe   = gdf_p,
-#   Times       = gini_type,
-#   Measurement = rg,
-#   Grouping    = countryname,
-#   LineColor   = ing_color
-# )
-#
+
+gt_ww <- gt_w %>%
+  select(-id) %>%
+  pivot_wider(names_from = year,
+              values_from = starts_with("g")
+              )
+
+
+
+p_ww <- ggplot(filter(gt_ww, g0090_2002 != g0090_2015),
+               aes(x = g0090_2002,
+                   y = g0090_2015,
+                   color = region)
+               ) +
+  geom_point() +
+  theme_classic()+
+  geom_abline(intercept = 0 ,
+              slope = 1,
+              color = "grey50") +
+  labs(x = "Gini\n(circa 2000)",
+       y = "Gini\n(circa 2018)")+
+  scale_x_continuous(limits = c(min(min(gt_ww$g0090_2002),
+                                    min(gt_ww$g0090_2015)),
+                                max(gt_ww$g0090_2002))) +
+  scale_y_continuous(limits = c(min(min(gt_ww$g0090_2002),
+                                    min(gt_ww$g0090_2015)),
+                                max(gt_ww$g0090_2015))) +
+  theme_classic() +
+  theme(
+    legend.position = "",
+  )
