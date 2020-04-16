@@ -1,4 +1,4 @@
-panel_WDI <- function(indicator, start=2000, end = 2015, maxdist=5, cb = TRUE){
+panel_WDI <- function(indicator, start=2000, end = 2015, maxdist=5, cb = TRUE, long = F){
   
   require(wbstats)
   require(tidyverse)
@@ -73,8 +73,11 @@ panel_WDI <- function(indicator, start=2000, end = 2015, maxdist=5, cb = TRUE){
   
   # ---- Reshape data
   
-  WDI <- WDI %>% select(-indicator, -usedsy , -usedey)
-  WDI <- WDI %>% spread(indicatorID, value)
+  if(long == F){
+    WDI <- WDI %>% select(-indicator, -usedsy , -usedey)
+    WDI <- WDI %>% spread(indicatorID, value)
+  }
+  
   
   #=============
   # Return data 
