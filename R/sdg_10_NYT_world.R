@@ -44,43 +44,54 @@ f_steps <- function(k, zero = TRUE) {
 #----------------------------------------------------------
 #   Aux data
 #----------------------------------------------------------
-source("R/_aux_data.R")
+
+source("R/utils.R")
 load("../dwd/data/dfc.RData")
 load("../dwd/data/dfr.RData")
+cr  <- read_rds("data/cty_regs_names.rds")
+# dfc <- read_rds("data/dfc.rds")
 
 
 #----------------------------------------------------------
-#
+# prep data
 #----------------------------------------------------------
 
 
-dft <- dfc %>% filter(status == "OK") %>%
+dft <- dfc %>%
   # merge regions and country names
-  left_join(cnames) %>%  left_join(rc) %>%
+  left_join(cr, by = "countrycode") %>%
   bind_rows(dfr) %>% # append regional and global data
-  group_by(countrycode) %>%
-  filter((year == min(year)) |
-           (year == max(year))) %>%
-  ungroup() %>%
-  filter(goal != 99)
+  mutate(
+    year = if_else(year == 1990, 1993, year)
+  ) %>%
+  filter((year == 1993) | (year == 2015),
+         status  %in%   c("OK", NA),
+         goal != 99)
 
 dft_f <- dft %>%
   filter(is.na(region))
 
 v_breaks <- seq(floor(min(dft$threshold)),
-    ceiling(max(dft$threshold)),
-    by = 10)
+                ceiling(max(dft$threshold)),
+                by = 10)
 
+#----------------------------------------------------------
+#   all countries and regions
+#----------------------------------------------------------
 
 
 p_nyt <-  ggplot() +
   # draw the original data series with grey
   geom_line(data = dft,
-            aes(year, threshold, group = countrycode),
+            aes(x = year,
+                y = threshold,
+                group = countrycode),
             colour = alpha("grey", 0.7)) +
   # color only the filtered data (regions and world)
   geom_line(data = dft_f,
-            aes(year, threshold, color = countrycode)) +
+            aes(x = year,
+                y = threshold,
+                color = countrycode)) +
   facet_wrap(~goal,
              nrow = 1,
              strip.position = "bottom") +
@@ -89,7 +100,9 @@ p_nyt <-  ggplot() +
     axis.text.x = element_text(size = 5,
                                angle = 90),
     strip.background = element_blank(),
-    strip.placement = "outside"
+    strip.placement = "outside",
+    legend.position = c(.1,.8),
+    legend.title = element_blank()
   ) +
   scale_y_continuous(name = "2011 PPP USD a day",
                      #breaks = v_breaks,
@@ -100,3 +113,64 @@ p_nyt <-  ggplot() +
 ggplotly(p_nyt)
 
 # ggplotly(p_nyt, tooltip = "text")
+
+
+
+#----------------------------------------------------------
+#   filtered charts
+#----------------------------------------------------------
+
+dftf <- dft %>%
+  arrange(countrycode, goal, year) %>%
+  group_by(countrycode, goal) %>%
+  mutate(
+    perform = if_else(
+      threshold - lag(threshold) < 0,
+      "Bad",
+      "Good"
+    ),
+    perform = if_else(is.na(perform), lead(perform), perform)
+  ) %>%
+  group_by(countrycode) %>%
+  add_count(perform, name = "np") %>%
+  add_count(name = "nc") %>%
+  mutate(
+    shr_perform = np/nc,
+    bad_perf    = if_else(perform == "Bad" & shr_perform >= .5, 1, 0),
+    bad_perf    = max(bad_perf)
+  ) %>%
+  filter(!is.na(bad_perf),
+         incomegroup == "Low income") %>%
+  ungroup()
+
+
+p_nyt_f <-  ggplot(data = filter(dftf, bad_perf == 1),
+                   aes(x = year,
+                       y = threshold,
+                       group = countrycode,
+                       color = region)
+                   ) +
+  # draw the original data series with grey
+  geom_line(size = 1) +
+  facet_wrap(~goal,
+             nrow = 1,
+             strip.position = "bottom") +
+  theme_classic() +
+  theme(
+    axis.text.x = element_text(size = 5,
+                               angle = 90),
+    strip.background = element_blank(),
+    strip.placement = "outside",
+    legend.position = c(.1,.8),
+    legend.title = element_blank()
+  ) +
+  scale_y_continuous(name = "2011 PPP USD a day",
+                     #breaks = v_breaks,
+                     # breaks = f_steps(10, zero = FALSE),
+                     breaks = function(y) seq(floor(min(y)), ceiling(max(y)), by = 10),
+                     labels = scales::dollar)
+
+p_nyt_f
+
+ggplotly(p_nyt_f)
+

@@ -26,7 +26,7 @@ library("janitor")
 
 source("R/utils.R")
 cr  <- read_rds("data/cty_regs_names.rds")
-lc <- read_rds("data/cts_dist.rds")
+lc  <- read_rds("data/cts_dist.rds")
 
 #----------------------------------------------------------
 #   Set up
@@ -54,12 +54,22 @@ gmed <- df %>%
 #----------------------------------------------------------
 #   plots
 #----------------------------------------------------------
-ggplot(gmed,
+p_gini_med <- ggplot(
+       data = filter(gmed, type == "unweighted"),
        aes(x = year,
            y = gini,
            color = type)) +
-  geom_line() +
-  geom_point()
+  geom_line(size = 1.3) +
+  geom_point(size = 2) +
+  theme_classic() +
+  theme(
+    legend.title = element_blank(),
+    legend.position = c(.2,.1)
+  ) +
+  labs(x = "Year",
+       y = "Gini coef.",
+       title = "Gini coef. of medians of all countries over time",
+       subtitle = "line-up years")
 
 
 

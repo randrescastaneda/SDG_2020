@@ -497,19 +497,37 @@ class: middle, center
 
 --
 
-.big[can we create a global disitribution?]
-
----
-
-.big[let's take the median of each country, that is not affected by the outliers of the top, and plot a Gini coefficient for the world.]
-
+.big[So, how can we know if a particular country is more unequal than other? By using the Gini? Not really, as it might be reflecting just the effect of the top, hidding the rest of the distribution.]
 
 --
+.big[The main problem is not the inequality wihtin countries but between countries. ]
 
-.big[let's see how it has changed over time]
+---
+class: middle, center
+
+.big[let's take the median of each country, which is not affected by the outliers of the top, and plot a Gini coefficient for the world over time.]
+
 
 ---
 
-.big[The main problem is not the inequality wihtin countries but between countries. ]
+```{r ginimed}
+source("R/SDG_10_global_gini.R")
+```
 
+.left-column[
+Under this perspective, where we take a measure of central tendency that is not effected by outliers (say, within-country inequality), we can see that between-country in the world has increased
+]
+.right-column[
+```{r ginimed-u}
+p_gini_med
+```
+]
+
+---
+
+class: middle, center
+
+.big[Ok, so that is the evolution of inequality using the median. What about the rest of the distribution?]
+
+---
 

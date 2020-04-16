@@ -23,6 +23,10 @@ library("povcalnetR")
 #----------------------------------------------------------
 #   subfunctions
 #----------------------------------------------------------
+wdir <- "C:/Users/wb384996/OneDrive - WBG/WorldBank/DECDG/SDG_2020"
+if (getwd() != wdir) {
+  setwd(wdir)
+}
 
 
 #----------------------------------------------------------
@@ -32,12 +36,13 @@ library("povcalnetR")
 source("R/povcalnet_iterate.R")
 
 
-year <-
-  povcalnet(country = "COL",
-            fill_gaps = TRUE) %>%
-  select(year) %>% pull
+# year <-
+#   povcalnet(country = "COL",
+#             fill_gaps = TRUE) %>%
+#   select(year) %>% pull
 
-year <- c(1981, 1990, 1999, 2005, 2010, 2015)
+# year <- c(1981, 1990, 1999, 2005, 2010, 2015)
+year <- c(1993, 2002, 2015)
 
 regions  <- c("ECA", "MNA", "SSA", "LAC", "OHI", "SAS", "EAP", "WLD")
 
@@ -47,18 +52,18 @@ regions  <- c("ECA", "MNA", "SSA", "LAC", "OHI", "SAS", "EAP", "WLD")
 
 
 #------ regions
-rdf <- as.list(expand.grid(goal = c(c(1:9) / 10, .99),
+rdf <- as.list(expand.grid(goal = c(c(1:9) / 10, .9999),
                            region = regions,
                            year = year,
                            stringsAsFactors = FALSE))
 
 dfr <- pmap_dfr(rdf, povcalnet_iterate)
-save(dfr, file = "data/dfr.RData")
+write_rds(dfr, "data/dfr.rds")
 
 
 #------- countries
 countries <- get_countries("WLD")
-cdf <- as.list(expand.grid(goal = c(c(1:9) / 10, .99),
+cdf <- as.list(expand.grid(goal = c(c(1:9) / 10, .9999),
                            country = countries,
                            year = year,
                            tolerance = 4,
@@ -67,4 +72,6 @@ cdf <- as.list(expand.grid(goal = c(c(1:9) / 10, .99),
 
 
 dfc <- pmap_dfr(cdf, povcalnet_iterate)
-save(dfc, file = "data/dfc.RData")
+write_rds(dfc, "data/dfc.rds")
+
+
