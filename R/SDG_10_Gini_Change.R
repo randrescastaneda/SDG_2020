@@ -214,6 +214,28 @@ p_g <- ggplot(data = filter(df_g, gini_1 != gini_2),
     legend.position = "",
   )
 
+p_g_i <- ggplot(data = filter(df_g, gini_1 != gini_2),
+              aes(x = gini_1,
+                  y = gini_2,
+                  color = incomegroup)) +
+  geom_point(size = 2,
+             show.legend = FALSE) +
+  geom_abline(intercept = 0 ,
+              slope = 1,
+              color = "grey50") +
+  labs(x = "Gini\n(circa 2000)",
+       y = "Gini\n(circa 2018)") +
+  scale_x_continuous(limits = c(min(min(df_g$gini_1), min(df_g$gini_2)), max(df_g$gini_1))) +
+  scale_y_continuous(limits = c(min(min(df_g$gini_1), min(df_g$gini_2)), max(df_g$gini_2))) +
+  theme_classic() +
+  theme(
+    legend.position = "",
+  )
+
+
+
+
+
 # p_g +
 #   ggforce::geom_mark_hull(
 #     aes(filter = region == 'LAC',
