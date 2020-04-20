@@ -118,21 +118,40 @@ dfc_p50 <- dfc_1[sm_p50,] %>%
     text = paste0(countryname, " ($", round(p50, digits = 2), " a day)")
   )
 
-p_p50 +
-  ggrepel::geom_label_repel(
-    data = dfc_p50,
-    aes(label = text,
-        fill  = region),
-    show.legend = FALSE,
-    force = 20,
-    box.padding = 1.2,
-    # max.overlaps = 2,
-    segment.curvature = 0.5,
-    # segment.ncp = 3,
-    # segment.angle = 20,
-    nudge_y = 5
-  )
+# Just first and last
+dfc_p50lh <- dfc_p50[c(1,nrow(dfc_p50)),]
 
+
+# p_p50 +
+#   ggrepel::geom_label_repel(
+#     data = dfc_p50,
+#     aes(label = text,
+#         fill  = region),
+#     show.legend = FALSE,
+#     force = 20,
+#     box.padding = 1.2,
+#     # max.overlaps = 2,
+#     segment.curvature = 0.5,
+#     # segment.ncp = 3,
+#     # segment.angle = 20,
+#     nudge_y = 5
+#   )
+#
+# p_p50 +
+#   ggrepel::geom_label_repel(
+#     data = dfc_p50lh,
+#     aes(label = text,
+#         fill  = region),
+#     show.legend = FALSE,
+#     force = 20,
+#     box.padding = 1.2,
+#     # max.overlaps = 2,
+#     segment.curvature = 0.5,
+#     # segment.ncp = 3,
+#     # segment.angle = 20,
+#     nudge_y = 5
+#   )
+#
 
 
 #--------- p90/p10
@@ -181,8 +200,60 @@ p_p10p90lc <- p_p10p90 +
   )
 
 
+#----------------------------------------------------------
+#   just two countries
+#----------------------------------------------------------
 
-#--------- labels with 90/10 ratio
+dfc_2c <- dfc_1[c(1,nrow(dfc_1)),] %>%
+  mutate(
+    countryx = c("Country A", "Country B")
+  ) %>%
+  left_join(
+    povcalnet(country = dfc_2c[["countrycode"]],
+              year    = unique(dfc_2c[["year"]]),
+              fill_gaps = TRUE) %>%
+      select(countrycode, gini),
+    by = "countrycode"
+  )
+
+
+
+p_p10p90_2cx <- ggplot(data = dfc_2c,
+                   aes(x = countryx,
+                      y = p50)) +
+  geom_errorbar(aes(ymin = p10,
+                    ymax = p90,
+                    color = countryx),
+                width = 1,
+                size = 1.5) +
+  geom_point(size = 2.5) +
+  theme_classic() +
+  theme(
+    axis.text.x = element_text(angle = 90,
+                               size = 5),
+    legend.position = c(.2, .8),
+    legend.direction = "horizontal",
+    legend.title = element_blank()
+  )  +
+  labs(x = "Country code",
+       y = "Dollar a day 2011 PPP")+
+  ylim(0, max(dfc_2c$p90))
+
+# p_p10p90_2cx + geom_text(aes(label = paste("Gini:\n", round(gini, digits = 3))),
+#                          nudge_x = -.1,
+#                          nudge_y = 2.8)
+#
+
+
+
+
+# p_p10p90_2c
+
+
+#----------------------------------------------------------
+#   labels with 90/10 ratio
+#----------------------------------------------------------
+
 
 set.seed(1010)
 sm_dfc <- c(1,sample(nrow(dfc_1), 20, prob = nrow(dfc_1)/dfc_1$r9010 ), nrow(dfc_1))
@@ -310,23 +381,44 @@ dfc_9010_g <- dfc_1 %>%
               select(countrycode, gini),
             by = "countrycode")
 
-p_9010_g <- ggplot(data = dfc_9010_g,
-       aes(x = gini,
-           y = r9010)) +
-  geom_point(aes(color = region)) +
+p_9010_g <- ggplot(data = filter(dfc_9010_g,
+                                 countrycode != "ZAF",
+                                 !is.na(gini)),
+                   aes(x = r9010,
+                       y = gini)
+                   ) +
   geom_smooth(method = "lm",
               formula = y ~ x + I(x^2)) +
+  geom_point(aes(color = region)) +
   theme_classic() +
   theme(
-    legend.position = c(.2, .7),
+    legend.position = c(.7, .3),
     # legend.direction = "horizontal",
     legend.title = element_blank()
   )  +
-  labs(x = "Gini coef.",
-       y = "90/10 ratio")
+  labs(y = "Gini coef.",
+       x = "90/10 ratio")
+
+# p_9010_g
 
 
-
+p_med_g <- ggplot(data = filter(dfc_9010_g,
+                                countrycode != "ZAF",
+                                !is.na(gini)),
+                 aes(y = gini,
+                     x = p50)) +
+  geom_smooth(method = "lm",
+              formula = y ~ x + I(x^2)) +
+  geom_point(aes(color = region)) +
+  theme_classic() +
+  theme(
+    legend.position = c(.7, .7),
+    # legend.direction = "horizontal",
+    legend.title = element_blank()
+  )  +
+  labs(y = "Gini coef.",
+       x = "Median welfare")
+# p_med_g
 
 
 

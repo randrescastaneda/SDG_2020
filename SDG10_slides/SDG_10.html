@@ -131,6 +131,7 @@ class: center, middle
 
 .left-column[
 .big[.acidinline[Gini coef. by country in circa 2000-2018]]
+
 Here we have all the countries of the world and their corresponding Gini coefficient of the closest year to 2000 and 2018. 
 ]
 .right-column[
@@ -141,6 +142,7 @@ Here we have all the countries of the world and their corresponding Gini coeffic
 
 .left-column[
 .big[.acidinline[Gini coef. by country in circa 2000-2018 (LAC)]]
+
 LAC is the region that consistently has reduced inequality in most countries. This makes sense because inequality is measured with income-based welfare, which is by definition higher than consumption-based welfare,  so there is more room to improve.
 ]
 .right-column[
@@ -150,6 +152,7 @@ LAC is the region that consistently has reduced inequality in most countries. Th
 ---
 .left-column[
 .big[.acidinline[Gini coef. by country in circa 2000-2018 (SSA)]]
+
 When we look at other regions, we don't find the same patterns.
 ]
 .right-column[
@@ -159,6 +162,7 @@ When we look at other regions, we don't find the same patterns.
 ---
 .left-column[
 .big[.acidinline[Gini coef. by country in circa 2000-2018 (EAP)]]
+
 When we look at other regions, we don't find the same patterns.
 ]
 .right-column[
@@ -168,7 +172,7 @@ When we look at other regions, we don't find the same patterns.
 
 class: center, middle
 
-## .heatinline[We could highlight by income groups instead]
+## .heatinline[We could also highlight by income groups instead]
 
 ---
 .left-column[
@@ -204,6 +208,322 @@ class: center, middle
 .right-column[
 &lt;img src="SDG_10_files/figure-html/ghi-1.png" width="720" /&gt;
 ]
+
+---
+### .saltinline[Ok, inequality is decreasing in most of LAC countries and goes all over the place for the rest of countries. So what?...] 
+
+--
+
+- .big[What does a reduction in the global Gini actually says?]
+
+--
+
+- .big[Where is the action happening within the distribution of the countries?]
+
+--
+
+- .big[From a technical point of view, why poor countries have higher inequality than rich countries?]
+
+--
+
+- .big[Can we say that one country is more unequal than another by just comparing thier Ginis?]
+
+--
+
+- .big[How similar are the welfare levels of two countries with similar inequality?]
+
+
+---
+### .heatinline[Since it is difficult to come up with a compelling story for global inequality, we could do two things]
+
+--
+
+1. .big[We could shed some light on the following questions]
+
+--
+
+2. .big[We could provide the user with a unique experience. ]
+--
+.big[A set of tools to help them understand their position in the welfare distribution of the world]
+
+---
+class: inverse, center, middle
+## Another way to see inequality
+
+
+---
+
+.left-column[
+Here, countries are organized according to their median, from lowest to highest.
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/p50-1.png" width="720" /&gt;
+]
+
+---
+
+.left-column[
+Here, countries are organized according to their median, from lowest to highest.
+
+From Central African Republic to Luxembourg. 
+
+By just looking at the chart we can see that the *typical person* in Luxembourg is 59 times richer than the *typical person* in Central African Republic
+
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/p50l-lh-1.png" width="720" /&gt;
+]
+---
+.left-column[
+Here, countries are organized according to their median, from lowest to highest.
+
+From Central African Republic to Luxembourg. 
+
+By just looking at the chart we can see that the *typical person* in Luxembourg is 59 times richer than the *typical person* in Central African Republic
+
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/p50-all-1.png" width="720" /&gt;
+]
+---
+.left-column[
+Now, let's remove the labels and add the monetary distance between the 10th and 90th percentiles. 
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/p50l2-1.png" width="720" /&gt;
+]
+---
+.left-column[
+Now, let's remove the labels and add the monetary distance between the 10th and 90th percentiles. 
+
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/p1090g-1.png" width="720" /&gt;
+]
+
+---
+.left-column[
+As in this random case, the upper limit of the bar represents the 90th percentile of the distribution, whereas the lower limit represents the 10th percentile of the distribution. 
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/p1090gc-1.png" width="720" /&gt;
+]
+---
+.left-column[
+By looking at the monetary distance between p90 and p10 of these two countries, 
+
+.heatinline[which of them is more unequal? A or B?]
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/2cx-1.png" width="720" /&gt;
+]
+---
+.left-column[
+By looking at the monetary distance between p90 and p10 of these two countries, 
+
+.heatinline[which of them is more unequal? A or B?]
+
+.heatinline[surprised?]
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/2cx2-1.png" width="720" /&gt;
+]
+---
+.left-column[
+Even though the length of the bars makes it look like there is more inequality within rich countries than within poor ones, it is just a visual illusion.
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/p1090g2-1.png" width="720" /&gt;
+]
+
+---
+
+
+
+.left-column[
+Even though the length of the bars makes it look like there is more inequality within rich countries than within poor ones, it is just a visual illusion.
+
+Take for instance Central African Republic, whose 90th percentile ($3.29) is 10.9 times higher than its 10th percentile ($0.3). 
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/p1090gl2-1.png" width="720" /&gt;
+]
+
+---
+
+.left-column[
+Even though the length of the bars makes it look like there is more inequality within rich countries than within poor ones, it is just a visual illusion.
+
+Take for instance Central African Republic, whose 90th percentile ($3.29) is 10.9 times higher than its 10th percentile ($0.3). 
+
+In contrast, Luxembourg's  90th percentile ($124.97) is only 4.85 times higher than its 10th percentile ($25.78). 
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/p1090gl3-1.png" width="720" /&gt;
+]
+
+---
+.left-column[
+Yet, this chart does not imply that the richer the country the lower its inequality levels.  
+
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/p1090-4-1.png" width="720" /&gt;
+]
+---
+.left-column[
+Yet, this chart does not imply that the richer the country the lower its inequality levels. 
+
+If we keep the countries sorted by their median and plot the p90/p10 ration in the Y axis, the current sorting is completely lost.
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/rj-1.png" width="720" /&gt;
+]
+---
+.left-column[
+If we reorganize the countries according to their p90/p10 ratio, we see a strong re-ranking. So, you  may wondering
+
+- is the Gini highly correlated to the p90/p10 ratio?
+
+- is there any relationship between welfare and inequality? 
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/ro-1.png" width="720" /&gt;
+]
+---
+.left-column[
+.heatinline[Gini vs P90/P10]
+
+Even though there is a sort of quadratic relation between the Gini and the 90/10 ratio, it is difficult to explain the high variability. 
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/p9010g-1.png" width="720" /&gt;
+]
+---
+.left-column[
+.heatinline[Gini vs Median]
+
+The richer countries are not necessarily the less unequal. 
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/p9010med-1.png" width="720" /&gt;
+]
+---
+
+class: center, middle, inverse
+
+## What is happening at the tails?
+
+---
+
+class: center, middle
+
+## What happen to inequality ranking if we removed the top 5% of all the countries?
+
+
+
+---
+&lt;img src="SDG_10_files/figure-html/g0095-1-1.png" width="720" /&gt;
+
+---
+
+&lt;img src="SDG_10_files/figure-html/g0095-2-1.png" width="720" /&gt;
+
+---
+.left-column[
+The most remarkable change in ranking happens in Seychelles, followed by Myanmar
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/g0095-3-1.png" width="720" /&gt;
+]
+
+---
+.left-column[
+The most remarkable change in ranking happens in Seychelles, followed by Myanmar and Sao Tome and Principe, Burkina Faso, and Rwanda
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/g0095-4-1.png" width="720" /&gt;
+]
+
+---
+.left-column[
+
+Even though the Gini coefficient is lower for all the countries after removing the top 5%, all high income countries (with the exception of *Seychelles*) descended in the global inequality ranking.
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/p_0095-h-1.png" width="720" /&gt;
+]
+
+---
+.left-column[
+
+... and the same happens to upper-middle-income countries
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/p_0095-u-1.png" width="720" /&gt;
+]
+
+
+---
+.left-column[
+
+Yet, if some countries move down in the global ranking, others must go up. This the case for low-income countries
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/p_0095-l-1.png" width="720" /&gt;
+]
+
+
+---
+.left-column[
+
+Yet, if some countries move down in the global ranking, others must go up. This the case for low-income countries and lower-middle-income countries
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/p_0095-lm-1.png" width="720" /&gt;
+]
+---
+
+class: middle, center
+
+### the top of the distribution highly affects the ranking of global inquality
+
+--
+
+### .saltinline[So, how can we know if a particular country is more unequal than other? By using the Gini?] 
+
+--
+
+### .heatinline[Not really, as it might be reflecting just the effect of the top, hidding the rest of the distribution.]
+
+--
+
+### The main problem is not the inequality wihtin countries but between countries.
+
+---
+class: middle, center
+
+.big[let's take the median of each country, which is not affected by the outliers of the top, and plot a Gini coefficient for the world over time.]
+
+
+---
+
+
+
+.left-column[
+Under this perspective, where we take a measure of central tendency that is not affected by outliers (say, within-country inequality), we can see that between-country in the world has increased
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/ginimed-u-1.png" width="720" /&gt;
+]
+
+---
+
+class: middle, center
+
+.big[Ok, so that is the evolution of inequality using the median. What about the rest of the distribution?]
+
+---
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
