@@ -209,8 +209,8 @@ dfc_2c <- dfc_1[c(1,nrow(dfc_1)),] %>%
     countryx = c("Country A", "Country B")
   ) %>%
   left_join(
-    povcalnet(country = dfc_2c[["countrycode"]],
-              year    = unique(dfc_2c[["year"]]),
+    povcalnet(country = .[["countrycode"]],
+              year    = unique(.[["year"]]),
               fill_gaps = TRUE) %>%
       select(countrycode, gini),
     by = "countrycode"

@@ -32,13 +32,18 @@ knitr::opts_knit$set(
 )
 # options(knitr.table.format = "html")
 library(fontawesome) # from github: https://github.com/rstudio/fontawesome
-
+xaringanExtra::use_xaringan_extra(c("tile_view", "animate_css", "tachyons"))
 ```
 
 class: inverse, right, bottom
 ## SDG Atlas 2020
 
 ## Goal 10: Reduce inequality within and among countries
+
+???
+The objective of this presentation is not show you the flow of the story of goal 10 but my train of thought and the challenges that I have faced looking for a compelling and clear story of welfare inequality at the global level. 
+
+In addition, I will show you only what I have done regarding welfare inequality. I won't discuss today  the other sections of this chapter, mainly everything related to grow of the B40 and non-monetary inequality. I am working that section as well, but that is a little independent of the work that I am showing today. 
 
 ---
 ```{r ginichange}
@@ -61,35 +66,69 @@ class: center, middle
 
 --
 
-### .fatinline[In contrast to poverty, inequality measures, Gini in particular, are not additive decomposable. That is, the average of Ginis is not equal to the total Gini.]
+### In contrast to poverty, inequality measures, Gini in particular, are not additive decomposable. That is, the average of Gini coefs. is not equal to the total Gini.
+
+
+???
+In contrast to poverty, inequality measures, Gini in particular, are not additive decomposable. That is, the average of Ginis is not equal to the total Gini.
 
 ---
 
-## .acidinline[Total Gini]
+## .heatinline[Total (pool) Gini]
 
-.big[If I pull the welfare aggregates of all the countries and calculate a global Gini as if it were a single country, what does that tell me?]
+--
+
+.big[If I pool the welfare aggregates of all the countries and calculate a global Gini as if it were a single country, what does that tell me?]
+
 --
 
 .big[It does not say much because whether it goes up or down over time, I have no way to explain that movement:]
 
 --
+
 .big[
 - The distributional changes across countries may cancel each other 
+]
+
+--
+
+.big[
 - The welfare between countries is not comparable (e.g., cons and income)
+]
+
+--
+.big[
 - I can't see where the action is happening. 
-- **There is no data available to create a representative set of countries in any year to build a comparable trend of global inequality over time**]
+]
+
+--
+.big[
+- **There is no data**
+]
+
+???
+There is no data available to create a representative set of countries in any year to build a comparable trend of global inequality over time
 ---
-## .acidinline[Average of Ginis]
+## .heatinline[Average of Gini coefs.]
 
 --
 .big[This should be simple, it is just estimating how inequality, in average, has moved over time]
 
 --
 
-.big[It is not that simple because, 
+.big[It is not that simple because, ]
+
+--
+.big[
 - Again, we don't have data for all the countries in all the years, so any two sets of countries in two years will be different to each other. 
-- Lackner et. al (2019) found no more than 43 countries with which we could calculate an average of the Ginis over time, but that set is not representative of the whole world.
 ]
+
+--
+
+.big[
+- Lackner et. al (2019) found no more than 43 countries with which we could calculate an average of the Gini coefsover time, but that set is not representative of the whole world.
+]
+
 ---
 class: center, middle
 ## .saltinline[So, If we want a simple measure of global inequality, how can we overcome the problem of lack of data?]
@@ -100,9 +139,10 @@ class: center, middle
 
 ---
 .left-column[
-.big[.acidinline[Without interpolation]]
+.big[.heatinline[Without interpolation]]
 
-By using **only** available data, the *average* Gini coefficient decreased steadly from the mid 90's to 2010. Since then, the trend reverted and the average inequality is increasing rapidly.
+Using **only** available data.
+
 ]
 
 .right-column[
@@ -112,12 +152,13 @@ p_av_g +
              color = "gray70")
 ```
 ]
-
+???
+The *average* Gini coefficient decreased steadily from the mid 90's to 2010. Since then, the trend reverted and the average inequality is increasing rapidly.
 ---
 .left-column[
-.big[.acidinline[With interpolation]]
+.big[.heatinline[With interpolation]]
 
-However, when we interpolate linearly to account for countries with missing data in some years but with at least two data points five years appart, the story changes. 
+Lineal interpolation to account for countries with missing data...the story changes. 
 ]
 
 .right-column[
@@ -128,10 +169,13 @@ p_av_g_int +
 ```
 ]
 
+???
+missing in some years but with at least two data points no more than five years apart
+
 ---
 
 class: center, middle
-## .saltinline[Ok, if I can't say anything about global inequality in general, can I say something about the countries?]
+## .saltinline[Ok, if in general I can't say anything about global inequality, can I say something about the countries?]
 
 --
 
@@ -139,12 +183,12 @@ class: center, middle
 
 --
 
-### .saltinline[can we know how has inequality evolved in each country?]
+### .saltinline[can we know how inequality has evolved in each country?]
 
 ---
 class: center, middle
 
-## .heatinline[Of course! we can answer that]
+## .heatinline[Of course! we can know that]
 
 ---
 
@@ -154,19 +198,31 @@ class: center, middle
 
 .big[
 - It is not exciting
-- It has already been done
-- It's about it. There's no much we can say
 ]
 
 --
 
+.big[
+- It has already been done
+]
+
+--
+
+.big[
+- It's about it. There's no much we can say
+]
+--
+
 .center[.heat[Let's see it]]
+---
+class: middle, center, inverse
+
+### Inequality across countries
 ---
 
 .left-column[
-.big[.acidinline[Gini coef. by country in circa 2000-2018]]
+.big[.heatinline[Gini coef. by country in circa 2000-2018]]
 
-Here we have all the countries of the world and their corresponding Gini coefficient of the closest year to 2000 and 2018. 
 ]
 .right-column[
 ```{r gini45}
@@ -174,12 +230,12 @@ p_g
 ```
 ]
 
+???
+Here we have all the countries of the world and their corresponding Gini coefficient of the closest years to 2000 and 2018.
 ---
 
 .left-column[
-.big[.acidinline[Gini coef. by country in circa 2000-2018 (LAC)]]
-
-LAC is the region that consistently has reduced inequality in most countries. This makes sense because inequality is measured with income-based welfare, which is by definition higher than consumption-based welfare,  so there is more room to improve.
+.big[.heatinline[Gini coef. by country in circa 2000-2018 (LAC)]]
 ]
 .right-column[
 ```{r gini45lac}
@@ -195,9 +251,11 @@ p_g +
 ``` 
 ]
 
+???
+LAC is the region that consistently has reduced inequality in most countries. This makes sense because inequality is measured with income-based welfare, which is by definition higher than consumption-based welfare, so there is more room to improve.
 ---
 .left-column[
-.big[.acidinline[Gini coef. by country in circa 2000-2018 (SSA)]]
+.big[.heatinline[Gini coef. by country in circa 2000-2018 (SSA)]]
 
 When we look at other regions, we don't find the same patterns.
 ]
@@ -217,7 +275,7 @@ p_g +
 
 ---
 .left-column[
-.big[.acidinline[Gini coef. by country in circa 2000-2018 (EAP)]]
+.big[.heatinline[Gini coef. by country in circa 2000-2018 (EAP)]]
 
 When we look at other regions, we don't find the same patterns.
 ]
@@ -243,7 +301,7 @@ class: center, middle
 
 ---
 .left-column[
-.big[.acidinline[Gini coef. by country in circa 2000-2018 (Low income)]]
+.big[.heatinline[Gini coef. by country in circa 2000-2018 (Low income)]]
 ]
 .right-column[
 ```{r gli}
@@ -262,7 +320,7 @@ p_g_i +
 ---
 
 .left-column[
-.big[.acidinline[Gini coef. by country in circa 2000-2018 (Lower middle income)]]
+.big[.heatinline[Gini coef. by country in circa 2000-2018 (Lower middle income)]]
 ]
 .right-column[
 ```{r glmi}
@@ -281,7 +339,7 @@ p_g_i +
 ---
 
 .left-column[
-.big[.acidinline[Gini coef. by country in circa 2000-2018 (Upper middle income)]]
+.big[.heatinline[Gini coef. by country in circa 2000-2018 (Upper middle income)]]
 ]
 .right-column[
 ```{r gumi}
@@ -300,7 +358,7 @@ p_g_i +
 ---
 
 .left-column[
-.big[.acidinline[Gini coef. by country in circa 2000-2018 (High income)]]
+.big[.heatinline[Gini coef. by country in circa 2000-2018 (High income)]]
 ]
 .right-column[
 ```{r ghi}
@@ -317,50 +375,32 @@ p_g_i +
 ```
 ]
 
----
-### .saltinline[Ok, inequality is decreasing in most of LAC countries and goes all over the place for the rest of countries. So what?...] 
-
---
-
-- .big[What does a reduction in the global Gini actually says?]
-
---
-
-- .big[Where is the action happening within the distribution of the countries?]
-
---
-
-- .big[From a technical point of view, why poor countries have higher inequality than rich countries?]
-
---
-
-- .big[Can we say that one country is more unequal than another by just comparing thier Ginis?]
-
---
-
-- .big[How similar are the welfare levels of two countries with similar inequality?]
-
+???
+We can see that inequality goes in any direction, but inequality in high income countries has less variability over time.
 
 ---
-### .heatinline[Since it is difficult to come up with a compelling story for global inequality, we could do two things]
+### .heatinline[Remarks of this section]
 
 --
 
-1. .big[We could shed some light on the following questions]
+- .big[Qualitatively, a decrease or increase of global Gini does not say anything]
 
 --
 
-2. .big[We could provide the user with a unique experience. ]
+- .big[Inequality is decreasing in most of LAC countries and goes in all directions for the rest of the countries... ]
 --
-.big[A set of tools to help them understand their position in the welfare distribution of the world]
+.big[So What?]
 
+???
+This is why I think we could answer more interesting questions...
 ---
 class: inverse, center, middle
-## Another way to see inequality
+## why poor countries seem to have higher inequality than rich countries?
 
 ```{r p1090-calc}
 source("R/SDG_10_p10p90p50.R")
 ```
+
 ---
 
 .left-column[
@@ -382,8 +422,6 @@ Here, countries are organized according to their median, from lowest to highest.
 
 From `r dfc_p50[["countryname"]][1]` to `r dfc_p50[["countryname"]][nrow(dfc_p50)]`. 
 
-By just looking at the chart we can see that the *typical person* in `r dfc_p50[["countryname"]][nrow(dfc_p50)]` is `r h50l50` times richer than the *typical person* in `r dfc_p50[["countryname"]][1]`
-
 ]
 .right-column[
 ```{r p50l-lh}
@@ -404,13 +442,15 @@ p_p50 +
 
 ```
 ]
+
+???
+By just looking at the chart we can see that the *typical person* in `r dfc_p50[["countryname"]][nrow(dfc_p50)]` is `r h50l50` times richer than the *typical person* in `r dfc_p50[["countryname"]][1]`
+
 ---
 .left-column[
 Here, countries are organized according to their median, from lowest to highest.
 
 From `r dfc_p50[["countryname"]][1]` to `r dfc_p50[["countryname"]][nrow(dfc_p50)]`. 
-
-By just looking at the chart we can see that the *typical person* in `r dfc_p50[["countryname"]][nrow(dfc_p50)]` is `r h50l50` times richer than the *typical person* in `r dfc_p50[["countryname"]][1]`
 
 ]
 .right-column[
@@ -454,29 +494,33 @@ p_p10p90
 
 ---
 .left-column[
-As in this random case, the upper limit of the bar represents the 90th percentile of the distribution, whereas the lower limit represents the 10th percentile of the distribution. 
+Now, let's remove the labels and add the monetary distance between the 10th and 90th percentiles. 
+
 ]
 .right-column[
 ```{r p1090gc}
 p_p10p90lc
 ```
 ]
+
+???
+As in this random case, the upper limit of the bar represents the 90th percentile of the distribution, whereas the lower limit represents the 10th percentile of the distribution.
 ---
 .left-column[
-By looking at the monetary distance between p90 and p10 of these two countries, 
-
-.heatinline[which of them is more unequal? A or B?]
+.heatinline[which country is more unequal? A or B?]
 ]
 .right-column[
 ```{r 2cx}
 p_p10p90_2cx
 ```
 ]
+
+???
+By looking at the monetary distance between p90 and p10 of these two countries 
+
 ---
 .left-column[
-By looking at the monetary distance between p90 and p10 of these two countries, 
-
-.heatinline[which of them is more unequal? A or B?]
+.heatinline[which country is more unequal? A or B?]
 
 .heatinline[surprised?]
 ]
@@ -489,13 +533,16 @@ p_p10p90_2cx + geom_text(aes(label = paste("Gini:\n", round(gini, digits = 3))),
 ]
 ---
 .left-column[
-Even though the length of the bars makes it look like there is more inequality within rich countries than within poor ones, it is just a visual illusion.
+visual illusion?
 ]
 .right-column[
 ```{r p1090g2}
 p_p10p90
 ```
 ]
+
+???
+Even though the length of the bars makes them look like there is more inequality within rich countries than within poor ones, it is just a visual illusion.
 
 ---
 ```{r}
@@ -507,7 +554,7 @@ sr9010 <- round(dfc_rep[["r9010"]], digits = 2)
 
 
 .left-column[
-Even though the length of the bars makes it look like there is more inequality within rich countries than within poor ones, it is just a visual illusion.
+visual illusion?
 
 Take for instance `r dfc_rep[["countryname"]][1]`, whose 90th percentile (`r sp90[1]`) is `r sr9010[1]` times higher than its 10th percentile (`r sp10[1]`). 
 ]
@@ -516,13 +563,12 @@ Take for instance `r dfc_rep[["countryname"]][1]`, whose 90th percentile (`r sp9
 p_p10p902
 ```
 ]
-
+???
+Take for instance `r dfc_rep[["countryname"]][1]`, whose 90th percentile (`r sp90[1]`) is `r sr9010[1]` times higher than its 10th percentile (`r sp10[1]`). 
 ---
 
 .left-column[
-Even though the length of the bars makes it look like there is more inequality within rich countries than within poor ones, it is just a visual illusion.
-
-Take for instance `r dfc_rep[["countryname"]][1]`, whose 90th percentile (`r sp90[1]`) is `r sr9010[1]` times higher than its 10th percentile (`r sp10[1]`). 
+visual illusion?
 
 In contrast, `r dfc_rep[["countryname"]][nrow(dfc_rep)]`'s  90th percentile (`r sp90[nrow(dfc_rep)]`) is only `r sr9010[nrow(dfc_rep)]` times higher than its 10th percentile (`r sp10[nrow(dfc_rep)]`). 
 ]
@@ -531,89 +577,142 @@ In contrast, `r dfc_rep[["countryname"]][nrow(dfc_rep)]`'s  90th percentile (`r 
 p_p10p903
 ```
 ]
+???
+In contrast, `r dfc_rep[["countryname"]][nrow(dfc_rep)]`'s  90th percentile (`r sp90[nrow(dfc_rep)]`) is only `r sr9010[nrow(dfc_rep)]` times higher than its 10th percentile (`r sp10[nrow(dfc_rep)]`). 
+
+
+---
+### .heatinline[Remarks of this section]
+
+--
+
+- .big[Even though some poor countries are highly unequal, their inequality is merely arithmetical, not substantial.]
+
+--
+
+- .big[I wonder if reducing inequality in poor countries is a desirable thing]
+
+
+???
+When we say that, in a poor country, the welfare of the rich is 10 times higher than the welfare of the poor, we can't say that the former are 10 times better. At those levels of welfare, inequality becomes, in my view, irrelevant. 
 
 ---
 .left-column[
-Yet, this chart does not imply that the richer the country the lower its inequality levels.  
-
+One more thing on this chart
 ]
 .right-column[
 ```{r p1090-4}
 p_p10p903
 ```
 ]
+
+???
+This chart does not imply that the richer the country the lower its inequality levels.  
 ---
 .left-column[
-Yet, this chart does not imply that the richer the country the lower its inequality levels. 
-
-If we keep the countries sorted by their median and plot the p90/p10 ration in the Y axis, the current sorting is completely lost.
+ p90/p10 ratio in the Y axis
 ]
 .right-column[
 ```{r rj}
 p_r9010_j
 ```
 ]
+
+???
+If we keep the countries sorted by their median and plot the p90/p10 ratio in the Y axis, the current sorting is completely lost.
 ---
 .left-column[
-If we reorganize the countries according to their p90/p10 ratio, we see a strong re-ranking. So, you  may wondering
-
-- is the Gini highly correlated to the p90/p10 ratio?
-
-- is there any relationship between welfare and inequality? 
+Sorting again
 ]
+
 .right-column[
 ```{r ro}
 p_r9010_o
 ```
 ]
+???
+If we reorganize the countries according to their p90/p10 ratio, we see a strong re-ranking. So, you  may wondering
+
+---
+class: middle, center
+
+### Is the Gini highly correlated to the p90/p10 ratio?
+
 ---
 .left-column[
 .heatinline[Gini vs P90/P10]
-
-Even though there is a sort of quadratic relation between the Gini and the 90/10 ratio, it is difficult to explain the high variability. 
 ]
 .right-column[
 ```{r p9010g}
 p_9010_g
 ```
 ]
+
+???
+Even though there is a sort of quadratic relation between the Gini and the 90/10 ratio, it is difficult to explain the high variability. 
+---
+class: middle, center
+
+### Is there any relationship between welfare and inequality? 
+
 ---
 .left-column[
 .heatinline[Gini vs Median]
-
-The richer countries are not necessarily the less unequal. 
 ]
 .right-column[
 ```{r p9010med}
-p_med_9010
+p_med_g
 ```
 ]
+
+???
+Richer countries are not necessarily the less unequal. 
+---
+### .heatinline[Remarks of this section]
+
+- .big[The ratio p90/p10 and Gini is not highly correlated with the Gini as expected.]
+
+--
+
+- .big[Richer countries are not necessarily the less unequal.]
+
+
+???
+- Something is happening in the tails. 
+
+- the ranking of countries sorted by welfare changes a lot when organized be inequality. 
+
 ---
 
 class: center, middle, inverse
 
-## What is happening at the tails?
+## Can we say that one country is more unequal than another by just comparing their Gini coefs.?
 
----
-
-class: center, middle
-
-## What happen to inequality ranking if we removed the top 5% of all the countries?
+## ... Analysis of the top tail
 
 ```{r conditionalgini}
 source("R/SDG_10_conditional_ginis.R")
 ```
 
 ---
+.left-column[
+This is how the ranking of some countries changes when we compare the full Gini and the Gini without the top 5%
+]
+.right-column[
 ```{r g0095-1}
 p_0095_1
 ```
-
+]
 ---
-
+.left-column[
+The most remarkable change in ranking happens in `r names(cc1)[1]`
+]
+.right-column[
 ```{r g0095-2}
 p_0095_2
 ```
+]
+
 
 ---
 .left-column[
@@ -637,8 +736,7 @@ p_0095_4
 
 ---
 .left-column[
-
-Even though the Gini coefficient is lower for all the countries after removing the top 5%, all high income countries (with the exception of *Seychelles*) descended in the global inequality ranking.
+High-income countries
 ]
 .right-column[
 ```{r p_0095-h}
@@ -646,10 +744,12 @@ p_0095_h
 ```
 ]
 
+???
+Even though the Gini coefficient is lower for all the countries after removing the top 5%, all high income countries (with the exception of *Seychelles*) descended in the global inequality ranking.
 ---
 .left-column[
 
-... and the same happens to upper-middle-income countries
+High-income countries and upper-middle-income countries
 ]
 .right-column[
 ```{r p_0095-u}
@@ -657,11 +757,12 @@ p_0095_um
 ```
 ]
 
+???
+if some countries move down in the global ranking, others must go up.
 
 ---
 .left-column[
-
-Yet, if some countries move down in the global ranking, others must go up. This the case for low-income countries
+Low-income countries
 ]
 .right-column[
 ```{r p_0095-l}
@@ -672,8 +773,7 @@ p_0095_l
 
 ---
 .left-column[
-
-Yet, if some countries move down in the global ranking, others must go up. This the case for low-income countries and lower-middle-income countries
+Low-income countries and lower-middle-income countries
 ]
 .right-column[
 ```{r p_0095-lm}
@@ -681,27 +781,29 @@ p_0095_lm
 ```
 ]
 ---
-
-class: middle, center
-
-### the top of the distribution highly affects the ranking of global inquality
+### .heatinline[Remarks of this section]
 
 --
 
-### .saltinline[So, how can we know if a particular country is more unequal than other? By using the Gini?] 
+- .big[The top of the distribution highly affects the ranking of global inequality]
 
 --
 
-### .heatinline[Not really, as it might be reflecting just the effect of the top, hidding the rest of the distribution.]
+- .big[We can't know if a particular country is more unequal than other by analyzing **only** the Gini]
 
 --
 
-### The main problem is not the inequality wihtin countries but between countries.
+- .big[The main problem is not inequality within countries but between countries.]
+
+???
+Gini might be reflecting just the effect of the top, hiding that the rest of the distribution.
+
+Something that is even more problematic, Gini is not sensible to the tails but to the 25th and 75th percentiles! 
 
 ---
-class: middle, center
+class: middle, center, inverse
 
-.big[let's take the median of each country, which is not affected by the outliers of the top, and plot a Gini coefficient for the world over time.]
+### An alternative Gini to measure Global inequality
 
 
 ---
@@ -711,7 +813,7 @@ source("R/SDG_10_global_gini.R")
 ```
 
 .left-column[
-Under this perspective, where we take a measure of central tendency that is not affected by outliers (say, within-country inequality), we can see that between-country in the world has increased
+Between-country inequality in the world has increased
 ]
 .right-column[
 ```{r ginimed-u}
@@ -719,12 +821,57 @@ p_gini_med
 ```
 ]
 
----
-
-class: middle, center
-
-.big[Ok, so that is the evolution of inequality using the median. What about the rest of the distribution?]
+???
+let's take the median of each country, which is not affected by the outliers of the top, and plot a Gini coefficient for the world over time.
 
 ---
+### .heatinline[Compilled Remarks]
+
+--
+- .big[Qualitatively, a decrease or increase of global Gini does not say anything]
+
+--
+
+- .big[Inequality is decreasing in most of LAC countries and goes in all directions for the rest of the countries...]
+
+--
+
+- .big[Even though some poor countries are highly unequal, their inequality is merely arithmetical, not substantial.]
+
+--
+
+- .big[The ratio p90/p10 and Gini is not highly correlated with the Gini as expected.]
+
+--
+
+- .big[Richer countries are not necessarily the less unequal.]
+
+--
+
+- .big[The top of the distribution highly affects the ranking of global inequality]
+
+--
+
+- .big[We can't know if a particular country is more unequal than other by analyzing **only** the Gini]
+
+--
+
+- .big[The main problem is not inequality within countries but between countries.]
+
+
+---
+### .heatinline[Since it is difficult to come up with a compelling story for global inequality, we could do two things]
+
+--
+- .big[We could help the user understand inequality within countries and between countries without saying anything at the global level]
+
+--
+
+- .big[We could provide the user with a unique experience of interactive tools. ]
+
+???
+A set of tools to help them understand their position in the welfare distribution of the world
+
+
 
 
