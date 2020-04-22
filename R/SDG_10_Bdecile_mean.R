@@ -17,10 +17,11 @@
 #   Load libraries
 #----------------------------------------------------------
 
-library("tidyverse")
+# library("tidyverse")
 library("data.table")
+library("tidymodels")
 library("janitor")
-library("broom")
+# library("broom")
 library("caret")
 library("povcalnetR")
 
@@ -157,7 +158,8 @@ mdf <- povcalnet(fill_gaps = TRUE)  %>%   # Load povcalnet data
     varid = paste0(countrycode, "-",year, "-", decile)
   ) %>%
   column_to_rownames(var = "varid") %>%
-  arrange(countrycode, year, decile)
+  arrange(countrycode, year, decile) %>%
+  as_tibble()
 
 
 #----------------------------------------------------------
@@ -165,9 +167,14 @@ mdf <- povcalnet(fill_gaps = TRUE)  %>%   # Load povcalnet data
 #----------------------------------------------------------
 
 #--------- pallete
-sw <- c("#34495e", "#3498db", "#2ecc71", "#f1c40f", "#e74c3c", "#9b59b6", "#1abc9c", "#f39c12", "#d35400")
+sw <- c("#34495e", "#3498db", "#2ecc71",
+        "#f1c40f", "#e74c3c", "#9b59b6",
+        "#1abc9c", "#f39c12", "#d35400")
 
-sw <- c("#3969AC", "#F2B701", "#A5AA99", "#E68310", "#7F3C8D", "#11A579", "#E73F74", "#80BA5A", "#008695", "#CF1C90", "#f97b72", "#4b4b8f")
+sw <- c("#3969AC", "#F2B701", "#A5AA99",
+        "#E68310", "#7F3C8D", "#11A579",
+        "#E73F74", "#80BA5A", "#008695",
+        "#CF1C90", "#f97b72", "#4b4b8f")
 
 scales::show_col(sw)
 
@@ -182,14 +189,15 @@ p_bd <- ggplot(data = filter(mdf, decile  %in% c(1:9)),
                ) +
   geom_smooth(method = "lm",
               alpha = .4,
-              color = "grey80") +
+              color = "grey80",
+              formula = y ~ x) +
   geom_point(alpha = .7) +
   scale_x_continuous(
     labels = scales::percent
   ) +
   labs(
     y = "Gini Coef.",
-    x = "Share of B40 in overall mean"
+    x = "Share of Bottom X in overall mean"
   ) +
   theme_classic()  +
   theme(
@@ -200,7 +208,7 @@ p_bd <- ggplot(data = filter(mdf, decile  %in% c(1:9)),
   scale_color_manual(values = sw)
 p_bd
 
-ggplotly(p_bd)
+# ggplotly(p_bd)
 
 
 #----------------------------------------------------------
@@ -220,7 +228,8 @@ print(lm$loss)
 
 # control
 
-kmdf <- k_split(mdf, 10)    # split data in 5
+k <-  5
+kmdf <- k_split(mdf, k)    # split data in 5
 
 klm <- map(kmdf,lm_decile) # create lists, one for each model
 
@@ -244,6 +253,103 @@ ggplot(data = df_loss,
 
 
 #----------------------------------------------------------
-#
+# Cross validate
 #----------------------------------------------------------
+glimpse(mdf)
 
+mdf %>%
+  skimr::skim(gini, rbdm)
+
+#--------- data splitting
+
+# Fix the random numbers by setting the seed
+set.seed(101110)
+# Put 3/4 of the data into the training set
+data_split <- initial_split(mdf, prop = 3/4)
+
+# Create data frames for the two sets:
+mdf_train <- training(data_split)
+mdf_test  <- testing(data_split)
+
+
+#--------- Create model
+
+lr_mod <-
+    linear_reg() %>%
+    set_engine("lm") %>%
+  set_mode("regression")
+
+#--------- process
+
+k <- 10
+cv_mdf <- mdf %>%
+  nest(data = -decile) %>%
+  # Each 'variable' within mutate is dataframe
+  mutate(
+
+    # Split data
+    data_split = map(data, ~initial_split(data = ., prop = 3/4)),
+    mdf_train  = map(data_split, ~training(.)), # Training data
+    mdf_test   = map(data_split, ~testing(.)),  # testing data
+
+    # Create folds for cross validation using training data
+    cv_folds   = map(mdf_train,  ~vfold_cv(., v = k)),
+
+    # Linear model
+    fit        = map(mdf_train,  ~fit(lr_mod, gini ~ rbdm, data = .)),
+
+    # predicted values in testing data.
+    yhat       = map2(fit, mdf_test,   ~predict(.x, new_data = .y)),
+    yhat       = map2(yhat, mdf_test,  ~bind_cols(.x, .y)), # join covariates
+
+    # Metrics for loss function
+    rst        = map(cv_folds,   ~fit_resamples(model = lr_mod,
+                                                gini ~ rbdm,
+                                                metrics = metric_set(rmse, rsq, mae),
+                                                resamples = .)),
+    # summarise metrics
+    cm = map(rst, ~collect_metrics(.))
+    )
+
+#--------- Results
+
+cv_rslt <- cv_mdf %>%
+  select(decile, cm) %>%
+  unnest(cm)
+
+#--------- plotting
+
+ggplot(data = subset(cv_rslt, .metric != "rsq"),
+       aes(x = decile,
+           y = mean)
+       ) +
+  geom_point() +
+  geom_line()  +
+  scale_x_continuous(breaks = c(1:10)) +
+  facet_grid(. ~ .metric)
+
+#--------- testing data
+cv_tst <- cv_mdf %>%
+  select(decile, yhat) %>%
+  unnest(yhat) %>%
+  group_by(decile) %>%
+  summarize(
+    metricrmse = rmse_vec(truth = gini,
+                    estimate = .pred),
+    metricmae =  mae_vec(truth = gini,
+                    estimate = .pred)
+            ) %>%
+  pivot_longer(cols         = starts_with("metric"),
+               names_to     = "metric",
+               names_prefix = "metric",
+               values_to    = "value")
+
+
+ggplot(data = subset(cv_tst, decile != 10),
+       aes(x = decile,
+           y = value)
+) +
+  geom_point() +
+  geom_line()  +
+  scale_x_continuous(breaks = c(1:10)) +
+  facet_grid(. ~ metric)

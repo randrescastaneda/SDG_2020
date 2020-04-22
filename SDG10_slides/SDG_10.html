@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>SDG 10</title>
+    <meta charset="utf-8" />
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link rel="stylesheet" href="css\sfah.css" type="text/css" />
+    <link rel="stylesheet" href="css\fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+class: inverse, right, bottom
+## SDG Atlas 2020
+
+## Goal 10: Reduce inequality within and among countries
+
+???
+The objective of this presentation is not show you the flow of the story of goal 10 but my train of thought and the challenges that I have faced looking for a compelling and clear story of welfare inequality at the global level. 
+
+In addition, I will show you only what I have done regarding welfare inequality. I won't discuss today  the other sections of this chapter, mainly everything related to grow of the B40 and non-monetary inequality. I am working that section as well, but that is a little independent of the work that I am showing today. 
+
+---
+
+
+class: center, middle
+
+## .saltinline[What can we say about Global inequality during the last 15 or 20 years?]
+
+--
+
+### .saltinline[Has it gone up or down?]
+
+---
+class: center, middle
+
+## .fatinline[Not an easy answer]
+
+--
+
+### In contrast to poverty, inequality measures, Gini in particular, are not additive decomposable. That is, the average of Gini coefs. is not equal to the total Gini.
+
+
+???
+In contrast to poverty, inequality measures, Gini in particular, are not additive decomposable. That is, the average of Ginis is not equal to the total Gini.
+
+---
+
+## .heatinline[Total (pool) Gini]
+
+--
+
+.big[If I pool the welfare aggregates of all the countries and calculate a global Gini as if it were a single country, what does that tell me?]
+
+--
+
+.big[It does not say much because whether it goes up or down over time, I have no way to explain that movement:]
+
+--
+
+.big[
+- The distributional changes across countries may cancel each other 
+]
+
+--
+
+.big[
+- The welfare between countries is not comparable (e.g., cons and income)
+]
+
+--
+.big[
+- I can't see where the action is happening. 
+]
+
+--
+.big[
+- **There is no data**
+]
+
+???
+There is no data available to create a representative set of countries in any year to build a comparable trend of global inequality over time
+---
+## .heatinline[Average of Gini coefs.]
+
+--
+.big[This should be simple, it is just estimating how inequality, in average, has moved over time]
+
+--
+
+.big[It is not that simple because, ]
+
+--
+.big[
+- Again, we don't have data for all the countries in all the years, so any two sets of countries in two years will be different to each other. 
+]
+
+--
+
+.big[
+- Lackner et. al (2019) found no more than 43 countries with which we could calculate an average of the Gini coefsover time, but that set is not representative of the whole world.
+]
+
+---
+class: center, middle
+## .saltinline[So, If we want a simple measure of global inequality, how can we overcome the problem of lack of data?]
+
+--
+
+.big[.heat[We could interpolate ] 👍]
+
+---
+.left-column[
+.big[.heatinline[Without interpolation]]
+
+Using **only** available data.
+
+]
+
+.right-column[
+&lt;img src="SDG_10_files/figure-html/giniav-noint-1.png" width="720" /&gt;
+]
+???
+The *average* Gini coefficient decreased steadily from the mid 90's to 2010. Since then, the trend reverted and the average inequality is increasing rapidly.
+---
+.left-column[
+.big[.heatinline[With interpolation]]
+
+Lineal interpolation to account for countries with missing data...the story changes. 
+]
+
+.right-column[
+&lt;img src="SDG_10_files/figure-html/giniav-1.png" width="720" /&gt;
+]
+
+???
+missing in some years but with at least two data points no more than five years apart
+
+---
+
+class: center, middle
+## .saltinline[Ok, if in general I can't say anything about global inequality, can I say something about the countries?]
+
+--
+
+### .saltinline[can we know which countries are the most unequal?]
+
+--
+
+### .saltinline[can we know how inequality has evolved in each country?]
+
+---
+class: center, middle
+
+## .heatinline[Of course! we can know that]
+
+---
+
+## .heatinline[but...]
+
+--
+
+.big[
+- It is not exciting
+]
+
+--
+
+.big[
+- It has already been done
+]
+
+--
+
+.big[
+- It's about it. There's no much we can say
+]
+--
+
+.center[.heat[Let's see it]]
+---
+class: middle, center, inverse
+
+### Inequality across countries
+---
+
+.left-column[
+.big[.heatinline[Gini coef. by country in circa 2000-2018]]
+
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/gini45-1.png" width="720" /&gt;
+]
+
+???
+Here we have all the countries of the world and their corresponding Gini coefficient of the closest years to 2000 and 2018.
+---
+
+.left-column[
+.big[.heatinline[Gini coef. by country in circa 2000-2018 (LAC)]]
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/gini45lac-1.png" width="720" /&gt;
+]
+
+???
+LAC is the region that consistently has reduced inequality in most countries. This makes sense because inequality is measured with income-based welfare, which is by definition higher than consumption-based welfare, so there is more room to improve.
+---
+.left-column[
+.big[.heatinline[Gini coef. by country in circa 2000-2018 (SSA)]]
+
+When we look at other regions, we don't find the same patterns.
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/gini45SSA-1.png" width="720" /&gt;
+]
+
+---
+.left-column[
+.big[.heatinline[Gini coef. by country in circa 2000-2018 (EAP)]]
+
+When we look at other regions, we don't find the same patterns.
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/gini45EAP-1.png" width="720" /&gt;
+]
+---
+
+class: center, middle
+
+## .heatinline[We could also highlight by income groups instead]
+
+---
+.left-column[
+.big[.heatinline[Gini coef. by country in circa 2000-2018 (Low income)]]
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/gli-1.png" width="720" /&gt;
+]
+
+---
+
+.left-column[
+.big[.heatinline[Gini coef. by country in circa 2000-2018 (Lower middle income)]]
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/glmi-1.png" width="720" /&gt;
+]
+
+---
+
+.left-column[
+.big[.heatinline[Gini coef. by country in circa 2000-2018 (Upper middle income)]]
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/gumi-1.png" width="720" /&gt;
+]
+
+---
+
+.left-column[
+.big[.heatinline[Gini coef. by country in circa 2000-2018 (High income)]]
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/ghi-1.png" width="720" /&gt;
+]
+
+???
+We can see that inequality goes in any direction, but inequality in high income countries has less variability over time.
+
+---
+### .heatinline[Remarks of this section]
+
+--
+
+- .big[Qualitatively, a decrease or increase of global Gini does not say anything]
+
+--
+
+- .big[Inequality is decreasing in most of LAC countries and goes in all directions for the rest of the countries... ]
+--
+.big[So What?]
+
+???
+This is why I think we could answer more interesting questions...
+---
+class: inverse, center, middle
+## why poor countries seem to have higher inequality than rich countries?
+
+
+
+---
+
+.left-column[
+Here, countries are organized according to their median, from lowest to highest.
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/p50-1.png" width="720" /&gt;
+]
+
+---
+
+.left-column[
+Here, countries are organized according to their median, from lowest to highest.
+
+From Central African Republic to Luxembourg. 
+
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/p50l-lh-1.png" width="720" /&gt;
+]
+
+???
+By just looking at the chart we can see that the *typical person* in Luxembourg is 59 times richer than the *typical person* in Central African Republic
+
+---
+.left-column[
+Here, countries are organized according to their median, from lowest to highest.
+
+From Central African Republic to Luxembourg. 
+
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/p50-all-1.png" width="720" /&gt;
+]
+---
+.left-column[
+Now, let's remove the labels and add the monetary distance between the 10th and 90th percentiles. 
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/p50l2-1.png" width="720" /&gt;
+]
+---
+.left-column[
+Now, let's remove the labels and add the monetary distance between the 10th and 90th percentiles. 
+
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/p1090g-1.png" width="720" /&gt;
+]
+
+---
+.left-column[
+Now, let's remove the labels and add the monetary distance between the 10th and 90th percentiles. 
+
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/p1090gc-1.png" width="720" /&gt;
+]
+
+???
+As in this random case, the upper limit of the bar represents the 90th percentile of the distribution, whereas the lower limit represents the 10th percentile of the distribution.
+---
+.left-column[
+.heatinline[which country is more unequal? A or B?]
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/2cx-1.png" width="720" /&gt;
+]
+
+???
+By looking at the monetary distance between p90 and p10 of these two countries 
+
+---
+.left-column[
+.heatinline[which country is more unequal? A or B?]
+
+.heatinline[surprised?]
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/2cx2-1.png" width="720" /&gt;
+]
+---
+.left-column[
+visual illusion?
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/p1090g2-1.png" width="720" /&gt;
+]
+
+???
+Even though the length of the bars makes them look like there is more inequality within rich countries than within poor ones, it is just a visual illusion.
+
+---
+
+
+
+.left-column[
+visual illusion?
+
+Take for instance Central African Republic, whose 90th percentile ($3.29) is 10.9 times higher than its 10th percentile ($0.3). 
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/p1090gl2-1.png" width="720" /&gt;
+]
+???
+Take for instance Central African Republic, whose 90th percentile ($3.29) is 10.9 times higher than its 10th percentile ($0.3). 
+---
+
+.left-column[
+visual illusion?
+
+In contrast, Luxembourg's  90th percentile ($124.97) is only 4.85 times higher than its 10th percentile ($25.78). 
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/p1090gl3-1.png" width="720" /&gt;
+]
+???
+In contrast, Luxembourg's  90th percentile ($124.97) is only 4.85 times higher than its 10th percentile ($25.78). 
+
+
+---
+### .heatinline[Remarks of this section]
+
+--
+
+- .big[Even though some poor countries are highly unequal, their inequality is merely arithmetical, not substantial.]
+
+--
+
+- .big[I wonder if reducing inequality in poor countries is a desirable thing]
+
+
+???
+When we say that, in a poor country, the welfare of the rich is 10 times higher than the welfare of the poor, we can't say that the former are 10 times better. At those levels of welfare, inequality becomes, in my view, irrelevant. 
+
+---
+.left-column[
+One more thing on this chart
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/p1090-4-1.png" width="720" /&gt;
+]
+
+???
+This chart does not imply that the richer the country the lower its inequality levels.  
+---
+.left-column[
+ p90/p10 ratio in the Y axis
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/rj-1.png" width="720" /&gt;
+]
+
+???
+If we keep the countries sorted by their median and plot the p90/p10 ratio in the Y axis, the current sorting is completely lost.
+---
+.left-column[
+Sorting again
+]
+
+.right-column[
+&lt;img src="SDG_10_files/figure-html/ro-1.png" width="720" /&gt;
+]
+???
+If we reorganize the countries according to their p90/p10 ratio, we see a strong re-ranking. So, you  may wondering
+
+---
+class: middle, center
+
+### Is the Gini highly correlated to the p90/p10 ratio?
+
+---
+.left-column[
+.heatinline[Gini vs P90/P10]
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/p9010g-1.png" width="720" /&gt;
+]
+
+???
+Even though there is a sort of quadratic relation between the Gini and the 90/10 ratio, it is difficult to explain the high variability. 
+---
+class: middle, center
+
+### Is there any relationship between welfare and inequality? 
+
+---
+.left-column[
+.heatinline[Gini vs Median]
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/p9010med-1.png" width="720" /&gt;
+]
+
+???
+Richer countries are not necessarily the less unequal. 
+---
+### .heatinline[Remarks of this section]
+
+- .big[The ratio p90/p10 and Gini is not highly correlated with the Gini as expected.]
+
+--
+
+- .big[Richer countries are not necessarily the less unequal.]
+
+
+???
+- Something is happening in the tails. 
+
+- the ranking of countries sorted by welfare changes a lot when organized be inequality. 
+
+---
+
+class: center, middle, inverse
+
+## Can we say that one country is more unequal than another by just comparing their Gini coefs.?
+
+## ... Analysis of the top tail
+
+
+
+---
+.left-column[
+This is how the ranking of some countries changes when we compare the full Gini and the Gini without the top 5%
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/g0095-1-1.png" width="720" /&gt;
+]
+---
+.left-column[
+The most remarkable change in ranking happens in Seychelles
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/g0095-2-1.png" width="720" /&gt;
+]
+
+
+---
+.left-column[
+The most remarkable change in ranking happens in Seychelles, followed by Myanmar
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/g0095-3-1.png" width="720" /&gt;
+]
+
+---
+.left-column[
+The most remarkable change in ranking happens in Seychelles, followed by Myanmar and Sao Tome and Principe, Burkina Faso, and Rwanda
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/g0095-4-1.png" width="720" /&gt;
+]
+
+---
+.left-column[
+High-income countries
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/p_0095-h-1.png" width="720" /&gt;
+]
+
+???
+Even though the Gini coefficient is lower for all the countries after removing the top 5%, all high income countries (with the exception of *Seychelles*) descended in the global inequality ranking.
+---
+.left-column[
+
+High-income countries and upper-middle-income countries
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/p_0095-u-1.png" width="720" /&gt;
+]
+
+???
+if some countries move down in the global ranking, others must go up.
+
+---
+.left-column[
+Low-income countries
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/p_0095-l-1.png" width="720" /&gt;
+]
+
+
+---
+.left-column[
+Low-income countries and lower-middle-income countries
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/p_0095-lm-1.png" width="720" /&gt;
+]
+---
+### .heatinline[Remarks of this section]
+
+--
+
+- .big[The top of the distribution highly affects the ranking of global inequality]
+
+--
+
+- .big[We can't know if a particular country is more unequal than other by analyzing **only** the Gini]
+
+--
+
+- .big[The main problem is not inequality within countries but between countries.]
+
+???
+Gini might be reflecting just the effect of the top, hiding that the rest of the distribution.
+
+Something that is even more problematic, Gini is not sensible to the tails but to the 25th and 75th percentiles! 
+
+---
+class: middle, center, inverse
+
+### An alternative Gini to measure Global inequality
+
+
+---
+
+
+
+.left-column[
+Between-country inequality in the world has increased
+]
+.right-column[
+&lt;img src="SDG_10_files/figure-html/ginimed-u-1.png" width="720" /&gt;
+]
+
+???
+let's take the median of each country, which is not affected by the outliers of the top, and plot a Gini coefficient for the world over time.
+
+---
+### .heatinline[Compilled Remarks]
+
+--
+- .big[Qualitatively, a decrease or increase of global Gini does not say anything]
+
+--
+
+- .big[Inequality is decreasing in most of LAC countries and goes in all directions for the rest of the countries...]
+
+--
+
+- .big[Even though some poor countries are highly unequal, their inequality is merely arithmetical, not substantial.]
+
+--
+
+- .big[The ratio p90/p10 and Gini is not highly correlated with the Gini as expected.]
+
+--
+
+- .big[Richer countries are not necessarily the less unequal.]
+
+--
+
+- .big[The top of the distribution highly affects the ranking of global inequality]
+
+--
+
+- .big[We can't know if a particular country is more unequal than other by analyzing **only** the Gini]
+
+--
+
+- .big[The main problem is not inequality within countries but between countries.]
+
+
+---
+### .heatinline[Since it is difficult to come up with a compelling story for global inequality, we could do two things]
+
+--
+- .big[We could help the user understand inequality within countries and between countries without saying anything at the global level]
+
+--
+
+- .big[We could provide the user with a unique experience of interactive tools. ]
+
+???
+A set of tools to help them understand their position in the welfare distribution of the world
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_HTMLorMML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
