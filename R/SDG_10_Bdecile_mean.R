@@ -284,23 +284,36 @@ lr_mod <-
 k <- 10
 cv_mdf <- mdf %>%
   nest(data = -decile) %>%
+  # Each 'variable' within mutate is dataframe
   mutate(
+
+    # Split data
     data_split = map(data, ~initial_split(data = ., prop = 3/4)),
-    mdf_train  = map(data_split, ~training(.)),
-    mdf_test   = map(data_split, ~testing(.)),
+    mdf_train  = map(data_split, ~training(.)), # Training data
+    mdf_test   = map(data_split, ~testing(.)),  # testing data
+
+    # Create folds for cross validation using training data
     cv_folds   = map(mdf_train,  ~vfold_cv(., v = k)),
-    lm         = map(cv_folds,   ~fit_resamples(model = lr_mod,
+
+    # Linear model
+    fit        = map(mdf_train,  ~fit(lr_mod, gini ~ rbdm, data = .)),
+
+    # predicted values in testing data.
+    yhat       = map2(fit, mdf_test,   ~predict(.x, new_data = .y)),
+    yhat       = map2(yhat, mdf_test,  ~bind_cols(.x, .y)), # join covariates
+
+    # Metrics for loss function
+    rst        = map(cv_folds,   ~fit_resamples(model = lr_mod,
                                                 gini ~ rbdm,
                                                 metrics = metric_set(rmse, rsq, mae),
-                                                resamples = .))
-
+                                                resamples = .)),
+    # summarise metrics
+    cm = map(rst, ~collect_metrics(.))
     )
+
 #--------- Results
 
 cv_rslt <- cv_mdf %>%
-  mutate(
-    cm = map(lm, ~collect_metrics(.))
-  ) %>%
   select(decile, cm) %>%
   unnest(cm)
 
@@ -309,12 +322,34 @@ cv_rslt <- cv_mdf %>%
 ggplot(data = subset(cv_rslt, .metric != "rsq"),
        aes(x = decile,
            y = mean)
-) +
+       ) +
   geom_point() +
   geom_line()  +
   scale_x_continuous(breaks = c(1:10)) +
   facet_grid(. ~ .metric)
 
+#--------- testing data
+cv_tst <- cv_mdf %>%
+  select(decile, yhat) %>%
+  unnest(yhat) %>%
+  group_by(decile) %>%
+  summarize(
+    metricrmse = rmse_vec(truth = gini,
+                    estimate = .pred),
+    metricmae =  mae_vec(truth = gini,
+                    estimate = .pred)
+            ) %>%
+  pivot_longer(cols         = starts_with("metric"),
+               names_to     = "metric",
+               names_prefix = "metric",
+               values_to    = "value")
 
 
-
+ggplot(data = subset(cv_tst, decile != 10),
+       aes(x = decile,
+           y = value)
+) +
+  geom_point() +
+  geom_line()  +
+  scale_x_continuous(breaks = c(1:10)) +
+  facet_grid(. ~ metric)
