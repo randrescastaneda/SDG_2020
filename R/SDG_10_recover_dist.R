@@ -62,7 +62,7 @@ cty_yr <- expand.grid(year = years,
 
 
 # rvd_dists <- pmap(cty_yr, rcv_dist, step = 10, pl = 1)
-rvd_dists <- pmap(cty_yr, rcv_dist, step = .5, pl = .5)
+rvd_dists <- pmap(cty_yr, rcv_dist, step = .1, pl = .1)
 
 names(rvd_dists) <- as_tibble(cty_yr) %>%
   transmute(paste0(country,year, coverage))  %>%
