@@ -46,10 +46,14 @@ f_steps <- function(k, zero = TRUE) {
 #----------------------------------------------------------
 
 source("R/utils.R")
-load("../dwd/data/dfc.RData")
-load("../dwd/data/dfr.RData")
+
+load("data/dfc.RData")
+load("data/dfr.RData")
 cr  <- read_rds("data/cty_regs_names.rds")
-# dfc <- read_rds("data/dfc.rds")
+
+# fc <- read_rds("data/dfc.rds")
+# fr <- read_rds("data/dfr.rds")
+
 
 
 #----------------------------------------------------------
