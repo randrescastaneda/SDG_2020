@@ -36,7 +36,9 @@ source("R/SDG_10_Growth40.R")
 
 # of countries w/ 40 > 100 
 wdata <- WDI %>% 
-  mutate(Dgrowth = Growth40 - Growth) %>% 
+  mutate(Dgrowth = Growth40 - Growth,
+         DgrowthM = Growth40 - GrowthMedian,
+         DgrowthMT = Growth - GrowthMedian) %>% 
   arrange(Dgrowth)
 
 gr <- wdata %>% 
@@ -87,4 +89,8 @@ Goal 10 aims to lessen inequalities within the citizens of a nation, promoting w
 Besides the considerable improvement in several countries, inequalities persist in many others. The income of the bottom 40 increase was less than the national average in `r nrow(ls)` countries, of which in `r nrow(ls_negGP)` their income decreased, while the average did not. Interestingly, out of the `r nrow(neg)` countries with an average decrease in incomes, in `r sum(neg$Dgrowth < 0)` the bottom 40 were more harshly hitten, meanwhile in `r sum(neg$Growth40 >= 0)` they achieved a welfare increase. 
 
 In a regional perspective, the bottom 40 of most of the countries of EAP, ECA and LAC increased their income over the average; meanwhile, in OHI, SSA, MNA and SAS  their income improved less than the national average.  The SAS case is worrying, without a single country where the bottom's income grew more than the average. Also, OHI behaviour is troubling as inequality seems to be increasing despite the overall increase in incomes. 
+
+
+
+
 
