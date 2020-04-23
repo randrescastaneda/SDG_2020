@@ -14,15 +14,36 @@ library(patchwork)
 source("R/get_WDI.R")
 source("R/panel_WDI.R")
 
-mainvar <- "SI.SPR.PC40.ZG"
-sharevar <- "SI.SPR.PCAP.ZG"
-othervar <-  c("SI.POV.GINI", "SE.COM.DURS", "NY.GNP.PCAP.KD.ZG", "SG.LAW.NODC.HR")
+# parameters
+ordervariable <- "incomegroup"
+othervar <-  c("SI.POV.GINI", "SE.COM.DURS", "NY.GNP.PCAP.KD.ZG", "SG.LAW.NODC.HR", "NY.GDP.MKTP.KN")
+circa <- 2017 
+start <- 2012
+end <- 2017
+mainvar <- "Growth40"
 
-index <- c(mainvar,sharevar,othervar)
+# Load Share Prosperity Data
+WDI <- read.csv2("data/WDI2020.csv", sep = ",", dec = ".", stringsAsFactors = F)
 
+WDI <- WDI %>% 
+  rename(Growth40=bottom_growth) %>% 
+  rename(Growth=total_growth) %>%
+  rename(GrowthMedian=median_growth) %>%
+  rename(countrycode=code) %>% 
+  mutate(region = ifelse(grepl("High Income", region),"OHI",as.character(region)),
+         diff = Growth40 - Growth )
+
+# -- Add Region ID
+cr <- read_rds("data/cty_regs_names.rds") %>%
+  setDT()   %>% 
+  select(-lending, -region)
+
+WDIG40 <- left_join(WDI, cr, by = "countrycode")
+
+# Get additional data
 j = 0
-for (i in index){
-  get_WDI(i)  
+for (i in othervar){
+  get_WDI(i, circayr = circa, maxdist = 3)  
   if (j > 0){
     WDI <- WDI %>% 
       select(countrycode, i)
@@ -39,15 +60,18 @@ for (i in index){
   j = j + 1
 }
 
-if(sharevar != ""){
- data$diff <- (data[,mainvar] - data[,sharevar])
-}
+data <- data %>% 
+  select(countrycode, othervar)
+
+data <- left_join(WDIG40, data, by = "countrycode")
+
 
 data$main <- data[,mainvar]
 
+
 # add variables change
 
-panel_WDI(othervar,  start = 2005, end = 2015, maxdist = 3)
+panel_WDI(othervar,  start = start, end = end, maxdist = 3)
 
 growth <- WDI 
 counter = 0
@@ -74,7 +98,7 @@ for (i in othervar){
   if(length(othervar) == counter){
     growth <- growth %>% 
       select(-var, -gwth) %>% 
-      filter(Year == 2015)
+      filter(Year == end)
     
   }
 }
@@ -82,27 +106,14 @@ for (i in othervar){
 gmain <- growth %>% select(countrycode, gother)
 
 datag <- left_join(data, gmain, by = "countrycode")
-  
-
-# add gini change
-# 
-# panel_WDI("SI.POV.GINI", start = 2005, end = 2015, maxdist = 2)
-# 
-# gini <- WDI %>%
-#   mutate(Year = paste0('Y', Year)) %>%
-#   spread(Year,SI.POV.GINI) %>%
-#   mutate(dgini = ((Y2015-Y2005)/Y2005)*100) %>%
-#   select(countrycode, dgini)
-# 
-# data <- left_join(data, gini, by = "countrycode")
 
 
 ## --- Ploting --- ##
 
 ## Bottom 40 growth relative vs all and gini change
 v <-  ggplot(datag, aes(x = factor(incomegroup, level= c ("Low income","Lower middle income",
-                                                         "Upper middle income","High income")),
-                       diff, fill=incomegroup)) +
+                                                          "Upper middle income","High income")),
+                        diff, fill=incomegroup)) +
   geom_violin() +
   geom_boxplot(width=0.1, color="black", alpha=0.2) +
   theme(
@@ -116,8 +127,8 @@ v <-  ggplot(datag, aes(x = factor(incomegroup, level= c ("Low income","Lower mi
   ggtitle("Growth income difference B40 by region")
 
 vg <- ggplot(datag, aes(x = factor(incomegroup, level= c ("Low income","Lower middle income",
-                                                         "Upper middle income","High income")),
-                       gSI.POV.GINI, fill=incomegroup)) +
+                                                          "Upper middle income","High income")),
+                        gSI.POV.GINI, fill=incomegroup)) +
   geom_violin() +
   geom_boxplot(width=0.1, color="black", alpha=0.2) +
   xlab("") +
@@ -128,7 +139,7 @@ vg <- ggplot(datag, aes(x = factor(incomegroup, level= c ("Low income","Lower mi
     plot.title = element_text(size=11),
     panel.grid.major = element_line(colour = "grey90")
   )
-  
+
 GiniPlot <- v + vg
 
 GiniPlot
@@ -159,18 +170,18 @@ for (i in othervar){
   a <- labels %>% filter(indicatorID == i)
   a <- a[1,1]
   
- p <-  ggplot(data, aes(runvar, diff, color=incomegroup)) +
+  p <-  ggplot(data, aes(runvar, diff, color=incomegroup)) +
     geom_point() +
     theme_bw() +
     ggtitle(a)
- assign(paste0('p',k), p)
- 
- q <-  ggplot(data, aes(runvar, main, color=incomegroup)) +
-   geom_point() +
-   theme_bw()+
-   ggtitle(a)
- assign(paste0('q',k), q)
- 
+  assign(paste0('p',k), p)
+  
+  q <-  ggplot(data, aes(runvar, main, color=incomegroup)) +
+    geom_point() +
+    theme_bw()+
+    ggtitle(a)
+  assign(paste0('q',k), q)
+  
 }
 
 ## plot by change ##
@@ -184,7 +195,7 @@ for (i in gother){
   a <- labels %>% filter(indicatorID == j)
   a <- a[1,1]
   
-  pg <-  ggplot(datag, aes(runvar, diff, color=incomegroup)) +
+  pg <-  ggplot(datag, aes(diff, runvar, color=incomegroup)) +
     geom_point() +
     theme_bw() +
     ggtitle(paste("Growth",a))

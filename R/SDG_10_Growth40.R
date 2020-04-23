@@ -154,33 +154,4 @@ pmedian <- ggplot(data) +
   geom_vline(xintercept = 0, color = "red",  linetype="dashed")
 
 pmedian
-# 
-# # Ordering by mean income/consumption
-# savepoint <- data
-# 
-# data <- data %>%
-#   drop_na() %>% 
-#   arrange(bottom__recent)
-# data$id <- seq(1, nrow(data))
-# 
-# psort <- ggplot(data) +
-#   geom_segment( aes(y=id, yend=id, x=Growth40, xend=Growth), color=rgb(0,0,0,0.3)) +
-#   geom_point( aes(y=id, x=Growth), color=rgb(0.2,0.7,0.1,0.5), size=3 ) +
-#   geom_point( aes(y=id, x=Growth40), color=rgb(0.7,0.2,0.1,0.5), size=3 ) +
-#   coord_flip()+
-#   theme_minimal() +
-#   theme(
-#     axis.text.x = element_blank(),
-#     axis.title.x = element_blank(),
-#   ) +
-#   xlab("Growth") +
-#   ylab("") +
-#   geom_text(data=data, aes(y=id, x = -6, label = countrycode), angle = 90, alpha=0.6, size=4) +
-#   geom_vline(xintercept = 0, color = "red",  linetype="dashed")
-# 
-# psort
-# 
-# 
-# 
-# 
-# 
+
