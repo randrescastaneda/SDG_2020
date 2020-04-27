@@ -42,8 +42,8 @@ get_WDI <- function(indicator, circayr=2015, maxdist=5, cb = TRUE){
   cr <- read_rds("data/cty_regs_names.rds") %>%
     setDT()
   
-  cols  <- c("regioncode", "countryname")
-  icols <- paste0("i.", c("region", "countryname"))
+  cols  <- c("regioncode", "countryname", "incomegroup")
+  icols <- paste0("i.", c("region", "countryname", "incomegroup"))
   
   WDI <- merge(WDI, cr, by.x = "countrycode")
   
