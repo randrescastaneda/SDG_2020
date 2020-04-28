@@ -29,6 +29,7 @@ knitr::opts_chunk$set(
 knitr::opts_knit$set(
   root.dir = ".."
 )
+img <-  paste0(here::here(), "/SDG10_slides/img")
 # options(knitr.table.format = "html")
 library(fontawesome) # from github: https://github.com/rstudio/fontawesome
 xaringanExtra::use_xaringan_extra(c("tile_view", "animate_css", "tachyons"))
@@ -43,12 +44,21 @@ class: inverse, right, bottom
 Intcomments
 
 ---
+class:middle, inverse, center
 ## Outline of the 2017 version
+---
+## Introduction: description of growth of the B40
 
-- Introduction: description of growth of the B40
-- Cost of migration (Recruitment costs are often higher than one month’s earnings)
-- Remittance transaction costs
-- Focus of aid delivery
+![](/SDG10_slides/img/B40.jpg)
+
+---
+## Cost of migration (Recruitment costs are often higher than one month’s earnings)
+
+---
+## Remittance transaction costs
+
+---
+## Focus of aid delivery
 
 ???
 Humanitarian and food aid and
@@ -57,3 +67,9 @@ taken together, doubled in volume between
 2010 and 2015, and their combined share of all
 net bilateral aid rose from about 16 percent to
 28 percent (figure 10g).
+
+
+---
+## Outline of the 2018 version
+
+- Inequality across countries and regions using GDP percapita
