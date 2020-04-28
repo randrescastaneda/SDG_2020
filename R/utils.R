@@ -234,3 +234,87 @@ gini <- function(y, w = NULL) {
 #   gini <- 1+(1/N) - (2/(my*N^2))*sum(t2*w, na.rm = TRUE)
 #   return(gini)
 # }
+
+
+
+eq_quantiles <- function(x, y, w, nq = 10, name = "q") {
+  tryCatch(
+    expr = {
+      y <- enquo(y)
+      w <- enquo(w)
+
+      df <- x %>%
+        arrange(!! y) %>%
+        mutate(
+          N  = sum(!!w),
+          cw = cumsum(!!w),
+          !! name :=  floor(cw/((N+1)/nq)) + 1
+        ) %>%
+        select(-c(N,cw))
+
+    }, # end of expr section
+
+    error = function(e) {
+      df <- tibble(
+        message = e$message
+      )
+    }
+
+  ) # End of trycatch
+
+  return(df)
+}
+
+create_welf <- function(x) {
+  tryCatch(
+    expr = {
+      df <- x %>%
+        filter(regioncode == "XX") %>%
+        arrange(povertyline) %>%
+        mutate(
+          population = population*1e6,
+          popshr     = if_else (row_number() > 1,         # population share
+                                headcount - lag(headcount),
+                                headcount),
+          weight     = population*popshr, # people below threshold
+
+          # cumm welfare
+          welfare   = povertyline*(population*headcount - population*povertygap),
+
+          # cnvert to bin from cumm
+          welfare   =  if_else (row_number() > 1,
+                                welfare - lag(welfare),
+                                welfare),
+
+          # per capita
+          welfare    = welfare/weight
+        ) %>%
+        select(povertyline, headcount, popshr, weight, welfare)
+
+    }, # end of expr section
+
+    error = function(e) {
+      print(e$message)
+    }
+
+  ) # End of trycatch
+
+  return(df)
+}
+
+ovv_info <- function(df, one_val_var){
+  tryCatch(
+    expr = {
+      df %>%
+        slice(1) %>%
+        select(one_val_var)
+    }, # end of expr section
+
+    error = function(e) {
+      tibble(
+        message = e$message
+      )
+    } # end of finally section
+  ) # End of trycatch
+}
+
