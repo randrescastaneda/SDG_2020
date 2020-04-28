@@ -41,7 +41,7 @@ class: inverse, right, bottom
 ## Outline
  
 ???
-Intcomments
+Intcomments 
 
 ---
 class:middle, inverse, center
@@ -49,7 +49,7 @@ class:middle, inverse, center
 ---
 .pull-left[
 ### Introduction: description of growth of the B40
-<img src="/SDG10_slides/img/B40.jpg"  width = "80%" align="center">
+<img src="/SDG10_slides/img/B40.jpg"  width = "80%" align="middle">
 
 ]
 
@@ -131,6 +131,198 @@ class:middle, inverse, center
 class: middle, center, inverse
 
 ### My proposal
+```{r distsim}
+source("R/utils.R")
+source("R/SDG_10_simu_dist.R")
+```
 ---
 
+.left-column[
+### Start with perfect equality
+]
+.right-column[
+```{r pe1}
 
+breaks <- c("original", "perfect equality", "B10 has nothing", "T10 has everything", "Without T10")
+
+pe <- ggplot(data=subset(ndf, src == "perfect equality"),
+       aes(x=cw,
+           y=cy,
+           color = src)) +
+  geom_line() +
+  scale_x_continuous(name="Cumulative share of population", limits=c(0,1)) +
+  scale_y_continuous(name="Cumulative share of welfare", limits=c(0,1)) +
+  theme_classic() +
+  scale_color_manual(values= palette[1:length(breaks)], 
+                     breaks = breaks)
+pe
+```
+]
+
+---
+.left-column[
+### Start with perfect equality
+
+.big[welfare and population cummulate at the same pace]
+]
+.right-column[
+```{r pe2}
+
+sgm <- data.frame(x1 = 0, x2 = 0.25, y1 = 0.25, y2 = .25)
+
+pe2 <- pe +
+  geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, colour = palette[10]), data = sgm) +
+  geom_segment(aes(x = y1, y = x1, xend = y2, yend = x2, colour = palette[10]), data = sgm)
+pe2
+```
+]
+
+---
+.left-column[
+### Start with perfect equality
+
+.big[welfare and population cummulate at the same pace]
+]
+.right-column[
+```{r pe3}
+
+sgm2 <- data.frame(x1 = 0, x2 = .5, y1 = .5, y2 = .5)
+
+pe3 <- pe2 +
+  geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, colour = palette[11]), data = sgm2) +
+  geom_segment(aes(x = y1, y = x1, xend = y2, yend = x2, colour = palette[11]), data = sgm2)
+pe3
+```
+]
+
+---
+.left-column[
+### What if the B10 has nothing?
+
+]
+.right-column[
+```{r B10n}
+ggplot(data=subset(ndf, src  %in%  c("perfect equality","B10 has nothing") ),
+       aes(x=cw,
+           y=cy,
+           color = src)) +
+  geom_line() +
+  scale_x_continuous(name="Cumulative share of population", limits=c(0,1)) +
+  scale_y_continuous(name="Cumulative share of welfare", limits=c(0,1)) +
+  theme_classic() +
+  scale_color_manual(values= palette[1:length(breaks)], 
+                     breaks = breaks)
+
+```
+]
+---
+.left-column[
+### What if the T10 has everything?
+
+]
+.right-column[
+```{r BT}
+ggplot(data=subset(ndf, src  %in%  c("perfect equality","B10 has nothing", "T10 has everything") ),
+       aes(x=cw,
+           y=cy,
+           color = src)) +
+  geom_line() +
+  scale_x_continuous(name="Cumulative share of population", limits=c(0,1)) +
+  scale_y_continuous(name="Cumulative share of welfare", limits=c(0,1)) +
+  theme_classic() +
+  scale_color_manual(values= palette[1:length(breaks)], 
+                     breaks = breaks)
+
+```
+]
+---
+.left-column[
+### Compared with a real distribution
+
+]
+.right-column[
+```{r WT10}
+ggplot(data=subset(ndf, src  !=  "Without T10" ),
+       aes(x=cw,
+           y=cy,
+           color = src)) +
+  geom_line() +
+  scale_x_continuous(name="Cumulative share of population", limits=c(0,1)) +
+  scale_y_continuous(name="Cumulative share of welfare", limits=c(0,1)) +
+  theme_classic() +
+  scale_color_manual(values= palette[1:length(breaks)], 
+                     breaks = breaks)
+
+```
+]
+---
+.left-column[
+### What if we remove the Top10?
+
+]
+.right-column[
+```{r all}
+ggplot(data=ndf,
+       aes(x=cw,
+           y=cy,
+           color = src)) +
+  geom_line() +
+  scale_x_continuous(name="Cumulative share of population", limits=c(0,1)) +
+  scale_y_continuous(name="Cumulative share of welfare", limits=c(0,1)) +
+  theme_classic() +
+  scale_color_manual(values= palette[1:length(breaks)], 
+                     breaks = breaks)
+
+```
+]
+---
+.left-column[
+### what are the ginis?
+
+]
+.right-column[
+```{r gin}
+
+tt <- ndf %>%
+  summarise(
+    gini = gini(y,w)
+  )
+
+tt
+
+```
+]
+
+---
+.left-column[
+### Or we can show densities
+
+]
+.right-column[
+```{r densities}
+
+ggplot(data = ndf,
+       aes(
+         x = y,
+         fill = src,
+         color = src,
+         weight = w
+       )
+       ) +
+  geom_density(alpha = 0.1) +
+  scale_x_continuous(
+    trans = "log",
+    labels = scales::number_format(accuracy = 0.01,
+                                   decimal.mark = ',')
+  ) +
+  geom_vline(xintercept = omean) +
+  theme_classic() +
+  scale_color_manual(values= palette[1:length(breaks)], 
+                     breaks = breaks) +
+  scale_fill_manual(values= palette[1:length(breaks)], 
+                     breaks = breaks) 
+  
+```
+]
+
+---
