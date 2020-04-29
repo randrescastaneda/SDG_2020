@@ -1,0 +1,45 @@
+---
+title: "SDG 10"
+output:
+  xaringan::moon_reader:
+    seal: false
+    css: ["css/sfah.css", "css/fonts.css", "default"]
+    self_contained: false
+    lib_dir: libs
+    mathjax: "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_HTMLorMML"
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: "16:9"
+      titleSlideClass: ["left", "middle", "inverse"]
+---
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+library(knitr)
+
+knitr::opts_chunk$set(
+  warning = FALSE,
+  collapse = TRUE,
+  message = FALSE,
+  echo = FALSE,
+  fig.retina = 3,
+  fig.width = 10
+)
+knitr::opts_knit$set(
+  root.dir = ".."
+)
+# options(knitr.table.format = "html")
+library(fontawesome) # from github: https://github.com/rstudio/fontawesome
+xaringanExtra::use_xaringan_extra(c("tile_view", "animate_css", "tachyons"))
+```
+
+class: inverse, right, bottom
+## SDG Atlas 2020
+
+## Goal 10: Reduce inequality within and among countries
+
+???
+Intcomments
+
+---
