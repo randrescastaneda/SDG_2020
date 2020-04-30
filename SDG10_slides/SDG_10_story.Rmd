@@ -17,6 +17,7 @@ output:
 ```{r setup, include=FALSE}
 options(htmltools.dir.version = FALSE)
 library(knitr)
+library(scales)
 
 knitr::opts_chunk$set(
   warning = FALSE,
@@ -84,11 +85,12 @@ f <- df %>%
          x1  = 0) 
 
 
-pe <- ggplot(data=filter(df, src %in% breaks[4]),
+pe <- ggplot() +
+  geom_line(data=filter(df, src %in% breaks[4]),
              aes(x=cw,
                  y=cy,
-                 color = src)) +
-  geom_line() +
+                 color = src)
+            ) +
   scale_x_continuous(name="Cumulative share of population", limits=c(0,1)) +
   scale_y_continuous(name="Cumulative share of welfare", limits=c(0,1)) +
   theme_classic() +
@@ -103,7 +105,7 @@ pe
 .left-column[
 ### Start with perfect equality
 
-.big[welfare and population cummulate at the same pace. So, the bottom 25 percent of the population has 25% of the total income]
+welfare and population cummulate at the same pace. So, the bottom 25 percent of the population has 25% of the total income
 ]
 .right-column[
 ```{r pe2}
@@ -121,8 +123,7 @@ pe2
 .left-column[
 ### Start with perfect equality
 
-.big[welfare and population cummulate at the same pace. So, the bottom 25 percent of the population has 25% of the total income. The bottom 50 of the population has 50 percent of total income, and so on... 
-]
+Welfare and population cummulate at the same pace. So, the bottom 25 percent of the population has 25% of the total income. The bottom 50 of the population has 50 percent of total income, and so on... 
 
 ]
 .right-column[
@@ -140,48 +141,38 @@ pe3
 
 ---
 .left-column[
-### A very unequal country
+### A real case example
+.big[South Africa]
 
+Here we can see how far from perfect equality this country is. 
 
 ]
 .right-column[
 ```{r zaf1}
-pzaf <- ggplot(data= filter(df, src %in% breaks[c(1, 4)]),
+pzaf <- pe + 
+  geom_line(data= filter(df, src %in% breaks[1]),
        aes(x=cw,
            y=cy,
-           color = src)) +
-  geom_line() +
-  scale_x_continuous(name="Cumulative share of population", limits=c(0,1)) +
-  scale_y_continuous(name="Cumulative share of welfare", limits=c(0,1)) +
-  theme_classic() +
-  scale_color_manual(values= plt, 
-                     breaks = breaks)
+           color = src)
+       ) 
 pzaf
 ```
 ]
 ---
-.left-column[
-### A very unequal country
-
-
-]
-.right-column[
 ```{r zaf2}
 
 f1 <- f %>% 
   filter(src  %in% breaks[1]) %>% 
   slice(1)
 
-
-pzaf1 <- pzaf +
-  geom_segment(aes(x    = x1, 
+sz1 <-  list(geom_segment(aes(x    = x1, 
                    y    = y1, 
                    xend = x2, 
                    yend = y2
                    ), 
                colour = palette[10], 
                data = f1
-               ) +
+               ) ,
   geom_segment(aes(x    = x2, 
                    y    = x1, 
                    xend = x2, 
@@ -190,23 +181,32 @@ pzaf1 <- pzaf +
                colour = palette[10], 
                data = f1
                )
-pzaf1
+)
+pzaf1 <- pzaf + sz1
 ```
-]
----
-.left-column[
-### A very unequal country
 
+.left-column[
+### A real case example
+.big[South Africa]
+
+The bottom 25% of the population has only `r percent(f1$y1, accuracy = 0.1)` of total welfare
 
 ]
 .right-column[
+
+```{r }
+pzaf1
+```
+
+]
+---
 ```{r zaf3}
 
 f2 <- f %>% 
   filter(src  %in% breaks[1]) %>% 
   slice(2)
 
-pzaf2 <- pzaf1 +
+sz2 <- list(
   geom_segment(aes(x    = x1, 
                    y    = y1, 
                    xend = x2, 
@@ -214,7 +214,7 @@ pzaf2 <- pzaf1 +
                    ), 
                colour = palette[10], 
                data = f2
-               ) +
+               ) ,
   geom_segment(aes(x    = x2, 
                    y    = x1, 
                    xend = x2, 
@@ -223,31 +223,38 @@ pzaf2 <- pzaf1 +
                colour = palette[10], 
                data = f2
                )
+)
+pzaf2 <- pzaf1 + sz2
+```
+.left-column[
+### A real case example
+.big[South Africa]
+
+The bottom 25% of the population has only `r percent(f1$y1, accuracy = 0.1)` of total welfare, 
+and the bottom 50% has around `r percent(f2$y1, accuracy = 0.1)`. 
+
+]
+.right-column[
+```{r }
 pzaf2
 ```
 ]
 ---
-.left-column[
-### A very unequal country
-
-
-]
-.right-column[
 ```{r zaf4}
 
 f3 <- f %>% 
   filter(src  %in% breaks[1]) %>% 
   slice(3)
 
-pzaf3 <- pzaf2 +
-  geom_segment(aes(x    = x1, 
+sz3 <- list(
+geom_segment(aes(x    = x1, 
                    y    = y1, 
                    xend = x2, 
                    yend = y2
                    ), 
                colour = palette[10], 
                data = f3
-               ) +
+               ) ,
   geom_segment(aes(x    = x2, 
                    y    = x1, 
                    xend = x2, 
@@ -256,26 +263,177 @@ pzaf3 <- pzaf2 +
                colour = palette[10], 
                data = f3
                )
-pzaf3
+)
+
+pzaf3 <- pzaf2 + sz3
 ```
-]
----
 .left-column[
-### What if the T10 has everything?
+### A real case example
+.big[South Africa]
+
+The bottom 25% of the population has only `r percent(f1$y1, accuracy = 0.1)` of total welfare, 
+and the bottom 50% has around `r percent(f2$y1, accuracy = 0.1)`. Finally, the bottom 75% of the 
+population has merely the `r percent(f3$y1, accuracy = 0.1)` of total welfare. 
 
 ]
 .right-column[
-```{r BT}
-pfin <- ggplot(data= filter(df, src %in% breaks[c(1, 3, 4)]),
-       aes(x=cw,
-           y=cy,
-           color = src)) +
-  geom_line() +
-  scale_x_continuous(name="Cumulative share of population", limits=c(0,1)) +
-  scale_y_continuous(name="Cumulative share of welfare", limits=c(0,1)) +
-  theme_classic() +
-  scale_color_manual(values= plt, 
-                     breaks = breaks)
+```{r }
+pzaf3
+```
 
+]
+---
+```{r fin}
+gpfin  <- geom_line(data= filter(df, src %in% breaks[3]),
+                         aes(x=cw,
+                             y=cy,
+                             color = src))
+pfin <- pzaf + gpfin
+```
+.left-column[
+### Let's compare
+.big[Findland]
+
+We can see that this is a more equalitarian country
+]
+.right-column[
+```{r }
+pfin
+```
+]
+---
+```{r fin1}
+
+q1 <- f %>% 
+  filter(src  %in% breaks[3]) %>% 
+  slice(1)
+
+sf1 <- list(
+  geom_segment(aes(x    = x1, 
+                   y    = y1, 
+                   xend = x2, 
+                   yend = y2
+                   ), 
+               colour = palette[10], 
+               data = q1
+               ) ,
+  geom_segment(aes(x    = x2, 
+                   y    = x1, 
+                   xend = x2, 
+                   yend = y2
+                   ), 
+               colour = palette[10], 
+               data = q1
+               )
+
+)
+
+
+pfin1 <- pzaf1 + gpfin + sf1
+    
+```
+.left-column[
+### Let's compare
+.big[Findland]
+
+In contrast to South Africa, the bottom 25% of the population in Findaly has 
+`r percent(q1$y1, accuracy = 0.1)` of total welfare, 
+
+]
+.right-column[
+```{r }
+pfin1
+```
+]
+---
+```{r fin2}
+q2 <- f %>% 
+  filter(src  %in% breaks[3]) %>% 
+  slice(2)
+
+sf2 <- list(
+  geom_segment(aes(x    = x1, 
+                   y    = y1, 
+                   xend = x2, 
+                   yend = y2
+                   ), 
+               colour = palette[10], 
+               data = q2
+               ) ,
+  geom_segment(aes(x    = x2, 
+                   y    = x1, 
+                   xend = x2, 
+                   yend = y2
+                   ), 
+               colour = palette[10], 
+               data = q2
+               )
+  
+)
+
+
+pfin2 <- pzaf  + sz2  +
+         gpfin + sf2
+  
+```
+.left-column[
+### Let's compare
+.big[Findland]
+
+In contrast to South Africa, the bottom 25% of the population in Findaly has 
+`r percent(q1$y1, accuracy = 0.1)` of total welfare, and the bottom 50% has around 
+`r percent(q2$y1, accuracy = 0.1)`. 
+
+]
+.right-column[
+```{r }
+pfin2
+```
+]
+---
+```{r fin3}
+
+q3 <- f %>% 
+  filter(src  %in% breaks[3]) %>% 
+  slice(3)
+
+sf3 <- list(
+  geom_segment(aes(x    = x1, 
+                   y    = y1, 
+                   xend = x2, 
+                   yend = y2
+                   ), 
+               colour = palette[10], 
+               data = q3
+               ) ,
+  geom_segment(aes(x    = x2, 
+                   y    = x1, 
+                   xend = x2, 
+                   yend = y2
+                   ), 
+               colour = palette[10], 
+               data = q3
+               )
+  
+)
+
+
+pfin3 <- pzaf  + sz3  +
+         gpfin + sf3
+```
+.left-column[
+
+### Let's compare
+.big[Findland]
+
+In contrast to South Africa, the bottom 25% of the population in Findaly has 
+`r percent(q1$y1, accuracy = 0.1)` of total welfare, and the bottom 50% has around 
+`r percent(q2$y1, accuracy = 0.1)`. Finally, the bottom 75% of the 
+population has merely the `r percent(q3$y1, accuracy = 0.1)` of total welfare.
+
+]
+.right-column[
+```{r}
+pfin3
 ```
 ]
