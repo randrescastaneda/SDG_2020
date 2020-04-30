@@ -43,3 +43,141 @@ class: inverse, right, bottom
 Intcomments
 
 ---
+
+class: middle, center, inverse
+
+### Story of inequality
+```{r distsim}
+source("R/utils.R")
+source("R/SDG_10_lorenz.R")
+```
+---
+
+.left-column[
+### Start with perfect equality
+]
+.right-column[
+```{r pe1}
+
+set.seed(1010111)
+plt <- sample(palette, size = 4)
+
+breaks <- df %>%
+  group_by(src) %>%
+  summarise(
+    gini = gini(y,w)
+  ) %>%
+  arrange(-gini) %>%
+  pull(src)
+
+pe <- ggplot(data=filter(df, src %in% breaks[4]),
+             aes(x=cw,
+                 y=cy,
+                 color = src)) +
+  geom_line() +
+  scale_x_continuous(name="Cumulative share of population", limits=c(0,1)) +
+  scale_y_continuous(name="Cumulative share of welfare", limits=c(0,1)) +
+  theme_classic() +
+  scale_color_manual(values= plt,
+                     breaks = breaks)
+pe
+
+```
+]
+
+---
+.left-column[
+### Start with perfect equality
+
+.big[welfare and population cummulate at the same pace]
+]
+.right-column[
+```{r pe2}
+
+sgm <- data.frame(x1 = 0, x2 = 0.25, y1 = 0.25, y2 = .25)
+
+pe2 <- pe +
+  geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2), colour = palette[10], data = sgm) +
+  geom_segment(aes(x = y1, y = x1, xend = y2, yend = x2), colour = palette[10], data = sgm)
+pe2
+```
+]
+
+---
+.left-column[
+### Start with perfect equality
+
+.big[welfare and population cummulate at the same pace]
+]
+.right-column[
+```{r pe3}
+
+sgm2 <- data.frame(x1 = 0, x2 = .5, y1 = .5, y2 = .5)
+
+pe3 <- pe2 +
+  geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, colour = palette[11]), data = sgm2) +
+  geom_segment(aes(x = y1, y = x1, xend = y2, yend = x2, colour = palette[11]), data = sgm2)
+pe3
+```
+]
+
+---
+.left-column[
+### What if the B10 has nothing?
+
+]
+.right-column[
+```{r B10n}
+ggplot(data= filter(df, src %in% breaks[c(1, 4)]),
+       aes(x=cw,
+           y=cy,
+           color = src)) +
+  geom_line() +
+  scale_x_continuous(name="Cumulative share of population", limits=c(0,1)) +
+  scale_y_continuous(name="Cumulative share of welfare", limits=c(0,1)) +
+  theme_classic() +
+  scale_color_manual(values= plt, 
+                     breaks = breaks)
+
+```
+]
+---
+.left-column[
+### What if the T10 has everything?
+
+]
+.right-column[
+```{r BT}
+ggplot(data= filter(df, src %in% breaks[c(1, 2, 4)]),
+       aes(x=cw,
+           y=cy,
+           color = src)) +
+  geom_line() +
+  scale_x_continuous(name="Cumulative share of population", limits=c(0,1)) +
+  scale_y_continuous(name="Cumulative share of welfare", limits=c(0,1)) +
+  theme_classic() +
+  scale_color_manual(values= plt, 
+                     breaks = breaks)
+
+```
+]
+---
+.left-column[
+### Compared with a real distribution
+
+]
+.right-column[
+```{r WT10}
+ggplot(data= df,
+       aes(x=cw,
+           y=cy,
+           color = src)) +
+  geom_line() +
+  scale_x_continuous(name="Cumulative share of population", limits=c(0,1)) +
+  scale_y_continuous(name="Cumulative share of welfare", limits=c(0,1)) +
+  theme_classic() +
+  scale_color_manual(values= plt, 
+                     breaks = breaks)
+
+```
+]
