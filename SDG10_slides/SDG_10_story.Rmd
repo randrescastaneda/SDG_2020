@@ -55,6 +55,8 @@ source("R/SDG_10_lorenz.R")
 
 .left-column[
 ### Start with perfect equality
+
+.big[Everybody has the same amount of money]
 ]
 .right-column[
 ```{r pe1}
@@ -69,6 +71,18 @@ breaks <- df %>%
   ) %>%
   arrange(-gini) %>%
   pull(src)
+
+f <- df %>% 
+  group_by(src) %>%  
+  filter(
+      abs(cw-.25) == min(abs(cw-.25))
+    | abs(cw-.5)  == min(abs(cw-.5))
+    | abs(cw-.75) == min(abs(cw-.75))
+      ) %>% 
+  select(src, x2 = cw, y1 = cy) %>% 
+  mutate(y2 = y1,
+         x1  = 0) 
+
 
 pe <- ggplot(data=filter(df, src %in% breaks[4]),
              aes(x=cw,
@@ -89,7 +103,7 @@ pe
 .left-column[
 ### Start with perfect equality
 
-.big[welfare and population cummulate at the same pace]
+.big[welfare and population cummulate at the same pace. So, the bottom 25 percent of the population has 25% of the total income]
 ]
 .right-column[
 ```{r pe2}
@@ -107,7 +121,9 @@ pe2
 .left-column[
 ### Start with perfect equality
 
-.big[welfare and population cummulate at the same pace]
+.big[welfare and population cummulate at the same pace. So, the bottom 25 percent of the population has 25% of the total income. The bottom 50 of the population has 50 percent of total income, and so on... 
+]
+
 ]
 .right-column[
 ```{r pe3}
@@ -115,20 +131,22 @@ pe2
 sgm2 <- data.frame(x1 = 0, x2 = .5, y1 = .5, y2 = .5)
 
 pe3 <- pe2 +
-  geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2, colour = palette[11]), data = sgm2) +
-  geom_segment(aes(x = y1, y = x1, xend = y2, yend = x2, colour = palette[11]), data = sgm2)
+  geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2), colour = palette[10], data = sgm2) +
+  geom_segment(aes(x = y1, y = x1, xend = y2, yend = x2), colour = palette[10], data = sgm2)
+
 pe3
 ```
 ]
 
 ---
 .left-column[
-### What if the B10 has nothing?
+### A very unequal country
+
 
 ]
 .right-column[
-```{r B10n}
-ggplot(data= filter(df, src %in% breaks[c(1, 4)]),
+```{r zaf1}
+pzaf <- ggplot(data= filter(df, src %in% breaks[c(1, 4)]),
        aes(x=cw,
            y=cy,
            color = src)) +
@@ -138,7 +156,107 @@ ggplot(data= filter(df, src %in% breaks[c(1, 4)]),
   theme_classic() +
   scale_color_manual(values= plt, 
                      breaks = breaks)
+pzaf
+```
+]
+---
+.left-column[
+### A very unequal country
 
+
+]
+.right-column[
+```{r zaf2}
+
+f1 <- f %>% 
+  filter(src  %in% breaks[1]) %>% 
+  slice(1)
+
+
+pzaf1 <- pzaf +
+  geom_segment(aes(x    = x1, 
+                   y    = y1, 
+                   xend = x2, 
+                   yend = y2
+                   ), 
+               colour = palette[10], 
+               data = f1
+               ) +
+  geom_segment(aes(x    = x2, 
+                   y    = x1, 
+                   xend = x2, 
+                   yend = y2
+                   ), 
+               colour = palette[10], 
+               data = f1
+               )
+pzaf1
+```
+]
+---
+.left-column[
+### A very unequal country
+
+
+]
+.right-column[
+```{r zaf3}
+
+f2 <- f %>% 
+  filter(src  %in% breaks[1]) %>% 
+  slice(2)
+
+pzaf2 <- pzaf1 +
+  geom_segment(aes(x    = x1, 
+                   y    = y1, 
+                   xend = x2, 
+                   yend = y2
+                   ), 
+               colour = palette[10], 
+               data = f2
+               ) +
+  geom_segment(aes(x    = x2, 
+                   y    = x1, 
+                   xend = x2, 
+                   yend = y2
+                   ), 
+               colour = palette[10], 
+               data = f2
+               )
+pzaf2
+```
+]
+---
+.left-column[
+### A very unequal country
+
+
+]
+.right-column[
+```{r zaf4}
+
+f3 <- f %>% 
+  filter(src  %in% breaks[1]) %>% 
+  slice(3)
+
+pzaf3 <- pzaf2 +
+  geom_segment(aes(x    = x1, 
+                   y    = y1, 
+                   xend = x2, 
+                   yend = y2
+                   ), 
+               colour = palette[10], 
+               data = f3
+               ) +
+  geom_segment(aes(x    = x2, 
+                   y    = x1, 
+                   xend = x2, 
+                   yend = y2
+                   ), 
+               colour = palette[10], 
+               data = f3
+               )
+pzaf3
 ```
 ]
 ---
@@ -148,27 +266,7 @@ ggplot(data= filter(df, src %in% breaks[c(1, 4)]),
 ]
 .right-column[
 ```{r BT}
-ggplot(data= filter(df, src %in% breaks[c(1, 2, 4)]),
-       aes(x=cw,
-           y=cy,
-           color = src)) +
-  geom_line() +
-  scale_x_continuous(name="Cumulative share of population", limits=c(0,1)) +
-  scale_y_continuous(name="Cumulative share of welfare", limits=c(0,1)) +
-  theme_classic() +
-  scale_color_manual(values= plt, 
-                     breaks = breaks)
-
-```
-]
----
-.left-column[
-### Compared with a real distribution
-
-]
-.right-column[
-```{r WT10}
-ggplot(data= df,
+pfin <- ggplot(data= filter(df, src %in% breaks[c(1, 3, 4)]),
        aes(x=cw,
            y=cy,
            color = src)) +
