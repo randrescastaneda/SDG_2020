@@ -138,6 +138,8 @@ palette <- c("#1D6996", "#EDAD08", "#0F8554", "#DCB0F2",
              "#467378", "#7C7C7C", "#D3B484", "#B3B3B3"
 )
 # scales::show_col(palette[1:12])
+# scales::show_col(palette[13:24])
+# scales::show_col(palette[25:36])
 
 
 add_and <- function(x) {
