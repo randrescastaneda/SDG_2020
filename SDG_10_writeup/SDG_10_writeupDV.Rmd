@@ -31,66 +31,90 @@ knitr::opts_knit$set(
 library("english")
 library("scales")
 library("tidyverse")
+library("ggplot2")
+library("ggpubr")
 
-source("R/SDG_10_Growth40.R")
+source("R/SDG_10_Growth40_2017rep.R")
 
-# of countries w/ 40 > 100 
-wdata <- WDI %>% 
-  mutate(Dgrowth = Growth40 - Growth,
-         DgrowthM = Growth40 - GrowthMedian,
-         DgrowthMT = Growth - GrowthMedian) %>% 
-  arrange(Dgrowth)
+Group <- c("regionname", "incomegroup")
 
-gr <- wdata %>% 
-  filter(Dgrowth >= 0)
+for (i in Group){
+  groupd <- WDI %>% 
+    mutate(gr = if_else(diff >= 0,1,0),
+           ls = if_else(diff < 0,1,0),
+           pos = if_else(Growth >= 0,1,0),
+           neg = if_else(Growth < 0,1,0),
+           pos40 = if_else(Growth40 >= 0,1,0),
+           neg40 = if_else(Growth40 < 0,1,0),
+           grOLD = if_else(OLDdiff >= 0,1,0),
+           lsOLD = if_else(OLDdiff < 0,1,0),
+           posOLD = if_else(OLDGrowth >= 0,1,0),
+           negOLD = if_else(OLDGrowth < 0,1,0),
+           pos40OLD = if_else(OLDGrowth40 >= 0,1,0),
+           neg40OLD = if_else(OLDGrowth40 < 0,1,0),
+           counter = if_else(!is.na(diff), 1,0) ,
+           counterOLD = if_else(!is.na(OLDdiff), 1,0) 
+    )%>% 
+    group_by_(i) %>% 
+    summarise(gr = sum(gr, na.rm = T),
+              ls = sum(ls, na.rm = T),
+              pos = sum(pos, na.rm = T),
+              neg = sum(neg, na.rm = T),
+              pos40 = sum(pos40, na.rm = T),
+              neg40 = sum(neg40, na.rm = T),
+              grOLD = sum(grOLD, na.rm = T),
+              lsOLD = sum(lsOLD, na.rm = T),
+              posOLD = sum(posOLD, na.rm = T),
+              negOLD = sum(negOLD, na.rm = T),
+              pos40OLD = sum(pos40OLD, na.rm = T),
+              neg40OLD = sum(neg40OLD, na.rm = T),
+              cc = sum(counter, na.rm = T),
+              ccOLD = sum(counterOLD, na.rm = T)
+    ) %>%
+    mutate(grr = round(gr / cc *100, digits = 2),
+           lsr = round(ls/cc * 100, digits = 2),
+           grrOLD = round(grOLD / ccOLD * 100, digits = 2),
+           lsrOLD = round(lsOLD/ccOLD*100, digits = 2)
+           ) 
+  
+  assign(i, groupd)
+  rm(groupd)
+  
+  # rank 
+  
+  
 
-ls <-wdata %>% 
-  filter(Dgrowth < 0)
+}
 
-ls_pos <- ls %>% 
-  filter(Growth40>=0)
-
-ls_neg <- ls %>% 
-  filter(Growth40<0)
-
-ls_negGP <- ls_neg %>% 
-  filter(Growth40<0 & Growth>=0)
-
-absneg <- wdata %>% 
-  filter(Growth40 < 0)
-
-pos <- wdata %>% 
-  filter(Growth >= 0)
-
-neg <- wdata %>% 
-  filter(Growth < 0)
-
-
-regions <- wdata %>% 
-  mutate(gr = if_else(Dgrowth >= 0,1,0)) %>%
-  mutate(ls = if_else(Dgrowth < 0,1,0)) %>%
-  mutate(pos = if_else(Growth >= 0,1,0)) %>%
-  mutate(neg = if_else(Growth < 0,1,0)) %>%
-  mutate(pos40 = if_else(Growth40 >= 0,1,0)) %>%
-  mutate(neg40 = if_else(Growth40 < 0,1,0)) %>%
-  mutate(counter = 1) %>% 
-  group_by(region) %>% 
-  summarise(gr = sum(gr), ls = sum(ls), pos = sum(pos), neg = sum(neg), pos40 = sum(pos40), neg40 = sum(neg40), cc = sum(counter)) %>% 
-  mutate(grr = gr / cc, lsr = ls/cc)
-
+options(scipen=1, digits=2)
 
 ```
 
 The bottom 40
 ===============================
 
-Goal 10 aims to lessen inequalities within the citizens of a nation, promoting wealth and sustained wellbeing for everyone. On that line, the fastest-growing incomes should be the ones of the most vulnerable. In `r nrow(gr)` out of `r nrow(wdata) ` countries, with enough data, this is true, in these nations the earnings of poorest 40 per cent of the population grew over the national average.
+Goal 10 aims to lessen inequalities within the citizens of a nation, promoting wealth and sustained wellbeing for everyone. On that line, the fastest-growing incomes should be the ones of the most vulnerable. In `r nrow(WDI[WDI$diff > 0 & !is.na(WDI$diff),])` out of `r nrow(WDI[!is.na(WDI$diff),])` countries, with enough data, this is true, in these nations the earnings of poorest 40 per cent of the population grew over the national average.
 
-Besides the considerable improvement in several countries, inequalities persist in many others. The income of the bottom 40 increase was less than the national average in `r nrow(ls)` countries, of which in `r nrow(ls_negGP)` their income decreased, while the average did not. Interestingly, out of the `r nrow(neg)` countries with an average decrease in incomes, in `r sum(neg$Dgrowth < 0)` the bottom 40 were more harshly hitten, meanwhile in `r sum(neg$Growth40 >= 0)` they achieved a welfare increase. 
+Besides the considerable improvement in several countries, inequalities persist in many others. The income of the bottom 40 increase was less than the national average in `r nrow(WDI[WDI$diff < 0 & !is.na(WDI$diff),])` countries, of which in `r nrow(WDI[WDI$diff < 0 & WDI$Growth40 < 0 & WDI$Growth > 0 & !is.na(WDI$diff),])` their income decreased, while the average did not. Interestingly, out of the `r nrow(WDI[WDI$Growth < 0 & !is.na(WDI$diff),])` countries with an average decrease in incomes, in `r nrow(WDI[WDI$diff < 0 & WDI$Growth < 0 & !is.na(WDI$diff),])` the bottom 40 were more harshly hit, meanwhile in `r nrow(WDI[WDI$Growth40 >= 0 & WDI$Growth < 0 & !is.na(WDI$diff),])` they achieved a welfare increase. 
 
-In a regional perspective, the bottom 40 of most of the countries of EAP, ECA and LAC increased their income over the average; meanwhile, in OHI, SSA, MNA and SAS  their income improved less than the national average.  The SAS case is worrying, without a single country where the bottom's income grew more than the average. Also, OHI behaviour is troubling as inequality seems to be increasing despite the overall increase in incomes. 
+In a regional perspective, the bottom 40 of most of the countries of `r paste(str_c(arrange(regionname[regionname$grr>=50,], desc(grr))$regionname[1:nrow(regionname[regionname$grr>=50,])-1], collapse = ", "), arrange(regionname[regionname$grr>=50,], desc(grr))$regionname[nrow(regionname[regionname$grr>=50,])], sep =  ", and ")` increased their income over the average; meanwhile, in `r paste(str_c(arrange(regionname[regionname$grr<50,], desc(lsr))$regionname[1:nrow(regionname[regionname$grr<50,])-1], collapse = ", "), arrange(regionname[regionname$grr<50,], desc(lsr))$regionname[nrow(regionname[regionname$grr<50,])], sep =  ", and ")`  their income improved less than the national average, being `r paste0(str_c(arrange(regionname[regionname$grr<50,], desc(lsr))$lsr[1:nrow(regionname[regionname$grr<50,])-1], collapse = "%, "), "% and ", paste0(arrange(regionname[regionname$grr<50,], desc(lsr))$lsr[nrow(regionname[regionname$grr<50,])],"%"))` of their countries exhibiting such behaiviour, respectively.
 
+An overview by income groups is largely meaningful The `r paste0(str_c(arrange(incomegroup[incomegroup$grr>=50,], desc(lsr))$grr[1:nrow(incomegroup[incomegroup$grr>=50,])-1], collapse = "%, "), "% and ", paste0(arrange(incomegroup[incomegroup$grr>=50,], desc(lsr))$grr[nrow(incomegroup[incomegroup$grr>=50,])],"%"))` of  `r paste(str_c(arrange(incomegroup[incomegroup$grr>=50,], desc(grr))$incomegroup[1:nrow(incomegroup[incomegroup$grr>=50,])-1], collapse = ", "), arrange(incomegroup[incomegroup$grr>=50,], desc(grr))$incomegroup[nrow(incomegroup[incomegroup$grr>=50,])], sep =  ", and ")`'s bottom 40% increased their income more rapidly than de average, accordingly; Whereas, for the `r paste(str_c(arrange(incomegroup[incomegroup$grr<50,], desc(lsr))$incomegroup[1:nrow(incomegroup[incomegroup$grr<50,])-1], collapse = ", "), arrange(incomegroup[incomegroup$grr<50,], desc(lsr))$incomegroup[nrow(incomegroup[incomegroup$grr<50,])], sep =  ", and ")` countries the bottom earners experienced a lower expansion of their welfare compared to the average, with only `r paste0(str_c(arrange(incomegroup[incomegroup$grr<50,], desc(lsr))$grr[1:nrow(incomegroup[incomegroup$grr<50,])-1], collapse = "%, "), "% and ", paste0(arrange(incomegroup[incomegroup$grr<50,], desc(lsr))$grr[nrow(incomegroup[incomegroup$grr<50,])],"%"))` of the countries, in the respective income group, with the bottom's growth out-performing the average.
 
+```{r, fig.width = 12}
+# Small fig.width
+p1s <- p1s + ggtitle("") + labs(caption = paste(""))
+p2s <- p2s + ggtitle("") + labs(caption = paste(""))
+p3s <- p3s + ggtitle("")
+main <- ggarrange(p1s, p2s, p3s,
+                    ncol = 3, nrow = 1)  %>% 
+  annotate_figure(top = text_grob("Growth Bottom 40 vs Average", face = "bold", size = 14))
+plot(main)
+```
 
+It can be valuable to check the how the countries have performed across time. Comparing the current growth rates (2012-2017) with the ones between 2008-2013, we found broad changes in the countries behaviour. For both growth rate windows, the following figure shows how the countries rank form the one with the fastest growth of the bottom compared to the average, to the one with the slowest. 
 
+```{r, fig.width = 14}
+plot(plot_rank_s)
+```
 

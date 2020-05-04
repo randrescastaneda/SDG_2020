@@ -83,7 +83,8 @@ WDI <- left_join(WDI, cr, by = "countrycode") %>%
   rename(country=countryname) %>% 
   mutate(country=if_else(countrycode=="KHM", "Cambodia",country),
          region=if_else(countrycode=="KHM", "EAP", region),
-         incomegroup=if_else(countrycode=="KHM", "Lower middle income", incomegroup))
+         incomegroup=if_else(countrycode=="KHM", "Lower middle income", incomegroup),
+         regionname=if_else(countrycode=="KHM", "East Asia and Pacific", regionname))
 
 #=============#
 #   plots     #
@@ -146,6 +147,7 @@ for(ordervariable in ordervariables){
   
   p
   
+  p1s <- p
   p1 <- ggplotly(p)
   
   
@@ -215,6 +217,7 @@ for(ordervariable in ordervariables){
   
   p
   
+  p2s <- p
   p2 <- ggplotly(p)
   
   sortvariable <- temp
@@ -277,6 +280,7 @@ for(ordervariable in ordervariables){
   
   p
   
+  p3s <- p
   p3 <- ggplotly(p)
   
 
@@ -318,7 +322,7 @@ pr <- ggplot(rankd) +
         theme(
           axis.title.y = element_blank(),
           axis.text.y = element_blank(),
-          axis.text.x = element_text(size = 8),
+          axis.text.x = element_text(size = 8, angle = 90),
         ) +
         ylab("") +
         xlab("Rank") +
@@ -326,7 +330,7 @@ pr <- ggplot(rankd) +
   
 
 
-
+plot_rank_s <- pr
 plot_rank <- ggplotly(pr)
 
 # Regular Bumpchart, not the best option 
