@@ -31,8 +31,12 @@ source("R/utils.R")
 #   Aux data
 #----------------------------------------------------------
 cr <- read_rds("data/cty_regs_names.rds")
-load("data/dfc.RData")
-load("data/dfr.RData")
+# load("data/dfc.RData")
+# load("data/dfr.RData")
+dfc <- read_rds("data/dfc.rds")
+dfr <- read_rds("data/dfr.rds")
+
+
 
 #----------------------------------------------------------
 #   filtered dfc data
@@ -204,7 +208,8 @@ p_p10p90lc <- p_p10p90 +
 #   just two countries
 #----------------------------------------------------------
 
-dfc_2c <- dfc_1[c(1,nrow(dfc_1)),] %>%
+dfc_2c <- dfc_1 %>%
+  filter(countrycode  %in% c("ZAF", "FIN")) %>%
   mutate(
     countryx = c("Country A", "Country B")
   ) %>%
