@@ -670,7 +670,7 @@ p_p50 +
 ]
 ---
 .left-column[
-The same graph that we had before
+The same graph that we had before, but now for all countries
 
 ]
 .right-column[
@@ -679,44 +679,13 @@ p_p10p90lc
 ```
 ]
 
-???
-As in this random case, the upper limit of the bar represents the 90th percentile of the distribution, whereas the lower limit represents the 10th percentile of the distribution.
-
-
 ---
-```{r}
-sp90   <- paste0("$",round(dfc_rep[["p90"]], digits = 2))
-sp10   <- paste0("$",round(dfc_rep[["p10"]], digits = 2))
-sr9010 <- round(dfc_rep[["r9010"]], digits = 2)
-
-```
-
-
 .left-column[
-visual illusion?
-
-Take for instance `r dfc_rep[["countryname"]][1]`, whose 90th percentile (`r sp90[1]`) is `r sr9010[1]` times higher than its 10th percentile (`r sp10[1]`). 
-]
-.right-column[
-```{r p1090gl2}
-p_p10p902
-```
-]
-???
-Take for instance `r dfc_rep[["countryname"]][1]`, whose 90th percentile (`r sp90[1]`) is `r sr9010[1]` times higher than its 10th percentile (`r sp10[1]`). 
----
-
-.left-column[
-visual illusion?
-
-In contrast, `r dfc_rep[["countryname"]][nrow(dfc_rep)]`'s  90th percentile (`r sp90[nrow(dfc_rep)]`) is only `r sr9010[nrow(dfc_rep)]` times higher than its 10th percentile (`r sp10[nrow(dfc_rep)]`). 
+Most countries in Africa are at the far left of the chart, whereas the high-income countries are at the right. In monetary terms the distances between the p90 and p10 of the high-income countries is larger than the ones of poor countires, but their levels of relative inequality are way lower. 
 ]
 .right-column[
 ```{r p1090gl3}
 p_p10p903
 ```
 ]
-???
-In contrast, `r dfc_rep[["countryname"]][nrow(dfc_rep)]`'s  90th percentile (`r sp90[nrow(dfc_rep)]`) is only `r sr9010[nrow(dfc_rep)]` times higher than its 10th percentile (`r sp10[nrow(dfc_rep)]`). 
-
 
