@@ -13,7 +13,7 @@ source("R/panel_WDI.R")         # Wrapper to wb function from wbstat
 # parameters
 ordervariables <- "incomegroup" # how to group countries, works with region, incomegroup or both c("region","incomegroup")
 sortvariable <- "Growth40"      # How to sort values within groups Growth40, Growth, diff, diffabs?
-rankvariable <- "diff"     # How to rank countries: Growth40, Growth, diff, diffabs?
+rankvariable <- c("diff", "Growth40")     # How to rank countries: Growth40, Growth, diff, diffabs?
 filename <- ""                  # root file name 
 
 
@@ -160,7 +160,7 @@ for(ordervariable in ordervariables){
   sortvariable <- paste0("OLD",sortvariable)
   
   data <- WDI %>% 
-    filter(OLDdiff>0)
+    filter(OLDdiff>0 & !is.na(diff & OLDdiff))
   
   data <- data %>%
     rowwise() %>%
@@ -225,7 +225,7 @@ for(ordervariable in ordervariables){
   ### actual new ranking ###
   
   data <- WDI %>% 
-  filter(diff > 0)
+  filter(diff > 0 & !is.na(diff))
 
   data <- data %>%
     rowwise() %>%
@@ -274,7 +274,7 @@ for(ordervariable in ordervariables){
     geom_text(data=a, aes(y=mean, x = 8, label = ordervar), angle = 0, alpha=0.6, size=3) +
     geom_segment(data= a, aes(y=max, yend=max, x=-5, xend=10), color=rgb(0,0,0,0.3)) +
     geom_vline(xintercept = 0, color = "red",  linetype="dashed") +
-    ggtitle("Growth Bottom 40 vs National Average - 2012-2017", subtitle = "New Ranking") +
+    ggtitle("Growth Bottom 40 vs National Average - 2012-2017", subtitle = "New Top Countries") +
     labs(caption = paste("Bottom and Total growth as reported in the Global Database of Share Prosperity."))
   
   
@@ -288,56 +288,77 @@ for(ordervariable in ordervariables){
 
 subplot(p1, p2 , p3)
 
-
 ## Bump chart 
 
-rankvariableOLD <- paste0("OLD",rankvariable) 
 
-rankd <- WDI %>%
-  mutate_(rankvar=rankvariable,
-          rankvarOLD=rankvariableOLD) %>% 
-  filter(is.na(rankvar)==F,
-         is.na(rankvarOLD)==F) %>% 
-  ungroup() %>% 
-  arrange(-rankvar) %>% 
-  mutate(rankNEW = row_number()) %>% 
-  arrange(-rankvarOLD) %>% 
-  mutate(rankOLD = row_number(),
-         rank1 = rankOLD,
-         rank2 = rankNEW) %>%
-  arrange(-rankOLD) %>% 
-  mutate(id = as.factor(row_number())) %>% 
-  gather("time","rank", rank1:rank2) %>% 
-  mutate(time=if_else(time=="rank2","2012-2017","2008-2013")) %>% 
-  mutate(diffstatus=if_else(diff>0,"Faster","Slower"),
-         rankstatus=if_else(rankOLD<rankNEW,"Down Rank","Up Rank"))
-
-# ranking plot 
-pr <- ggplot(rankd) +
-        geom_line(aes(y=id, x=rank, color = rankstatus)) +
-        geom_point(aes(y = id, x = rankNEW, color = rankstatus, text = country)) +
-        geom_point(aes(y = id, x = rankOLD, text = country)) +
-        scale_x_continuous(breaks = 1:(nrow(rankd)/2))+
-        theme_minimal() +
-        theme(
-          axis.title.y = element_blank(),
-          axis.text.y = element_blank(),
-          axis.text.x = element_text(size = 8, angle = 90),
-        ) +
-        ylab("") +
-        xlab("Rank") +
-        geom_text(aes(y=id, x = -3, label = country, angle = 0), alpha=0.6, size=3) 
+i = 0
+for (rv in rankvariable){
   
+  i = i + 1
+  
+  rvOLD <- paste0("OLD",rv) 
+  
+  rankd <- WDI %>%
+    mutate_(rankvar=rv,
+            rankvarOLD=rvOLD) %>% 
+    filter(is.na(rankvar)==F,
+           is.na(rankvarOLD)==F) %>% 
+    ungroup() %>% 
+    arrange(-rankvar) %>% 
+    mutate(rankNEW = row_number()) %>% 
+    arrange(-rankvarOLD) %>% 
+    mutate(rankOLD = row_number(),
+           rank1 = rankOLD,
+           rank2 = rankNEW) %>%
+    arrange(-rankOLD) %>% 
+    mutate(id = as.factor(row_number())) %>% 
+    gather("time","rank", rank1:rank2) %>% 
+    mutate(time=if_else(time=="rank2","2012-2017","2008-2013")) %>% 
+    mutate(diffstatus=if_else(diff>OLDdiff,"Faster","Slower"),
+           rankstatus=if_else(rankOLD<rankNEW,"Down Rank","Up Rank"))
+  
+  # ranking plot 
+  pr <- ggplot(rankd) +
+          geom_line(aes(y=id, x=rank, color = rankstatus)) +
+          geom_point(aes(y = id, x = rankNEW, color = rankstatus, text = country)) +
+          geom_point(aes(y = id, x = rankOLD, text = country)) +
+          scale_x_continuous(breaks = 1:(nrow(rankd)/2))+
+          theme_minimal() +
+          theme(
+            axis.title.y = element_blank(),
+            axis.text.y = element_blank(),
+            axis.text.x = element_text(size = 8, angle = 90),
+          ) +
+          ylab("") +
+          xlab("Rank") +
+          geom_text(aes(y=id, x = -3, label = country, angle = 0), alpha=0.6, size=3) 
+    
+  
+  
+  plot_rank_s <- pr
+  plot_rank <- ggplotly(pr)
+  
+  assign(paste0("plot_rank_s", i), plot_rank_s)
+  assign(paste0("plot_rank", i), plot_rank)
+  
+  # Regular Bumpchart, not the best option 
+  bc <- ggplot(rankd) +
+          geom_line(aes(x=time, y=rank, group = country, color=country), alpha=0.5) +
+          geom_point(aes(x=time, y=rank, group = country, color=country), alpha=0.5) +
+          scale_y_reverse(breaks = 1:nrow(rankd))
+  
+  Bumpchart <- ggplotly(bc)
+  Bumpchart_s <- bc
+  
+  assign(paste0("Bumpchart_s", i), Bumpchart_s)
+  assign(paste0("Bumpchart", i), Bumpchart)
+  
+  
+  rankd <- rankd %>% 
+    select(-time, -rank) %>%
+    unique %>% 
+    mutate(Drank = rankOLD - rankNEW)
+  
+  assign(paste0("rankd", i), rankd)
 
-
-plot_rank_s <- pr
-plot_rank <- ggplotly(pr)
-
-# Regular Bumpchart, not the best option 
-bc <- ggplot(rankd) +
-        geom_line(aes(x=time, y=rank, group = country, color=country), alpha=0.5) +
-        geom_point(aes(x=time, y=rank, group = country, color=country), alpha=0.5) +
-        scale_y_reverse(breaks = 1:nrow(rankd))
-
-Bumpchart <- ggplotly(bc)
-
+}
