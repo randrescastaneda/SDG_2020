@@ -53,6 +53,10 @@ source("R/utils.R")
 source("R/SDG_10_lorenz.R")
 ```
 ---
+class: middle, center, inverse
+
+### Relative inequality
+---
 
 .left-column[
 ### Start with perfect equality
@@ -435,5 +439,102 @@ population has merely the `r percent(q3$y1, accuracy = 0.1)` of total welfare.
 .right-column[
 ```{r}
 pfin3
+```
+]
+---
+### Relative Vs Absolute inequality
+
+```{r p1090-calc}
+source("R/SDG_10_p10p90p50.R")
+```
+
+.big[This kind of inequality is known as realtive inequality because it depends on the distribution of welfare within the context in which it is measured. That is, relative inequality does not say anything about the level of welfare between two countries. It only allows us to see if the inequality between the population of one country has icreased or decreased over time, but does not say anything about how unequal the populations of two different economies are. We need thus absolute measures of inequality for this endeavor. 
+]
+
+---
+.left-column[
+### another way to see inequality
+
+]
+.right-column[
+```{r twocts}
+p_p10p90_2c
+```
+]
+---
+
+.left-column[
+### values of p90 and p10
+
+]
+.right-column[
+```{r twop90p10}
+p_p10p90_2c  +
+  geom_label_repel(
+    aes(y     = p10,
+        label = scales::dollar(p10) ),
+    show.legend = FALSE,
+    force = 1,
+    box.padding = 1,
+    segment.curvature = .5,
+    # max.overlaps = 2,
+    # segment.ncp = 3,
+    segment.angle = 20,
+    # nudge_y = 5
+  ) +
+  geom_label_repel(
+    aes(y     = p90,
+        label = scales::dollar(p90) ),
+    show.legend = FALSE,
+    force = 10,
+    box.padding = 2,
+    segment.curvature = .5,
+    # max.overlaps = 2,
+    # segment.ncp = 3,
+    segment.angle = 20,
+    # nudge_y = 5
+  )
+
+```
+]
+
+---
+.left-column[
+### the ration between p90 and p10 is
+]
+.right-column[
+```{r }
+
+```
+]
+
+---
+.left-column[
+### But how to measure the inequality between people in FIN and ZAF?
+
+--- 
+
+We could show the ratio between the medians. 
+
+--
+
+But that can only be done country by country by country. 
+
+]
+.right-column[
+```{r }
+p_p10p90_2c  +
+  geom_label_repel(
+    aes(y     = p50,
+        label = scales::dollar(p50) ),
+    show.legend = FALSE,
+    force = 1,
+    box.padding = 1,
+    segment.curvature = .5,
+    # max.overlaps = 2,
+    # segment.ncp = 3,
+    segment.angle = 20,
+    # nudge_y = 5
+  )
 ```
 ]

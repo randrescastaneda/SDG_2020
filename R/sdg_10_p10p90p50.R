@@ -219,7 +219,8 @@ dfc_2c <- dfc_1 %>%
               fill_gaps = TRUE) %>%
       select(countrycode, gini),
     by = "countrycode"
-  )
+  ) %>%
+  arrange(countryx)
 
 
 
@@ -244,12 +245,63 @@ p_p10p90_2cx <- ggplot(data = dfc_2c,
        y = "Dollar a day 2011 PPP")+
   ylim(0, max(dfc_2c$p90))
 
+
+p_p10p90_2c <- ggplot(data = dfc_2c,
+                      aes(x = countryname)
+                      ) +
+  geom_point(
+    aes(y = p50),
+    size = 2.5) +
+  geom_errorbar(aes(ymin = p10,
+                    ymax = p90,
+                    color = countryname),
+                width = 1,
+                size = 1.5) +
+  theme_classic() +
+  theme(
+    axis.text.x = element_text(angle = 90,
+                               size = 5),
+    legend.position = c(.8, .8),
+    legend.direction = "horizontal",
+    legend.title = element_blank()
+  )  +
+  labs(x = "Country code",
+       y = "Dollar a day 2011 PPP")+
+  ylim(0, max(dfc_2c$p90))
+
+
+
+p_p10p90_2c  +
+  geom_label_repel(
+    aes(y     = p10,
+        label = scales::dollar(p10) ),
+    show.legend = FALSE,
+    force = 1,
+    box.padding = 1,
+    segment.curvature = .5,
+    # max.overlaps = 2,
+    # segment.ncp = 3,
+    segment.angle = 20,
+    # nudge_y = 5
+  ) +
+  geom_label_repel(
+    aes(y     = p90,
+        label = scales::dollar(p90) ),
+    show.legend = FALSE,
+    force = 10,
+    box.padding = 2,
+    segment.curvature = .5,
+    # max.overlaps = 2,
+    # segment.ncp = 3,
+    segment.angle = 20,
+    # nudge_y = 5
+  )
+
+
 # p_p10p90_2cx + geom_text(aes(label = paste("Gini:\n", round(gini, digits = 3))),
 #                          nudge_x = -.1,
 #                          nudge_y = 2.8)
 #
-
-
 
 
 # p_p10p90_2c
