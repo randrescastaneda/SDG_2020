@@ -453,7 +453,7 @@ source("R/SDG_10_p10p90p50.R")
 
 ---
 .left-column[
-### another way to see inequality
+### Another way to compare these two countries
 
 ]
 .right-column[
@@ -462,9 +462,32 @@ p_p10p90_2c
 ```
 ]
 ---
-
 .left-column[
-### values of p90 and p10
+### This is the median
+
+]
+.right-column[
+```{r twop50}
+p_p10p90_2c  +
+  geom_label_repel(
+    aes(y     = p50,
+        label = scales::dollar(p50) ),
+    show.legend = FALSE,
+    force = 1,
+    box.padding = 1,
+    segment.curvature = .5,
+    # max.overlaps = 2,
+    # segment.ncp = 3,
+    segment.angle = 20,
+    # nudge_y = 5
+  )
+```
+]
+
+
+---
+.left-column[
+### These are p90 and p10
 
 ]
 .right-column[
@@ -500,25 +523,58 @@ p_p10p90_2c  +
 
 ---
 .left-column[
-### the ration between p90 and p10 is
+```{r twocr}
+
+w <- dfc_2c %>% 
+  mutate_if(
+    is.numeric,
+    round, digits = 1
+  ) %>% 
+  mutate(
+    d9010 = scales::dollar(p90 - p10)
+  )
+
+
+cap1 <- paste0("(", w[[1, "p90"]], "/", w[[1, "p10"]], "  = ", w[[1, "r9010"]],")")
+cap2 <- paste0("(", w[[2, "p90"]], "/", w[[2, "p10"]], "  = ", w[[2, "r9010"]],")")
+
+
+
+
+```
+
+.big[Even though it is evident that the monetary distance between p10 to the p90 of Finland (`r w[[2, "d9010"]]`) is way higher than the one in South Africa (`r w[[1, "d9010"]]`), The ratio between p90 and p10 in Finland (`r w[[2, "r9010"]]`) is lower than in South Africa (`r w[[1, "r9010"]]`).]
 ]
 .right-column[
 ```{r }
+
+
+
+p_p10p90_2c +
+  annotate(
+    geom = "text", 
+    x = dfc_2c[[1, "countryname"]], 
+    y = dfc_2c[[1, "p50"]]*3, 
+    label = cap1, 
+    hjust = 1.3, vjust = 1, size = 4
+  ) +
+  annotate(
+    geom = "text", 
+    x = dfc_2c[[2, "countryname"]], 
+    y = dfc_2c[[2, "p50"]]*1.2, 
+    label = cap2, 
+    hjust = 1.3, vjust = 3, size = 4
+  )
 
 ```
 ]
 
 ---
 .left-column[
-### But how to measure the inequality between people in FIN and ZAF?
+.big[So, we cannot use a measure of inequality that depends on the relation between two different points in the distributin of a country to compare its inequality level with that of another country.
 
---- 
-
-We could show the ratio between the medians. 
-
---
-
-But that can only be done country by country by country. 
+We could show the ratio between the medians. But that can only be done country by country. 
+]
 
 ]
 .right-column[
@@ -538,3 +594,129 @@ p_p10p90_2c  +
   )
 ```
 ]
+
+---
+class: inverse, middle, center
+
+---
+.left-column[
+Here, countries are organized according to their median, from lowest to highest.
+]
+.right-column[
+```{r p50}
+p_p50
+```
+]
+
+---
+```{r medianratio}
+h50l50 <- dfc_p50[["p50"]][nrow(dfc_p50)]/dfc_p50[["p50"]][1]
+h50l50 <- floor(h50l50)
+```
+.left-column[
+Here, countries are organized according to their median, from lowest to highest.
+
+From `r dfc_p50[["countryname"]][1]` to `r dfc_p50[["countryname"]][nrow(dfc_p50)]`. 
+
+]
+.right-column[
+```{r p50l-lh}
+p_p50 +
+  ggrepel::geom_label_repel(
+    data = dfc_p50lh,
+    aes(label = text,
+        fill  = region),
+    show.legend = FALSE,
+    force = 20,
+    box.padding = 1.2,
+    # max.overlaps = 2,
+    segment.curvature = 0.5,
+    # segment.ncp = 3,
+    # segment.angle = 20,
+    nudge_y = 5
+  )
+
+```
+]
+
+???
+By just looking at the chart we can see that the *typical person* in `r dfc_p50[["countryname"]][nrow(dfc_p50)]` is `r h50l50` times richer than the *typical person* in `r dfc_p50[["countryname"]][1]`
+
+---
+.left-column[
+Here, countries are organized according to their median, from lowest to highest.
+
+From `r dfc_p50[["countryname"]][1]` to `r dfc_p50[["countryname"]][nrow(dfc_p50)]`. 
+
+]
+.right-column[
+```{r p50-all}
+p_p50 +
+  ggrepel::geom_label_repel(
+    data = dfc_p50,
+    aes(label = text,
+        fill  = region),
+    show.legend = FALSE,
+    force = 20,
+    box.padding = 1.2,
+    # max.overlaps = 2,
+    segment.curvature = 0.5,
+    # segment.ncp = 3,
+    # segment.angle = 20,
+    nudge_y = 5
+  )
+
+```
+]
+---
+.left-column[
+The same graph that we had before
+
+]
+.right-column[
+```{r p1090gc}
+p_p10p90lc
+```
+]
+
+???
+As in this random case, the upper limit of the bar represents the 90th percentile of the distribution, whereas the lower limit represents the 10th percentile of the distribution.
+
+
+---
+```{r}
+sp90   <- paste0("$",round(dfc_rep[["p90"]], digits = 2))
+sp10   <- paste0("$",round(dfc_rep[["p10"]], digits = 2))
+sr9010 <- round(dfc_rep[["r9010"]], digits = 2)
+
+```
+
+
+.left-column[
+visual illusion?
+
+Take for instance `r dfc_rep[["countryname"]][1]`, whose 90th percentile (`r sp90[1]`) is `r sr9010[1]` times higher than its 10th percentile (`r sp10[1]`). 
+]
+.right-column[
+```{r p1090gl2}
+p_p10p902
+```
+]
+???
+Take for instance `r dfc_rep[["countryname"]][1]`, whose 90th percentile (`r sp90[1]`) is `r sr9010[1]` times higher than its 10th percentile (`r sp10[1]`). 
+---
+
+.left-column[
+visual illusion?
+
+In contrast, `r dfc_rep[["countryname"]][nrow(dfc_rep)]`'s  90th percentile (`r sp90[nrow(dfc_rep)]`) is only `r sr9010[nrow(dfc_rep)]` times higher than its 10th percentile (`r sp10[nrow(dfc_rep)]`). 
+]
+.right-column[
+```{r p1090gl3}
+p_p10p903
+```
+]
+???
+In contrast, `r dfc_rep[["countryname"]][nrow(dfc_rep)]`'s  90th percentile (`r sp90[nrow(dfc_rep)]`) is only `r sr9010[nrow(dfc_rep)]` times higher than its 10th percentile (`r sp10[nrow(dfc_rep)]`). 
+
+
