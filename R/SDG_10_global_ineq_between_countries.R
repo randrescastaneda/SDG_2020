@@ -86,7 +86,8 @@ p50d_15 <- dfq[year == 2015,
             .(p50, qp50)]
 
 maxq <- p50d_15[,
-             .(maxq = max(p50)),
+             .(maxq = max(p50),
+               minq = min(p50)),
              by = .(qp50)
              ]
 
@@ -103,31 +104,36 @@ pp50d_15 <- ggplot(p50d_15,
                  alpha    = .3) +
   geom_density(alpha = .2,
                fill  = "#1D6996") +
-  geom_vline(xintercept = maxq[qp50 == 2, maxq],
-             linetype   = "longdash",
-             size       = .8,
-             color      = "#CC503E") +
-  geom_vline(xintercept = maxq[qp50 == 8, maxq],
-             linetype   = "longdash",
-             size       = .8,
-             color      = "#CC503E") +
-  theme_minimal() +
-  labs(x = "Medians of the world")
+  labs(x = "Medians of the world") +
+  theme_minimal()
 
+
+
+
+
+# pp50d_15+
+#   annotate("rect", xmin = 0,
+#            xmax = maxq[qp50 == 2, maxq],
+#            ymin = 0,
+#            ymax = Inf,
+#            alpha = .3,
+#            fill      = "#CC503E")
+
+# pp50d_15
 
 # distribution of medians over time
-pp50d <- ggplot(filter(dfq, !is.na(p50)),
-                aes(x = p50,
-                    fill  = factor(year))) +
-  geom_density(alpha = .2)+
-  theme_minimal() +
-  labs(x = "Distribution of medians over time") +
-  theme(
-    legend.title = element_blank(),
-    legend.position = c(.8, .5),
-    legend.direction = "horizontal"
-  )
-pp50d
+# pp50d <- ggplot(filter(dfq, !is.na(p50)),
+#                 aes(x = p50,
+#                     fill  = factor(year))) +
+#   geom_density(alpha = .2)+
+#   theme_minimal() +
+#   labs(x = "Distribution of medians over time") +
+#   theme(
+#     legend.title = element_blank(),
+#     legend.position = c(.8, .5),
+#     legend.direction = "horizontal"
+#   )
+
 
 
 #----------------------------------------------------------
@@ -161,21 +167,11 @@ pr <- s90[s40, on = "year", s40 := i.s40
              ][,
                palma := s90/s40]
 
-
-ggplot(data  = pr,
-       aes(
-         x = year,
-         y = palma
-       )) +
-  geom_line() +
-  geom_point() +
-  theme_classic()
-
 #----------------------------------------------------------
 #   Charts
 #----------------------------------------------------------
 
-ggplot(data  = filter(dgr, gr != "gr9010"),
+ggplot(data  = filter(dgr, gr == "gr9010"),
        aes(
          x = year,
          y = value,

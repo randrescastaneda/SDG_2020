@@ -688,4 +688,224 @@ Most countries in Africa are at the far left of the chart, whereas the high-inco
 p_p10p903
 ```
 ]
+---
+class: middle, center, inverse
 
+## Inequality between countries
+
+--
+
+.big[We can't use a relative measue of inequality to compare inequality across countries]
+
+--
+
+.big[We need a measure that attempts to summarize a destribution in one single value. ]
+
+--
+
+.big[To avoid extremes inequalities within a single country we should not use the mean. 
+Thus, we use the median. ]
+
+```{r btw-cts-ineq}
+source("R/SDG_10_global_ineq_between_countries.R")
+```
+
+---
+.left-column[
+.big[This is the distribution of all the medians of the world in 2015. 
+
+Each median reprsents the level of welfare of each country]
+]
+.right-column[
+```{r meddist}
+pp50d_15
+```
+]
+
+---
+.left-column[
+.big[Bottom 10]
+]
+.right-column[
+```{r meddist10}
+pp50d_15 + 
+  annotate("rect", xmin = 0, 
+           xmax = maxq[qp50 == 1, maxq], 
+           ymin = 0, 
+           ymax = Inf, 
+           alpha = .6,
+           fill      = "#CC503E")
+  
+```
+]
+---
+.left-column[
+.big[Bottom 20]
+]
+.right-column[
+```{r meddist20}
+pp50d_15 + 
+  annotate("rect", xmin = 0, 
+           xmax = maxq[qp50 == 1, maxq], 
+           ymin = 0, 
+           ymax = Inf, 
+           alpha = .6,
+           fill      = "#CC503E") + 
+  annotate("rect", xmin = maxq[qp50 == 1, maxq], 
+           xmax = maxq[qp50 == 2, maxq], 
+           ymin = 0, 
+           ymax = Inf, 
+           alpha = .4,
+           fill      = "#CC503E")
+  
+```
+]
+---
+.left-column[
+.big[Bottom 40]
+]
+.right-column[
+```{r meddist40}
+pp50d_15 + 
+  annotate("rect", xmin = 0, 
+           xmax = maxq[qp50 == 1, maxq], 
+           ymin = 0, 
+           ymax = Inf, 
+           alpha = .6,
+           fill      = "#CC503E") + 
+  annotate("rect", xmin = maxq[qp50 == 1, maxq], 
+           xmax = maxq[qp50 == 2, maxq], 
+           ymin = 0, 
+           ymax = Inf, 
+           alpha = .4,
+           fill      = "#CC503E") +
+  annotate("rect", xmin = maxq[qp50 == 2, maxq], 
+           xmax = maxq[qp50 == 4, maxq], 
+           ymin = 0, 
+           ymax = Inf, 
+           alpha = .2,
+           fill      = "#CC503E")
+
+```
+]
+---
+.left-column[
+.big[In fact, most of the world (about 75%) is in this part of the distribution]
+]
+.right-column[
+```{r meddistmost}
+pp50d_15 + 
+  annotate("rect", xmin = 0, 
+           xmax = maxq[qp50 == 8, minq], 
+           ymin = 0, 
+           ymax = Inf, 
+           alpha = .2,
+           fill      = "#CC503E")
+
+```
+]
+---
+.left-column[
+.big[Only the top 10 is on this part of the distribution]
+]
+.right-column[
+```{r top10med}
+pp50d_15 + 
+  annotate("rect", xmin = maxq[qp50 == 10, minq], 
+           xmax = maxq[qp50 == 10, maxq], 
+           ymin = 0, 
+           ymax = Inf, 
+           alpha = .2,
+           fill      = "#CC503E")
+
+```
+]
+---
+.left-column[
+.big[According to Palma (YYYY), this part of the distribution (5th to 9th deciles) remains relatively stable]
+]
+.right-column[
+```{r f50to90}
+pp50d_15 + 
+  annotate("rect", xmin = maxq[qp50 == 4, maxq], 
+           xmax = maxq[qp50 == 9, maxq], 
+           ymin = 0, 
+           ymax = Inf, 
+           alpha = .2,
+           fill      = "#1D6996")
+
+```
+]
+---
+.left-column[
+.big[According to Palma (YYYY), this part of the distribution (5th to 9th deciles) remains relatively stable. 
+
+So, we could analysis how inequality has changed by looking at the ratio of share of income of the B40 ant the top 10 (Palma index)]
+]
+.right-column[
+```{r b40t10}
+pp50d_15 + 
+  annotate("rect", xmin = 0, 
+           xmax = maxq[qp50 == 4, maxq], 
+           ymin = 0, 
+           ymax = Inf, 
+           alpha = .6,
+           fill      = "#CC503E") + 
+   annotate("rect", xmin = maxq[qp50 == 10, minq], 
+           xmax = maxq[qp50 == 10, maxq], 
+           ymin = 0, 
+           ymax = Inf, 
+           alpha = .2,
+           fill      = "#CC503E")
+
+```
+]
+---
+.left-column[
+.big[This relation has decreased over time]
+]
+.right-column[
+```{r palmatime}
+ggplot(data  = pr,
+       aes(
+         x = year,
+         y = palma
+       )) +
+  geom_line() +
+  geom_point() +
+  theme_classic()
+```
+]
+---
+.left-column[
+.big[Or, we can see the evolution of this distribution over time]
+]
+.right-column[
+```{r medevol}
+ggplot(filter(dfq, !is.na(p50)),
+                aes(x = p50,
+                    fill  = factor(year))) +
+  geom_density(alpha = .2)+
+  theme_minimal() +
+  labs(x = "Distribution of medians over time") +
+  theme(
+    legend.title = element_blank(),
+    legend.position = c(.8, .5),
+    legend.direction = "horizontal"
+  )
+
+```
+]
+---
+pull-left[
+## Inequality within countries
+
+]
+
+--
+
+pull-right[
+## Inequality among (between) countries
+
+]
+---
