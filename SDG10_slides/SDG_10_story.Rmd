@@ -47,19 +47,19 @@ Intcomments
 
 class: middle, center, inverse
 
-### Story of inequality
+### Story of welfare inequality
 ```{r distsim}
 source("R/utils.R")
 source("R/SDG_10_lorenz.R")
 ```
 ---
-class: middle, center, inverse
+class: middle, center
 
-### Relative inequality
+### Inequality within countries (Relative inequality)
 ---
 
 .left-column[
-### Start with perfect equality
+.large[Start with perfect equality]
 
 .big[Everybody has the same amount of money]
 ]
@@ -69,31 +69,31 @@ class: middle, center, inverse
 set.seed(1010111)
 plt <- sample(palette, size = 4)
 
-breaks <- df %>%
-  group_by(src) %>%
+breaks <- df1 %>%
+  group_by(srd) %>%
   summarise(
     gini = gini(y,w)
   ) %>%
   arrange(-gini) %>%
-  pull(src)
+  pull(srd)
 
 f <- df %>% 
-  group_by(src) %>%  
+  group_by(srd) %>%  
   filter(
       abs(cw-.25) == min(abs(cw-.25))
     | abs(cw-.5)  == min(abs(cw-.5))
     | abs(cw-.75) == min(abs(cw-.75))
       ) %>% 
-  select(src, x2 = cw, y1 = cy) %>% 
+  select(srd, x2 = cw, y1 = cy) %>% 
   mutate(y2 = y1,
          x1  = 0) 
 
 
 pe <- ggplot() +
-  geom_line(data=filter(df, src %in% breaks[4]),
+  geom_line(data=filter(df, srd %in% breaks[4]),
              aes(x=cw,
                  y=cy,
-                 color = src)
+                 color = srd)
             ) +
   scale_x_continuous(name="Cumulative share of population", limits=c(0,1)) +
   scale_y_continuous(name="Cumulative share of welfare", limits=c(0,1)) +
@@ -107,9 +107,9 @@ pe
 
 ---
 .left-column[
-### Start with perfect equality
+.large[Start with perfect equality]
 
-welfare and population cummulate at the same pace. So, the bottom 25 percent of the population has 25% of the total income
+.big[welfare and population cummulate at the same pace. So, the bottom 25 percent of the population has 25% of the total income]
 ]
 .right-column[
 ```{r pe2}
@@ -125,9 +125,9 @@ pe2
 
 ---
 .left-column[
-### Start with perfect equality
+.large[Start with perfect equality]
 
-Welfare and population cummulate at the same pace. So, the bottom 25 percent of the population has 25% of the total income. The bottom 50 of the population has 50 percent of total income, and so on... 
+.big[Welfare and population cummulate at the same pace. So, the bottom 25 percent of the population has 25% of the total income. The bottom 50 of the population has 50 percent of total income, and so on... ]
 
 ]
 .right-column[
@@ -145,19 +145,18 @@ pe3
 
 ---
 .left-column[
-### A real case example
-.big[South Africa]
+.large[A real case example(South Africa)]
 
-Here we can see how far from perfect equality this country is. 
+.big[Here we can see how far from perfect equality this country is. ]
 
 ]
 .right-column[
 ```{r zaf1}
 pzaf <- pe + 
-  geom_line(data= filter(df, src %in% breaks[1]),
+  geom_line(data= filter(df, srd %in% breaks[1]),
        aes(x=cw,
            y=cy,
-           color = src)
+           color = srd)
        ) 
 pzaf
 ```
@@ -166,7 +165,7 @@ pzaf
 ```{r zaf2}
 
 f1 <- f %>% 
-  filter(src  %in% breaks[1]) %>% 
+  filter(srd  %in% breaks[1]) %>% 
   slice(1)
 
 sz1 <-  list(geom_segment(aes(x    = x1, 
@@ -190,10 +189,9 @@ pzaf1 <- pzaf + sz1
 ```
 
 .left-column[
-### A real case example
-.big[South Africa]
+.large[A real case example(South Africa)]
 
-The bottom 25% of the population has only `r percent(f1$y1, accuracy = 0.1)` of total welfare
+.big[The bottom 25 of the population has only `r percent(f1$y1, accuracy = 0.1)` of total welfare]
 
 ]
 .right-column[
@@ -207,7 +205,7 @@ pzaf1
 ```{r zaf3}
 
 f2 <- f %>% 
-  filter(src  %in% breaks[1]) %>% 
+  filter(srd  %in% breaks[1]) %>% 
   slice(2)
 
 sz2 <- list(
@@ -231,11 +229,10 @@ sz2 <- list(
 pzaf2 <- pzaf1 + sz2
 ```
 .left-column[
-### A real case example
-.big[South Africa]
+.large[A real case example(South Africa)]
 
-The bottom 25% of the population has only `r percent(f1$y1, accuracy = 0.1)` of total welfare, 
-and the bottom 50% has around `r percent(f2$y1, accuracy = 0.1)`. 
+.big[The bottom 25 of the population has only `r percent(f1$y1, accuracy = 0.1)` of total welfare, 
+and the bottom 50 has around `r percent(f2$y1, accuracy = 0.1)`. ]
 
 ]
 .right-column[
@@ -247,7 +244,7 @@ pzaf2
 ```{r zaf4}
 
 f3 <- f %>% 
-  filter(src  %in% breaks[1]) %>% 
+  filter(srd  %in% breaks[1]) %>% 
   slice(3)
 
 sz3 <- list(
@@ -272,12 +269,11 @@ geom_segment(aes(x    = x1,
 pzaf3 <- pzaf2 + sz3
 ```
 .left-column[
-### A real case example
-.big[South Africa]
+.large[A real case example(South Africa)]
 
-The bottom 25% of the population has only `r percent(f1$y1, accuracy = 0.1)` of total welfare, 
-and the bottom 50% has around `r percent(f2$y1, accuracy = 0.1)`. Finally, the bottom 75% of the 
-population has merely the `r percent(f3$y1, accuracy = 0.1)` of total welfare. 
+.big[The bottom 25 of the population has only `r percent(f1$y1, accuracy = 0.1)` of total welfare, 
+and the bottom 50 has around `r percent(f2$y1, accuracy = 0.1)`. Finally, the bottom 75 of the 
+population has merely the `r percent(f3$y1, accuracy = 0.1)` of total welfare. ]
 
 ]
 .right-column[
@@ -288,17 +284,16 @@ pzaf3
 ]
 ---
 ```{r fin}
-gpfin  <- geom_line(data= filter(df, src %in% breaks[3]),
+gpfin  <- geom_line(data= filter(df, srd %in% breaks[3]),
                          aes(x=cw,
                              y=cy,
-                             color = src))
+                             color = srd))
 pfin <- pzaf + gpfin
 ```
 .left-column[
-### Let's compare
-.big[Findland]
+.large[In contrast to Findland]
 
-We can see that this is a more equalitarian country
+.big[We can see that this is a more equalitarian country]
 ]
 .right-column[
 ```{r }
@@ -309,7 +304,7 @@ pfin
 ```{r fin1}
 
 q1 <- f %>% 
-  filter(src  %in% breaks[3]) %>% 
+  filter(srd  %in% breaks[3]) %>% 
   slice(1)
 
 sf1 <- list(
@@ -337,11 +332,10 @@ pfin1 <- pzaf1 + gpfin + sf1
     
 ```
 .left-column[
-### Let's compare
-.big[Findland]
+.large[In contrast to Findland]
 
-In contrast to South Africa, the bottom 25% of the population in Findaly has 
-`r percent(q1$y1, accuracy = 0.1)` of total welfare, 
+.big[The bottom 25 of the population in Findaly has 
+`r percent(q1$y1, accuracy = 0.1)` of total welfare, ]
 
 ]
 .right-column[
@@ -352,7 +346,7 @@ pfin1
 ---
 ```{r fin2}
 q2 <- f %>% 
-  filter(src  %in% breaks[3]) %>% 
+  filter(srd  %in% breaks[3]) %>% 
   slice(2)
 
 sf2 <- list(
@@ -381,12 +375,11 @@ pfin2 <- pzaf  + sz2  +
   
 ```
 .left-column[
-### Let's compare
-.big[Findland]
+.large[In contrast to Findland]
 
-In contrast to South Africa, the bottom 25% of the population in Findaly has 
-`r percent(q1$y1, accuracy = 0.1)` of total welfare, and the bottom 50% has around 
-`r percent(q2$y1, accuracy = 0.1)`. 
+.big[The bottom 25 of the population in Findaly has 
+`r percent(q1$y1, accuracy = 0.1)` of total welfare, and the bottom 50 has around 
+`r percent(q2$y1, accuracy = 0.1)`]
 
 ]
 .right-column[
@@ -398,7 +391,7 @@ pfin2
 ```{r fin3}
 
 q3 <- f %>% 
-  filter(src  %in% breaks[3]) %>% 
+  filter(srd  %in% breaks[3]) %>% 
   slice(3)
 
 sf3 <- list(
@@ -427,13 +420,12 @@ pfin3 <- pzaf  + sz3  +
 ```
 .left-column[
 
-### Let's compare
-.big[Findland]
+.large[In contrast to Findland]
 
-In contrast to South Africa, the bottom 25% of the population in Findaly has 
-`r percent(q1$y1, accuracy = 0.1)` of total welfare, and the bottom 50% has around 
-`r percent(q2$y1, accuracy = 0.1)`. Finally, the bottom 75% of the 
-population has merely the `r percent(q3$y1, accuracy = 0.1)` of total welfare.
+The bottom 25% of the population in Findaly has 
+`r percent(q1$y1, accuracy = 0.1)` of total welfare, and the bottom 50 has around 
+`r percent(q2$y1, accuracy = 0.1)`. Finally, the bottom 75 of the 
+population has the `r percent(q3$y1, accuracy = 0.1)` of total welfare.
 
 ]
 .right-column[
@@ -441,6 +433,142 @@ population has merely the `r percent(q3$y1, accuracy = 0.1)` of total welfare.
 pfin3
 ```
 ]
+---
+.left-column[
+.big[Economists summarize the level of inequality in a measure call the Gini index.]
+]
+.right-column[
+```{r giniarea}
+dfg <- df %>% 
+  pivot_wider(names_from = srd,
+              values_from = c(cy, cw), 
+              id_cols = qc)
+
+
+pg <- ggplot(data = dfg) +
+  geom_line(aes(
+    x = cw_Equality, 
+    y = cy_Equality
+  ),
+  color = "#0F8554") +
+  geom_line(aes(
+    x = cw_Equality, 
+    y = cy_ZAF
+  ),
+  color = "#1D6996") +
+  scale_x_continuous(name="Cumulative share of population", limits=c(0,1)) +
+  scale_y_continuous(name="Cumulative share of welfare", limits=c(0,1)) +
+  theme_classic() +
+  scale_color_discrete(labels = c("Equality", "ZAF"))
+
+pg
+```
+]
+---
+.left-column[
+.big[Economists summarize the level of inequality in a measure call the Gini index.
+
+The smaller the Area A the lower the inequality in each country. In other words, the closer the Gini coefficient is to zero the less unequal the country is. 
+]
+]
+.right-column[
+```{r giniarea2}
+pg +
+  geom_ribbon(aes(
+    ymin  = cy_ZAF, 
+    ymax  = cy_Equality, 
+    x     = cw_Equality),
+    fill  = "#EDAD08",
+    alpha = .5) +
+  geom_ribbon(aes(
+    ymin  = 0, 
+    ymax  = cy_ZAF, 
+    x     = cw_Equality),
+    fill  = "#66C5CC",
+    alpha = .5) +
+  annotate("text", x = 0.6, y = .35, 
+           label = "A", size = 12) +
+  annotate("text", x = 0.8, y = .15, 
+           label = "B", size = 12) +
+  annotate("text", x = 0.2, y = .8, 
+           label = "Gini = A/(A+B)", size = 12) 
+  
+```
+]
+---
+```{r ginichange}
+source("R/SDG_10_Gini_Change.R")
+
+```
+
+.left-column[
+.big[In this chart we can see the Gini coefficient of all countries from 2000 to 2018. If the dot is below the line, the country has decreased inequality in this period. If it is above the line, inequality has increased in this country.]
+
+]
+.right-column[
+```{r gini45}
+p_g
+```
+]
+
+???
+Here we have all the countries of the world and their corresponding Gini coefficient of the closest years to 2000 and 2018.
+---
+
+.left-column[
+.big[LAC is the region that consistently has reduced inequality in most countries. This makes sense because inequality is measured with income-based welfare, which is, by definition, higher than consumption-based welfare, so there is more room to improve.]
+]
+.right-column[
+```{r gini45lac}
+p_g +
+  ggforce::geom_mark_hull(
+    aes(filter = region == 'LAC',
+        fill = region,
+        label = region),
+    show.legend = FALSE,
+    expand = unit(2, "mm"),
+    concavity = 1
+  )
+``` 
+]
+
+---
+.left-column[
+.big[When we look at other regions, we don't find the same patterns.]
+]
+.right-column[
+```{r gini45SSA}
+p_g +
+  ggforce::geom_mark_hull(
+    aes(filter = region == 'SSA',
+        fill = region,
+        label = regionname),
+    show.legend = FALSE,
+    expand = unit(2, "mm"),
+    concavity = 1
+  )
+```
+]
+
+---
+.left-column[
+.big[When we look at other regions, we don't find the same patterns.]
+]
+.right-column[
+```{r gini45EAP}
+
+p_g +
+  ggforce::geom_mark_hull(
+    aes(filter = region == 'EAP',
+        fill = region,
+        label = regionname),
+    show.legend = FALSE,
+    expand = unit(2, "mm"),
+    concavity = 1
+  )
+```
+]
+
 ---
 ### Relative Vs Absolute inequality
 
@@ -838,9 +966,7 @@ pp50d_15 +
 ]
 ---
 .left-column[
-.big[According to Palma (YYYY), this part of the distribution (5th to 9th deciles) remains relatively stable. 
-
-So, we could analysis how inequality has changed by looking at the ratio of share of income of the B40 ant the top 10 (Palma index)]
+.big[Whereas all the action happens in these two sections. So, we could analysis how inequality has changed by looking at the ratio of share of income of the top 10 ant the B40 (Palma index)]
 ]
 .right-column[
 ```{r b40t10}
@@ -897,15 +1023,26 @@ ggplot(filter(dfq, !is.na(p50)),
 ```
 ]
 ---
-pull-left[
-## Inequality within countries
+.pull-left[
+.large[Inequality within countries]
+
+- .big[we need to use relative measures of inequality]
+
+- .big[Most countries in LAC and several other countries have reduced within inequality. In other countries within inequality has increased]
+
+- .big[Relative measures of inequality are not useful to compare inequality between countries ]
+
+- .big[In absolute terms, righ countries are more unequal than poor countries.]
 
 ]
-
 --
 
-pull-right[
-## Inequality among (between) countries
+.pull-right[
+.large[Inequality among (between) countries]
+
+- .big[We need absolute measures of inequality]
+
+- .big[Inequality has decreased over time between the countries in the top 10 and the ones in the bottom 40]
 
 ]
 ---

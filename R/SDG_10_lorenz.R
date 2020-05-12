@@ -45,7 +45,7 @@ zaf <- "p:/01.PovcalNet/01.Vintage_control/ZAF/ZAF_2014_LCS/ZAF_2014_LCS_V02_M_V
 
 
 nq   <- 10 # No. of quantiles
-df <-  read_dta(pry) %>%
+df1 <-  read_dta(pry) %>%
   select(countrycode, welfare, cpi2011, icp2011, weight) %>%
   bind_rows(
     read_dta(pry) %>%
@@ -74,17 +74,48 @@ df <-  read_dta(pry) %>%
     q  =  floor(csw/((N+1)/nq)) + 1,
     cy = cumsum(y*w)/max(cumsum(y*w), na.rm = TRUE),
     cw = cumsum(w)/max(cumsum(w), na.rm = TRUE),
-    src = countrycode
+    srd = countrycode
   ) %>%
   ungroup() %>%
   select(-countrycode) %>%
-  drop_na()
+  drop_na() %>%
+  as.data.table()
+
+bc <- df1[srd == "Equality",
+          .N]
+
+df2 <- df1[
+  # filter data
+  srd != "Equality"
+  ][,
+    # create as many bins as Equality has
+    qc := cut(cw,
+              breaks = 45,
+              labels = 1:(bc),
+              dig.lab = 2),
+    by = .(srd)
+    ][,
+      # convert factor to number
+      qc := as.numeric(as.character(qc))
+      ][,
+        lapply(.SD, max, na.rm = TRUE),
+        by = .(srd, qc)
+        ]
+
+df3 <- df1[srd == "Equality"
+          ][,
+            qc := .I
+            ]
+
+df <- rbindlist(list(df2, df3),
+                 use.names=TRUE)
+
 
 # ggplot(data = df,
 #        aes(
 #          x = y,
-#          fill = src,
-#          color = src,
+#          fill = srd,
+#          color = srd,
 #          weight = w
 #        )
 #        ) +
@@ -100,7 +131,7 @@ df <-  read_dta(pry) %>%
 # ggplot(data=df,
 #        aes(x=cw,
 #            y=cy,
-#            color = src)) +
+#            color = srd)) +
 #   geom_line() +
 #   geom_abline() +
 #   scale_x_continuous(name="Cumulative share of population", limits=c(0,1)) +
@@ -125,17 +156,17 @@ df <-  read_dta(pry) %>%
 # plt <- sample(palette, size = 4)
 #
 # breaks <- df %>%
-#   group_by(src) %>%
+#   group_by(srd) %>%
 #   summarise(
 #     gini = gini(y,w)
 #   ) %>%
 #   arrange(-gini) %>%
-#   pull(src)
+#   pull(srd)
 #
-# pe <- ggplot(data=filter(df, src %in% breaks[4]),
+# pe <- ggplot(data=filter(df, srd %in% breaks[4]),
 #              aes(x=cw,
 #                  y=cy,
-#                  color = src)) +
+#                  color = srd)) +
 #   geom_line() +
 #   scale_x_continuous(name="Cumulative share of population", limits=c(0,1)) +
 #   scale_y_continuous(name="Cumulative share of welfare", limits=c(0,1)) +
