@@ -576,7 +576,7 @@ source("R/SDG_10_p10p90p50.R")
 ```
 
 ### comparison across countries?
-.big[The Gini coefficient is useful for for comparing the level of inequality in one economy over time. However, it is insufficient to compare the how unequal two economies are. In other words, by comparing the Gini coefficient of two different economies, we can say that population of the one with the higher number faces higher levels of inequality *among themselve* than the population of the other economy, but we cannot say anything about the level of inequality between the two populations. let's see an example]
+.big[The Gini coefficient is useful for comparing the level of inequality in one economy over time. However, it is insufficient to compare how unequal two economies are. By comparing the Gini coefficient of two different economies, we can say that the population of the one with the higher coefficient faces higher levels of inequality *among inteself* than the population of the other economy, but we cannot say anything about the level of inequality between the two populations. let's see an example]
 
 ---
 .left-column[
@@ -646,7 +646,57 @@ cap2 <- paste0("(", w[[2, "p90"]], "/", w[[2, "p10"]], "  = ", w[[2, "r9010"]],"
 
 ```
 
-.big[Even though it is evident that the monetary distance between p10 to the p90 of Finland (`r w[[2, "d9010"]]`) is way higher than the one in South Africa (`r w[[1, "d9010"]]`), The ratio between p90 and p10 in Finland (`r w[[2, "r9010"]]`) is lower than in South Africa (`r w[[1, "r9010"]]`).]
+.big[Even though it is evident that the monetary distance between p10 to the p90 of Finland (`r w[[2, "d9010"]]`) is way higher than the one in South Africa (`r w[[1, "d9010"]]`), The ratio between p90 and p10 in Finland (`r w[[2, "r9010"]]`) is lower than in South Africa (`r w[[1, "r9010"]]`).
+]
+]
+.right-column[
+```{r }
+p_p10p90_2c +
+  annotate(
+    geom = "text", 
+    x = dfc_2c[[1, "countryname"]], 
+    y = dfc_2c[[1, "p50"]]*3, 
+    label = cap1, 
+    hjust = 1.3, vjust = 1, size = 4
+  ) +
+  annotate(
+    geom = "text", 
+    x = dfc_2c[[2, "countryname"]], 
+    y = dfc_2c[[2, "p50"]]*1.2, 
+    label = cap2, 
+    hjust = 1.3, vjust = 3, size = 4
+  ) +
+  geom_label_repel(
+    aes(y     = p10,
+        label = scales::dollar(p10) ),
+    show.legend = FALSE,
+    force = 1,
+    box.padding = 1,
+    segment.curvature = .5,
+    # max.overlaps = 2,
+    # segment.ncp = 3,
+    segment.angle = 20,
+    # nudge_y = 5
+  ) +
+  geom_label_repel(
+    aes(y     = p90,
+        label = scales::dollar(p90) ),
+    show.legend = FALSE,
+    force = 10,
+    box.padding = 2,
+    segment.curvature = .5,
+    # max.overlaps = 2,
+    # segment.ncp = 3,
+    segment.angle = 20,
+    # nudge_y = 5
+  )
+
+```
+]
+---
+.left-column[
+
+.big[So, when the relation between two different points in the distribution is relative, we lose the capacity to compare the relation between two people in two different distributions. ]
 ]
 .right-column[
 ```{r }
@@ -695,11 +745,7 @@ p_p10p90_2c +
 
 ---
 .left-column[
-.big[So, we cannot use a measure of inequality that depends on the relation between two different points in the distribution of a country to compare its inequality levels with that of another country.
-
-We could show the ratio between the medians. But that can only be done country by country. 
-]
-
+The median of the distribution, on the other hand, is the middle point in a distribution that has been arranged in order of magnitude. By definition it is unaffected by outliers. By comparing the medians of two different distribution we can see how better of is the typical person in one country in contrast to the typical person of anouther country.
 ]
 .right-column[
 ```{r }
@@ -715,16 +761,22 @@ p_p10p90_2c  +
     # segment.ncp = 3,
     segment.angle = 20,
     # nudge_y = 5
-  )
+  ) +
+  geom_point(
+    aes(y = p50),
+    size = 2.5) 
 ```
 ]
 ---
 .left-column[
-### This is the median
-
+.big[One way to do so is by getting the ratio between the medians. The problem with this is that it can only be done country by country.]
 ]
 .right-column[
-```{r twop50}
+```{r }
+rmed <- round(w[[2, "p50"]]/w[[1, "p50"]], digits = 1)
+cap3 <- paste0("(", w[[2, "p50"]], "/", w[[1, "p50"]], "  = ", 
+               rmed,")")
+
 p_p10p90_2c  +
   geom_label_repel(
     aes(y     = p50,
@@ -737,11 +789,19 @@ p_p10p90_2c  +
     # segment.ncp = 3,
     segment.angle = 20,
     # nudge_y = 5
+  ) +
+  geom_point(
+    aes(y = p50),
+    size = 2.5) +
+  annotate(
+    geom = "text", 
+    x = 2.3, 
+    y = 50, 
+    label = cap3, 
+    hjust = 1.3, vjust = 1, size = 7
   )
 ```
 ]
-
-
 ---
 .left-column[
 Here, countries are organized according to their median, from lowest to highest.
@@ -760,7 +820,7 @@ h50l50 <- floor(h50l50)
 .left-column[
 Here, countries are organized according to their median, from lowest to highest.
 
-From `r dfc_p50[["countryname"]][1]` to `r dfc_p50[["countryname"]][nrow(dfc_p50)]`. 
+ `r dfc_p50[["countryname"]][1]` to `r dfc_p50[["countryname"]][nrow(dfc_p50)]`. 
 
 ]
 .right-column[
@@ -833,6 +893,13 @@ p_p10p903
 ```
 ]
 ---
+### Relative Vs Absolute inequality
+
+.big[This kind of inequality is known as realtive inequality because it depends on the distribution of welfare within the context in which it is measured. That is, relative inequality does not say anything about the level of welfare between two countries. It only allows us to see if the inequality between the population of one country has icreased or decreased over time, but it does not say anything about how unequal the populations of two different economies are. We need absolute measures of inequality for this endeavor. 
+]
+
+---
+
 class: middle, center, inverse
 
 ## Inequality between countries
@@ -982,7 +1049,7 @@ pp50d_15 +
 ]
 ---
 .left-column[
-.big[Whereas all the action happens in these two sections. So, we could analysis how inequality has changed by looking at the ratio of share of income of the top 10 ant the B40 (Palma index)]
+.big[All the action happens in these two sections. So, we could analyze how inequality has changed over time by looking at the ratio of share of income of the top 10 to the B40 (Palma index)]
 ]
 .right-column[
 ```{r b40t10}
@@ -1060,9 +1127,4 @@ ggplot(filter(dfq, !is.na(p50)),
 
 - .big[Inequality has decreased over time between the countries in the top 10 and the ones in the bottom 40]
 
-]
----
-### Relative Vs Absolute inequality
-
-.big[This kind of inequality is known as realtive inequality because it depends on the distribution of welfare within the context in which it is measured. That is, relative inequality does not say anything about the level of welfare between two countries. It only allows us to see if the inequality between the population of one country has icreased or decreased over time, but it does not say anything about how unequal the populations of two different economies are. We need absolute measures of inequality for this endeavor. 
 ]
