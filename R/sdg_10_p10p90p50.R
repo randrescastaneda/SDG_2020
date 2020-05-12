@@ -254,9 +254,9 @@ p_p10p90_2c <- ggplot(data = dfc_2c,
                     color = countryname),
                 width = 1,
                 size = 1.5) +
-  geom_point(
-    aes(y = p50),
-    size = 2.5) +
+  # geom_point(
+  #   aes(y = p50),
+  #   size = 2.5) +
   theme_classic() +
   theme(
     axis.text.x = element_text(angle = 90,

@@ -77,7 +77,7 @@ breaks <- df1 %>%
   arrange(-gini) %>%
   pull(srd)
 
-f <- df %>% 
+f <- df1 %>% 
   group_by(srd) %>%  
   filter(
       abs(cw-.25) == min(abs(cw-.25))
@@ -109,7 +109,7 @@ pe
 .left-column[
 .large[Start with perfect equality]
 
-.big[welfare and population cummulate at the same pace. So, the bottom 25 percent of the population has 25% of the total income]
+.big[Welfare and population cummulate at the same pace. So, the bottom 25 percent of the population has 25% of the total income.]
 ]
 .right-column[
 ```{r pe2}
@@ -334,7 +334,7 @@ pfin1 <- pzaf1 + gpfin + sf1
 .left-column[
 .large[In contrast to Findland]
 
-.big[The bottom 25 of the population in Findaly has 
+.big[The bottom 25 of the population in Findland has 
 `r percent(q1$y1, accuracy = 0.1)` of total welfare, ]
 
 ]
@@ -502,7 +502,7 @@ source("R/SDG_10_Gini_Change.R")
 ```
 
 .left-column[
-.big[In this chart we can see the Gini coefficient of all countries from 2000 to 2018. If the dot is below the line, the country has decreased inequality in this period. If it is above the line, inequality has increased in this country.]
+.big[In this chart we can see the Gini coefficient of all countries from 2000 to 2018. If the dot is below the line, inequality has decreased during this period. If it is above the line, inequality has increased.]
 
 ]
 .right-column[
@@ -516,7 +516,7 @@ Here we have all the countries of the world and their corresponding Gini coeffic
 ---
 
 .left-column[
-.big[LAC is the region that consistently has reduced inequality in most countries. This makes sense because inequality is measured with income-based welfare, which is, by definition, higher than consumption-based welfare, so there is more room to improve.]
+.big[Inequality has decreased in LAC in most countries. This makes sense because inequality is measured with income-based welfare, which is, by definition, higher than consumption-based welfare, so there is more room to improve.]
 ]
 .right-column[
 ```{r gini45lac}
@@ -570,18 +570,17 @@ p_g +
 ]
 
 ---
-### Relative Vs Absolute inequality
 
 ```{r p1090-calc}
 source("R/SDG_10_p10p90p50.R")
 ```
 
-.big[This kind of inequality is known as realtive inequality because it depends on the distribution of welfare within the context in which it is measured. That is, relative inequality does not say anything about the level of welfare between two countries. It only allows us to see if the inequality between the population of one country has icreased or decreased over time, but does not say anything about how unequal the populations of two different economies are. We need thus absolute measures of inequality for this endeavor. 
-]
+### comparison across countries?
+.big[The Gini coefficient is useful for for comparing the level of inequality in one economy over time. However, it is insufficient to compare the how unequal two economies are. In other words, by comparing the Gini coefficient of two different economies, we can say that population of the one with the higher number faces higher levels of inequality *among themselve* than the population of the other economy, but we cannot say anything about the level of inequality between the two populations. let's see an example]
 
 ---
 .left-column[
-### Another way to compare these two countries
+.big[These two bars represent the level of welfare of two people in two different economies]
 
 ]
 .right-column[
@@ -591,31 +590,7 @@ p_p10p90_2c
 ]
 ---
 .left-column[
-### This is the median
-
-]
-.right-column[
-```{r twop50}
-p_p10p90_2c  +
-  geom_label_repel(
-    aes(y     = p50,
-        label = scales::dollar(p50) ),
-    show.legend = FALSE,
-    force = 1,
-    box.padding = 1,
-    segment.curvature = .5,
-    # max.overlaps = 2,
-    # segment.ncp = 3,
-    segment.angle = 20,
-    # nudge_y = 5
-  )
-```
-]
-
-
----
-.left-column[
-### These are p90 and p10
+.big[The top of each bar shows the welfare of the person in the top 90 percent of the distribution, whereas the lower bar shows the welfare of the one in the bottom 10 percent.]
 
 ]
 .right-column[
@@ -675,9 +650,6 @@ cap2 <- paste0("(", w[[2, "p90"]], "/", w[[2, "p10"]], "  = ", w[[2, "r9010"]],"
 ]
 .right-column[
 ```{r }
-
-
-
 p_p10p90_2c +
   annotate(
     geom = "text", 
@@ -692,6 +664,30 @@ p_p10p90_2c +
     y = dfc_2c[[2, "p50"]]*1.2, 
     label = cap2, 
     hjust = 1.3, vjust = 3, size = 4
+  ) +
+  geom_label_repel(
+    aes(y     = p10,
+        label = scales::dollar(p10) ),
+    show.legend = FALSE,
+    force = 1,
+    box.padding = 1,
+    segment.curvature = .5,
+    # max.overlaps = 2,
+    # segment.ncp = 3,
+    segment.angle = 20,
+    # nudge_y = 5
+  ) +
+  geom_label_repel(
+    aes(y     = p90,
+        label = scales::dollar(p90) ),
+    show.legend = FALSE,
+    force = 10,
+    box.padding = 2,
+    segment.curvature = .5,
+    # max.overlaps = 2,
+    # segment.ncp = 3,
+    segment.angle = 20,
+    # nudge_y = 5
   )
 
 ```
@@ -699,7 +695,7 @@ p_p10p90_2c +
 
 ---
 .left-column[
-.big[So, we cannot use a measure of inequality that depends on the relation between two different points in the distributin of a country to compare its inequality level with that of another country.
+.big[So, we cannot use a measure of inequality that depends on the relation between two different points in the distribution of a country to compare its inequality levels with that of another country.
 
 We could show the ratio between the medians. But that can only be done country by country. 
 ]
@@ -722,9 +718,29 @@ p_p10p90_2c  +
   )
 ```
 ]
-
 ---
-class: inverse, middle, center
+.left-column[
+### This is the median
+
+]
+.right-column[
+```{r twop50}
+p_p10p90_2c  +
+  geom_label_repel(
+    aes(y     = p50,
+        label = scales::dollar(p50) ),
+    show.legend = FALSE,
+    force = 1,
+    box.padding = 1,
+    segment.curvature = .5,
+    # max.overlaps = 2,
+    # segment.ncp = 3,
+    segment.angle = 20,
+    # nudge_y = 5
+  )
+```
+]
+
 
 ---
 .left-column[
@@ -1046,3 +1062,7 @@ ggplot(filter(dfq, !is.na(p50)),
 
 ]
 ---
+### Relative Vs Absolute inequality
+
+.big[This kind of inequality is known as realtive inequality because it depends on the distribution of welfare within the context in which it is measured. That is, relative inequality does not say anything about the level of welfare between two countries. It only allows us to see if the inequality between the population of one country has icreased or decreased over time, but it does not say anything about how unequal the populations of two different economies are. We need absolute measures of inequality for this endeavor. 
+]
