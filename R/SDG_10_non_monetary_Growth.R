@@ -40,7 +40,8 @@ indList <- c("per_sa_allsa.cov_q1_tot",
              "SL.EMP.VULN.ZS",
              "SL.EMP.VULN.FE.ZS",
              "SL.EMP.VULN.MA.ZS",
-             "IQ.CPA.SOCI.XQ")
+             "IQ.CPA.SOCI.XQ",
+             "DT.ODA.OATL.KD")
 
 # get data
 panel_WDI(indList, start=year0, end = year1, maxdist=max_span, cb = TRUE, long = T)
@@ -288,3 +289,37 @@ ggarrange(prfg, prtg, ncol = 2, nrow = 1)
 
 
 
+#### Target 10.3  - CPIA policies for social inclusion/equity ####
+
+CPIinc <- WDI %>% 
+  filter(indicatorID == "IQ.CPA.SOCI.XQ") %>% 
+  drop_na() %>% 
+  ungroup() %>% 
+  group_by(countrycode) %>%
+  arrange(countrycode, Year) %>%
+  mutate(Year=paste0("v", Year)) %>% 
+  spread("Year", "value") %>% 
+  mutate(change = v2017 - v2007)
+
+CPIinc %>%
+  group_by(countrycode) %>% 
+  filter(row_number()==n()) %>% 
+  ungroup() %>% 
+  mutate(country = fct_reorder(countryname, change)) %>% 
+  ggplot() +
+  geom_bar(aes(x = country, y=v2017), stat = "identity", alpha = 0.6 , fill= "orange2") +
+  geom_bar(aes(x = country, y=v2007), stat = "identity", alpha = 0.6 , fill= "blue4") +
+  scale_y_continuous(expand = c(0,0), breaks = scales::pretty_breaks(n = 10)) + theme_tufte() +
+  xlab("") +
+  ylab("Score") +
+  coord_flip()
+  # theme(
+  #   axis.text = element_text(angle=90)
+  # )
+  
+
+
+
+
+
+#### Target 
