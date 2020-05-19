@@ -95,35 +95,31 @@ md <- cf %>%
 cts <- md %>%
   pull(countrycode)
 
-
-set.seed(10101)
-plt <- sample(palette, size = 4)
-
-
-ggplot(data = filter(cf, welfare < 100),
-       aes(x = welfare,
-           weight = weight,
-           fill  = countrycode)) +
-  geom_histogram(bins = 100,
-                 position="identity",
-                 alpha = .5) +
-  # geom_density(alpha=0.6)    +
-  scale_y_continuous(labels = addUnits) +
-  scale_x_continuous(labels = scales::dollar) +
-  scale_fill_manual(values = palette,
-                     breaks = cts) +
-  geom_vline(data = md,
-             aes(xintercept = med,
-                 color      = countrycode),
-             linetype = "dashed") +
-  scale_color_manual(values = palette,
-                     breaks = cts) +
-  theme_classic() +
-  theme(
-    legend.title = element_blank()
-  ) +
-  labs(y = "Population",
-       x = "Daily income")
+#
+# ggplot(data = filter(cf, welfare < 100),
+#        aes(x = welfare,
+#            weight = weight,
+#            fill  = countrycode)) +
+#   geom_histogram(bins = 100,
+#                  position="identity",
+#                  alpha = .5) +
+#   # geom_density(alpha=0.6)    +
+#   scale_y_continuous(labels = addUnits) +
+#   scale_x_continuous(labels = scales::dollar) +
+#   scale_fill_manual(values = palette,
+#                      breaks = cts) +
+#   geom_vline(data = md,
+#              aes(xintercept = med,
+#                  color      = countrycode),
+#              linetype = "dashed") +
+#   scale_color_manual(values = palette,
+#                      breaks = cts) +
+#   theme_classic() +
+#   theme(
+#     legend.title = element_blank()
+#   ) +
+#   labs(y = "Population",
+#        x = "Daily income")
 
 
 #----------------------------------------------------------
@@ -140,4 +136,6 @@ ggplot(data = filter(cf, welfare < 100),
 #----------------------------------------------------------
 #
 #----------------------------------------------------------
+
+
 
