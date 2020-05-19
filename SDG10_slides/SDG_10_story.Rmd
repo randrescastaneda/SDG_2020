@@ -63,12 +63,12 @@ class: middle, center
 ]
 ]
 .right-column[
-```{r pe1}
+```{r blank}
 
 ggplot(data = filter(cf, welfare < 100),
        aes(x = welfare,
            weight = weight,
-           fill  = countrycode)) +
+           fill  = cty)) +
   scale_y_continuous(labels = addUnits) +
   scale_x_continuous(labels = scales::dollar) +
   theme_classic() +
@@ -89,22 +89,22 @@ This is the distribution of Costa Rica
 ]
 ]
 .right-column[
-```{r pe1}
+```{r cri}
 
 ggplot(data = filter(cf, welfare < 100, 
-                     countrycode == "CRI"),
+                     cty == "CRI"),
        aes(x = welfare,
            weight = weight,
-           fill  = countrycode)) +
+           fill  = cty)) +
   geom_histogram(bins = 100,
                  position="identity",
                  alpha = .5) +
   # geom_density(alpha=0.6)    +
   scale_y_continuous(labels = addUnits) +
   scale_x_continuous(labels = scales::dollar) +
-  scale_fill_manual(values = palette,
+  scale_fill_manual(values = palette[1:3],
                      breaks = cts) +
-  scale_color_manual(values = palette,
+  scale_color_manual(values = palette[1:3],
                      breaks = cts) +
   theme_classic() +
   theme(
@@ -112,7 +112,6 @@ ggplot(data = filter(cf, welfare < 100,
   ) +
   labs(y = "Population",
        x = "Daily income")
-
 
 ```
 ]
@@ -128,13 +127,13 @@ and this is the one for Findland
 ]
 ]
 .right-column[
-```{r pe1}
+```{r crifin}
 
 ggplot(data = filter(cf, welfare < 100, 
-                     countrycode != "COL"),
+                     cty != "COL"),
        aes(x = welfare,
            weight = weight,
-           fill  = countrycode)) +
+           fill  = cty)) +
   geom_histogram(bins = 100,
                  position="identity",
                  alpha = .5) +
@@ -158,18 +157,18 @@ ggplot(data = filter(cf, welfare < 100,
 
 ---
 .left-column[
-.big[It is relatively easy to see that the distribution of Findland is more equalitarian than the one in Costa Rica. we can see several things
+It is relatively easy to see that the distribution of Findland is more equalitarian than the one in Costa Rica. we can see several things
 
-- Most people in Costa Rica live below \$25 to \$30 dollars a day. 
+- Most people in Costa Rica live below $25 to $30 dollars a day. 
 - Findland distribution has a wider bell, whereas Costa Rica's bell is more contracted towards the left side of the distribution
 - The typical person in Findland has higher income than the typical person in Costa Rica. 
-]
+
 ]
 .right-column[
-```{r pe1}
+```{r crifin2}
 
-ggplot(data = filter(cf, welfare < 100, 
-                     countrycode != "COL"),
+pcf <- ggplot(data = filter(cf, welfare < 100, 
+                     cty != "COL"),
        aes(x = welfare,
            weight = weight,
            fill  = cty)) +
@@ -199,50 +198,24 @@ ggplot(data = filter(cf, welfare < 100,
 ]
 ---
 .left-column[
-.big[However, this kind of comparisons are only useful with population of similar sizes. When we include a country with larger population this happens. 
+.big[However, this kind of comparisons are only useful with population of similar sizes.  
 ]
 ]
 .right-column[
-```{r pe1}
+```{r col}
 
-ggplot(data = filter(cf, welfare < 100, 
-                     countrycode != "COL"),
-       aes(x = welfare,
-           weight = weight,
-           fill  = cty)) +
-  geom_histogram(bins = 100,
-                 position="identity",
-                 alpha = .5) +
-  # geom_density(alpha=0.6)    +
-  scale_y_continuous(labels = addUnits) +
-  scale_x_continuous(labels = scales::dollar) +
-  scale_fill_manual(values = palette[1:3],
-                     breaks = cts) +
-  geom_vline(data = filter(md, cty != "COL"),
-             aes(xintercept = med,
-                 color      = cty),
-             linetype = "dashed") +
-  scale_color_manual(values = palette[1:3],
-                     breaks = cts) +
-  theme_classic() +
-  theme(
-    legend.title = element_blank()
-  ) +
-  labs(y = "Population",
-       x = "Daily income")
-
-
+pcf
 ```
 ]
 ---
 .left-column[
-.big[However, this kind of comparisons are only useful with population of similar sizes. When we include a country with larger population this happens. 
+.big[However, this kind of comparisons are only useful with population of similar sizes. When we include a country with larger population, the scales of the chart change substantially. 
 ]
 ]
 .right-column[
-```{r pe1}
+```{r col2}
 
-ggplot(data = filter(cf, welfare < 100),
+pcfc <- ggplot(data = filter(cf, welfare < 100),
        aes(x = welfare,
            weight = weight,
            fill  = cty)) +
@@ -272,44 +245,20 @@ ggplot(data = filter(cf, welfare < 100),
 ]
 ---
 .left-column[
-.big[We look the capacity to compare distributions because the population of Colombia is almost ten times higher than the one in Findland and Costa Rica.  
+.big[We lose the capacity to compare distributions because the population of Colombia is almost ten times higher than the one in Findland or Costa Rica.  
 ]
 ]
 .right-column[
-```{r pe1}
+```{r col3}
 
-ggplot(data = filter(cf, welfare < 100),
-       aes(x = welfare,
-           weight = weight,
-           fill  = cty)) +
-  geom_histogram(bins = 100,
-                 position="identity",
-                 alpha = .5) +
-  # geom_density(alpha=0.6)    +
-  scale_y_continuous(labels = addUnits) +
-  scale_x_continuous(labels = scales::dollar) +
-  scale_fill_manual(values = palette[1:3],
-                     breaks = cts) +
-  geom_vline(data = md,
-             aes(xintercept = med,
-                 color      = cty),
-             linetype = "dashed") +
-  scale_color_manual(values = palette[1:3],
-                     breaks = cts) +
-  theme_classic() +
-  theme(
-    legend.title = element_blank()
-  ) +
-  labs(y = "Population",
-       x = "Daily income")
-
+pcfc
 
 ```
 ]
 ---
 class: middle, center
 
-### we need to compare distributions in a different way
+### We need to compare distributions in a different way
 
 
 ---
