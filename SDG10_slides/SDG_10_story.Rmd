@@ -1,0 +1,1130 @@
+---
+title: "SDG 10"
+output:
+  xaringan::moon_reader:
+    seal: false
+    css: ["css/sfah.css", "css/fonts.css", "default"]
+    self_contained: false
+    lib_dir: libs
+    mathjax: "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_HTMLorMML"
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: "16:9"
+      titleSlideClass: ["left", "middle", "inverse"]
+---
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+library(knitr)
+library(scales)
+
+knitr::opts_chunk$set(
+  warning = FALSE,
+  collapse = TRUE,
+  message = FALSE,
+  echo = FALSE,
+  fig.retina = 3,
+  fig.width = 10
+)
+knitr::opts_knit$set(
+  root.dir = ".."
+)
+# options(knitr.table.format = "html")
+library(fontawesome) # from github: https://github.com/rstudio/fontawesome
+xaringanExtra::use_xaringan_extra(c("tile_view", "animate_css", "tachyons"))
+```
+
+class: inverse, right, bottom
+## SDG Atlas 2020
+
+## Goal 10: Reduce inequality within and among countries
+
+???
+Intcomments
+
+---
+
+class: middle, center, inverse
+
+### Story of welfare inequality
+```{r distsim}
+source("R/utils.R")
+source("R/SDG_10_lorenz.R")
+```
+---
+class: middle, center
+
+### Inequality within countries (Relative inequality)
+---
+
+.left-column[
+.large[Start with perfect equality]
+
+.big[Everybody has the same amount of money]
+]
+.right-column[
+```{r pe1}
+
+set.seed(1010111)
+plt <- sample(palette, size = 4)
+
+breaks <- df1 %>%
+  group_by(srd) %>%
+  summarise(
+    gini = gini(y,w)
+  ) %>%
+  arrange(-gini) %>%
+  pull(srd)
+
+f <- df1 %>% 
+  group_by(srd) %>%  
+  filter(
+      abs(cw-.25) == min(abs(cw-.25))
+    | abs(cw-.5)  == min(abs(cw-.5))
+    | abs(cw-.75) == min(abs(cw-.75))
+      ) %>% 
+  select(srd, x2 = cw, y1 = cy) %>% 
+  mutate(y2 = y1,
+         x1  = 0) 
+
+
+pe <- ggplot() +
+  geom_line(data=filter(df, srd %in% breaks[4]),
+             aes(x=cw,
+                 y=cy,
+                 color = srd)
+            ) +
+  scale_x_continuous(name="Cumulative share of population", limits=c(0,1)) +
+  scale_y_continuous(name="Cumulative share of welfare", limits=c(0,1)) +
+  theme_classic() +
+  scale_color_manual(values= plt,
+                     breaks = breaks)
+pe
+
+```
+]
+
+---
+.left-column[
+.large[Start with perfect equality]
+
+.big[Welfare and population cummulate at the same pace. So, the bottom 25 percent of the population has 25% of the total income.]
+]
+.right-column[
+```{r pe2}
+
+sgm <- data.frame(x1 = 0, x2 = 0.25, y1 = 0.25, y2 = .25)
+
+pe2 <- pe +
+  geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2), colour = palette[10], data = sgm) +
+  geom_segment(aes(x = y1, y = x1, xend = y2, yend = x2), colour = palette[10], data = sgm)
+pe2
+```
+]
+
+---
+.left-column[
+.large[Start with perfect equality]
+
+.big[Welfare and population cummulate at the same pace. So, the bottom 25 percent of the population has 25% of the total income. The bottom 50 of the population has 50 percent of total income, and so on... ]
+
+]
+.right-column[
+```{r pe3}
+
+sgm2 <- data.frame(x1 = 0, x2 = .5, y1 = .5, y2 = .5)
+
+pe3 <- pe2 +
+  geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2), colour = palette[10], data = sgm2) +
+  geom_segment(aes(x = y1, y = x1, xend = y2, yend = x2), colour = palette[10], data = sgm2)
+
+pe3
+```
+]
+
+---
+.left-column[
+.large[A real case example(South Africa)]
+
+.big[Here we can see how far from perfect equality this country is. ]
+
+]
+.right-column[
+```{r zaf1}
+pzaf <- pe + 
+  geom_line(data= filter(df, srd %in% breaks[1]),
+       aes(x=cw,
+           y=cy,
+           color = srd)
+       ) 
+pzaf
+```
+]
+---
+```{r zaf2}
+
+f1 <- f %>% 
+  filter(srd  %in% breaks[1]) %>% 
+  slice(1)
+
+sz1 <-  list(geom_segment(aes(x    = x1, 
+                   y    = y1, 
+                   xend = x2, 
+                   yend = y2
+                   ), 
+               colour = palette[10], 
+               data = f1
+               ) ,
+  geom_segment(aes(x    = x2, 
+                   y    = x1, 
+                   xend = x2, 
+                   yend = y2
+                   ), 
+               colour = palette[10], 
+               data = f1
+               )
+)
+pzaf1 <- pzaf + sz1
+```
+
+.left-column[
+.large[A real case example(South Africa)]
+
+.big[The bottom 25 of the population has only `r percent(f1$y1, accuracy = 0.1)` of total welfare]
+
+]
+.right-column[
+
+```{r }
+pzaf1
+```
+
+]
+---
+```{r zaf3}
+
+f2 <- f %>% 
+  filter(srd  %in% breaks[1]) %>% 
+  slice(2)
+
+sz2 <- list(
+  geom_segment(aes(x    = x1, 
+                   y    = y1, 
+                   xend = x2, 
+                   yend = y2
+                   ), 
+               colour = palette[10], 
+               data = f2
+               ) ,
+  geom_segment(aes(x    = x2, 
+                   y    = x1, 
+                   xend = x2, 
+                   yend = y2
+                   ), 
+               colour = palette[10], 
+               data = f2
+               )
+)
+pzaf2 <- pzaf1 + sz2
+```
+.left-column[
+.large[A real case example(South Africa)]
+
+.big[The bottom 25 of the population has only `r percent(f1$y1, accuracy = 0.1)` of total welfare, 
+and the bottom 50 has around `r percent(f2$y1, accuracy = 0.1)`. ]
+
+]
+.right-column[
+```{r }
+pzaf2
+```
+]
+---
+```{r zaf4}
+
+f3 <- f %>% 
+  filter(srd  %in% breaks[1]) %>% 
+  slice(3)
+
+sz3 <- list(
+geom_segment(aes(x    = x1, 
+                   y    = y1, 
+                   xend = x2, 
+                   yend = y2
+                   ), 
+               colour = palette[10], 
+               data = f3
+               ) ,
+  geom_segment(aes(x    = x2, 
+                   y    = x1, 
+                   xend = x2, 
+                   yend = y2
+                   ), 
+               colour = palette[10], 
+               data = f3
+               )
+)
+
+pzaf3 <- pzaf2 + sz3
+```
+.left-column[
+.large[A real case example(South Africa)]
+
+.big[The bottom 25 of the population has only `r percent(f1$y1, accuracy = 0.1)` of total welfare, 
+and the bottom 50 has around `r percent(f2$y1, accuracy = 0.1)`. Finally, the bottom 75 of the 
+population has merely the `r percent(f3$y1, accuracy = 0.1)` of total welfare. ]
+
+]
+.right-column[
+```{r }
+pzaf3
+```
+
+]
+---
+```{r fin}
+gpfin  <- geom_line(data= filter(df, srd %in% breaks[3]),
+                         aes(x=cw,
+                             y=cy,
+                             color = srd))
+pfin <- pzaf + gpfin
+```
+.left-column[
+.large[In contrast to Findland]
+
+.big[We can see that this is a more equalitarian country]
+]
+.right-column[
+```{r }
+pfin
+```
+]
+---
+```{r fin1}
+
+q1 <- f %>% 
+  filter(srd  %in% breaks[3]) %>% 
+  slice(1)
+
+sf1 <- list(
+  geom_segment(aes(x    = x1, 
+                   y    = y1, 
+                   xend = x2, 
+                   yend = y2
+                   ), 
+               colour = palette[10], 
+               data = q1
+               ) ,
+  geom_segment(aes(x    = x2, 
+                   y    = x1, 
+                   xend = x2, 
+                   yend = y2
+                   ), 
+               colour = palette[10], 
+               data = q1
+               )
+
+)
+
+
+pfin1 <- pzaf1 + gpfin + sf1
+    
+```
+.left-column[
+.large[In contrast to Findland]
+
+.big[The bottom 25 of the population in Findland has 
+`r percent(q1$y1, accuracy = 0.1)` of total welfare, ]
+
+]
+.right-column[
+```{r }
+pfin1
+```
+]
+---
+```{r fin2}
+q2 <- f %>% 
+  filter(srd  %in% breaks[3]) %>% 
+  slice(2)
+
+sf2 <- list(
+  geom_segment(aes(x    = x1, 
+                   y    = y1, 
+                   xend = x2, 
+                   yend = y2
+                   ), 
+               colour = palette[10], 
+               data = q2
+               ) ,
+  geom_segment(aes(x    = x2, 
+                   y    = x1, 
+                   xend = x2, 
+                   yend = y2
+                   ), 
+               colour = palette[10], 
+               data = q2
+               )
+  
+)
+
+
+pfin2 <- pzaf  + sz2  +
+         gpfin + sf2
+  
+```
+.left-column[
+.large[In contrast to Findland]
+
+.big[The bottom 25 of the population in Findaly has 
+`r percent(q1$y1, accuracy = 0.1)` of total welfare, and the bottom 50 has around 
+`r percent(q2$y1, accuracy = 0.1)`]
+
+]
+.right-column[
+```{r }
+pfin2
+```
+]
+---
+```{r fin3}
+
+q3 <- f %>% 
+  filter(srd  %in% breaks[3]) %>% 
+  slice(3)
+
+sf3 <- list(
+  geom_segment(aes(x    = x1, 
+                   y    = y1, 
+                   xend = x2, 
+                   yend = y2
+                   ), 
+               colour = palette[10], 
+               data = q3
+               ) ,
+  geom_segment(aes(x    = x2, 
+                   y    = x1, 
+                   xend = x2, 
+                   yend = y2
+                   ), 
+               colour = palette[10], 
+               data = q3
+               )
+  
+)
+
+
+pfin3 <- pzaf  + sz3  +
+         gpfin + sf3
+```
+.left-column[
+
+.large[In contrast to Findland]
+
+The bottom 25% of the population in Findaly has 
+`r percent(q1$y1, accuracy = 0.1)` of total welfare, and the bottom 50 has around 
+`r percent(q2$y1, accuracy = 0.1)`. Finally, the bottom 75 of the 
+population has the `r percent(q3$y1, accuracy = 0.1)` of total welfare.
+
+]
+.right-column[
+```{r}
+pfin3
+```
+]
+---
+.left-column[
+.big[Economists summarize the level of inequality in a measure call the Gini index.]
+]
+.right-column[
+```{r giniarea}
+dfg <- df %>% 
+  pivot_wider(names_from = srd,
+              values_from = c(cy, cw), 
+              id_cols = qc)
+
+
+pg <- ggplot(data = dfg) +
+  geom_line(aes(
+    x = cw_Equality, 
+    y = cy_Equality
+  ),
+  color = "#0F8554") +
+  geom_line(aes(
+    x = cw_Equality, 
+    y = cy_ZAF
+  ),
+  color = "#1D6996") +
+  scale_x_continuous(name="Cumulative share of population", limits=c(0,1)) +
+  scale_y_continuous(name="Cumulative share of welfare", limits=c(0,1)) +
+  theme_classic() +
+  scale_color_discrete(labels = c("Equality", "ZAF"))
+
+pg
+```
+]
+---
+.left-column[
+.big[Economists summarize the level of inequality in a measure call the Gini index.
+
+The smaller the Area A the lower the inequality in each country. In other words, the closer the Gini coefficient is to zero the less unequal the country is. 
+]
+]
+.right-column[
+```{r giniarea2}
+pg +
+  geom_ribbon(aes(
+    ymin  = cy_ZAF, 
+    ymax  = cy_Equality, 
+    x     = cw_Equality),
+    fill  = "#EDAD08",
+    alpha = .5) +
+  geom_ribbon(aes(
+    ymin  = 0, 
+    ymax  = cy_ZAF, 
+    x     = cw_Equality),
+    fill  = "#66C5CC",
+    alpha = .5) +
+  annotate("text", x = 0.6, y = .35, 
+           label = "A", size = 12) +
+  annotate("text", x = 0.8, y = .15, 
+           label = "B", size = 12) +
+  annotate("text", x = 0.2, y = .8, 
+           label = "Gini = A/(A+B)", size = 12) 
+  
+```
+]
+---
+```{r ginichange}
+source("R/SDG_10_Gini_Change.R")
+
+```
+
+.left-column[
+.big[In this chart we can see the Gini coefficient of all countries from 2000 to 2018. If the dot is below the line, inequality has decreased during this period. If it is above the line, inequality has increased.]
+
+]
+.right-column[
+```{r gini45}
+p_g
+```
+]
+
+???
+Here we have all the countries of the world and their corresponding Gini coefficient of the closest years to 2000 and 2018.
+---
+
+.left-column[
+.big[Inequality has decreased in LAC in most countries. This makes sense because inequality is measured with income-based welfare, which is, by definition, higher than consumption-based welfare, so there is more room to improve.]
+]
+.right-column[
+```{r gini45lac}
+p_g +
+  ggforce::geom_mark_hull(
+    aes(filter = region == 'LAC',
+        fill = region,
+        label = region),
+    show.legend = FALSE,
+    expand = unit(2, "mm"),
+    concavity = 1
+  )
+``` 
+]
+
+---
+.left-column[
+.big[When we look at other regions, we don't find the same patterns.]
+]
+.right-column[
+```{r gini45SSA}
+p_g +
+  ggforce::geom_mark_hull(
+    aes(filter = region == 'SSA',
+        fill = region,
+        label = regionname),
+    show.legend = FALSE,
+    expand = unit(2, "mm"),
+    concavity = 1
+  )
+```
+]
+
+---
+.left-column[
+.big[When we look at other regions, we don't find the same patterns.]
+]
+.right-column[
+```{r gini45EAP}
+
+p_g +
+  ggforce::geom_mark_hull(
+    aes(filter = region == 'EAP',
+        fill = region,
+        label = regionname),
+    show.legend = FALSE,
+    expand = unit(2, "mm"),
+    concavity = 1
+  )
+```
+]
+
+---
+
+```{r p1090-calc}
+source("R/SDG_10_p10p90p50.R")
+```
+
+### comparison across countries?
+.big[The Gini coefficient is useful for comparing the level of inequality in one economy over time. However, it is insufficient to compare how unequal two economies are. By comparing the Gini coefficient of two different economies, we can say that the population of the one with the higher coefficient faces higher levels of inequality *among inteself* than the population of the other economy, but we cannot say anything about the level of inequality between the two populations. let's see an example]
+
+---
+.left-column[
+.big[These two bars represent the level of welfare of two people in two different economies]
+
+]
+.right-column[
+```{r twocts}
+p_p10p90_2c
+```
+]
+---
+.left-column[
+.big[The top of each bar shows the welfare of the person in the top 90 percent of the distribution, whereas the lower bar shows the welfare of the one in the bottom 10 percent.]
+
+]
+.right-column[
+```{r twop90p10}
+p_p10p90_2c  +
+  geom_label_repel(
+    aes(y     = p10,
+        label = scales::dollar(p10) ),
+    show.legend = FALSE,
+    force = 1,
+    box.padding = 1,
+    segment.curvature = .5,
+    # max.overlaps = 2,
+    # segment.ncp = 3,
+    segment.angle = 20,
+    # nudge_y = 5
+  ) +
+  geom_label_repel(
+    aes(y     = p90,
+        label = scales::dollar(p90) ),
+    show.legend = FALSE,
+    force = 10,
+    box.padding = 2,
+    segment.curvature = .5,
+    # max.overlaps = 2,
+    # segment.ncp = 3,
+    segment.angle = 20,
+    # nudge_y = 5
+  )
+
+```
+]
+
+---
+.left-column[
+```{r twocr}
+
+w <- dfc_2c %>% 
+  mutate_if(
+    is.numeric,
+    round, digits = 1
+  ) %>% 
+  mutate(
+    d9010 = scales::dollar(p90 - p10)
+  )
+
+
+cap1 <- paste0("(", w[[1, "p90"]], "/", w[[1, "p10"]], "  = ", w[[1, "r9010"]],")")
+cap2 <- paste0("(", w[[2, "p90"]], "/", w[[2, "p10"]], "  = ", w[[2, "r9010"]],")")
+
+
+
+
+```
+
+.big[Even though it is evident that the monetary distance between p10 to the p90 of Finland (`r w[[2, "d9010"]]`) is way higher than the one in South Africa (`r w[[1, "d9010"]]`), The ratio between p90 and p10 in Finland (`r w[[2, "r9010"]]`) is lower than in South Africa (`r w[[1, "r9010"]]`).
+]
+]
+.right-column[
+```{r }
+p_p10p90_2c +
+  annotate(
+    geom = "text", 
+    x = dfc_2c[[1, "countryname"]], 
+    y = dfc_2c[[1, "p50"]]*3, 
+    label = cap1, 
+    hjust = 1.3, vjust = 1, size = 4
+  ) +
+  annotate(
+    geom = "text", 
+    x = dfc_2c[[2, "countryname"]], 
+    y = dfc_2c[[2, "p50"]]*1.2, 
+    label = cap2, 
+    hjust = 1.3, vjust = 3, size = 4
+  ) +
+  geom_label_repel(
+    aes(y     = p10,
+        label = scales::dollar(p10) ),
+    show.legend = FALSE,
+    force = 1,
+    box.padding = 1,
+    segment.curvature = .5,
+    # max.overlaps = 2,
+    # segment.ncp = 3,
+    segment.angle = 20,
+    # nudge_y = 5
+  ) +
+  geom_label_repel(
+    aes(y     = p90,
+        label = scales::dollar(p90) ),
+    show.legend = FALSE,
+    force = 10,
+    box.padding = 2,
+    segment.curvature = .5,
+    # max.overlaps = 2,
+    # segment.ncp = 3,
+    segment.angle = 20,
+    # nudge_y = 5
+  )
+
+```
+]
+---
+.left-column[
+
+.big[So, when the relation between two different points in the distribution is relative, we lose the capacity to compare the relation between two people in two different distributions. ]
+]
+.right-column[
+```{r }
+p_p10p90_2c +
+  annotate(
+    geom = "text", 
+    x = dfc_2c[[1, "countryname"]], 
+    y = dfc_2c[[1, "p50"]]*3, 
+    label = cap1, 
+    hjust = 1.3, vjust = 1, size = 4
+  ) +
+  annotate(
+    geom = "text", 
+    x = dfc_2c[[2, "countryname"]], 
+    y = dfc_2c[[2, "p50"]]*1.2, 
+    label = cap2, 
+    hjust = 1.3, vjust = 3, size = 4
+  ) +
+  geom_label_repel(
+    aes(y     = p10,
+        label = scales::dollar(p10) ),
+    show.legend = FALSE,
+    force = 1,
+    box.padding = 1,
+    segment.curvature = .5,
+    # max.overlaps = 2,
+    # segment.ncp = 3,
+    segment.angle = 20,
+    # nudge_y = 5
+  ) +
+  geom_label_repel(
+    aes(y     = p90,
+        label = scales::dollar(p90) ),
+    show.legend = FALSE,
+    force = 10,
+    box.padding = 2,
+    segment.curvature = .5,
+    # max.overlaps = 2,
+    # segment.ncp = 3,
+    segment.angle = 20,
+    # nudge_y = 5
+  )
+
+```
+]
+
+---
+.left-column[
+The median of the distribution, on the other hand, is the middle point in a distribution that has been arranged in order of magnitude. By definition it is unaffected by outliers. By comparing the medians of two different distribution we can see how better of is the typical person in one country in contrast to the typical person of anouther country.
+]
+.right-column[
+```{r }
+p_p10p90_2c  +
+  geom_label_repel(
+    aes(y     = p50,
+        label = scales::dollar(p50) ),
+    show.legend = FALSE,
+    force = 1,
+    box.padding = 1,
+    segment.curvature = .5,
+    # max.overlaps = 2,
+    # segment.ncp = 3,
+    segment.angle = 20,
+    # nudge_y = 5
+  ) +
+  geom_point(
+    aes(y = p50),
+    size = 2.5) 
+```
+]
+---
+.left-column[
+.big[One way to do so is by getting the ratio between the medians. The problem with this is that it can only be done country by country.]
+]
+.right-column[
+```{r }
+rmed <- round(w[[2, "p50"]]/w[[1, "p50"]], digits = 1)
+cap3 <- paste0("(", w[[2, "p50"]], "/", w[[1, "p50"]], "  = ", 
+               rmed,")")
+
+p_p10p90_2c  +
+  geom_label_repel(
+    aes(y     = p50,
+        label = scales::dollar(p50) ),
+    show.legend = FALSE,
+    force = 1,
+    box.padding = 1,
+    segment.curvature = .5,
+    # max.overlaps = 2,
+    # segment.ncp = 3,
+    segment.angle = 20,
+    # nudge_y = 5
+  ) +
+  geom_point(
+    aes(y = p50),
+    size = 2.5) +
+  annotate(
+    geom = "text", 
+    x = 2.3, 
+    y = 50, 
+    label = cap3, 
+    hjust = 1.3, vjust = 1, size = 7
+  )
+```
+]
+---
+.left-column[
+Here, countries are organized according to their median, from lowest to highest.
+]
+.right-column[
+```{r p50}
+p_p50
+```
+]
+
+---
+```{r medianratio}
+h50l50 <- dfc_p50[["p50"]][nrow(dfc_p50)]/dfc_p50[["p50"]][1]
+h50l50 <- floor(h50l50)
+```
+.left-column[
+Here, countries are organized according to their median, from lowest to highest.
+
+ `r dfc_p50[["countryname"]][1]` to `r dfc_p50[["countryname"]][nrow(dfc_p50)]`. 
+
+]
+.right-column[
+```{r p50l-lh}
+p_p50 +
+  ggrepel::geom_label_repel(
+    data = dfc_p50lh,
+    aes(label = text,
+        fill  = region),
+    show.legend = FALSE,
+    force = 20,
+    box.padding = 1.2,
+    # max.overlaps = 2,
+    segment.curvature = 0.5,
+    # segment.ncp = 3,
+    # segment.angle = 20,
+    nudge_y = 5
+  )
+
+```
+]
+
+???
+By just looking at the chart we can see that the *typical person* in `r dfc_p50[["countryname"]][nrow(dfc_p50)]` is `r h50l50` times richer than the *typical person* in `r dfc_p50[["countryname"]][1]`
+
+---
+.left-column[
+Here, countries are organized according to their median, from lowest to highest.
+
+From `r dfc_p50[["countryname"]][1]` to `r dfc_p50[["countryname"]][nrow(dfc_p50)]`. 
+
+]
+.right-column[
+```{r p50-all}
+p_p50 +
+  ggrepel::geom_label_repel(
+    data = dfc_p50,
+    aes(label = text,
+        fill  = region),
+    show.legend = FALSE,
+    force = 20,
+    box.padding = 1.2,
+    # max.overlaps = 2,
+    segment.curvature = 0.5,
+    # segment.ncp = 3,
+    # segment.angle = 20,
+    nudge_y = 5
+  )
+
+```
+]
+---
+.left-column[
+The same graph that we had before, but now for all countries
+
+]
+.right-column[
+```{r p1090gc}
+p_p10p90lc
+```
+]
+
+---
+.left-column[
+Most countries in Africa are at the far left of the chart, whereas the high-income countries are at the right. In monetary terms the distances between the p90 and p10 of the high-income countries is larger than the ones of poor countires, but their levels of relative inequality are way lower. 
+]
+.right-column[
+```{r p1090gl3}
+p_p10p903
+```
+]
+---
+### Relative Vs Absolute inequality
+
+.big[This kind of inequality is known as realtive inequality because it depends on the distribution of welfare within the context in which it is measured. That is, relative inequality does not say anything about the level of welfare between two countries. It only allows us to see if the inequality between the population of one country has icreased or decreased over time, but it does not say anything about how unequal the populations of two different economies are. We need absolute measures of inequality for this endeavor. 
+]
+
+---
+
+class: middle, center, inverse
+
+## Inequality between countries
+
+--
+
+.big[We can't use a relative measue of inequality to compare inequality across countries]
+
+--
+
+.big[We need a measure that attempts to summarize a destribution in one single value. ]
+
+--
+
+.big[To avoid extremes inequalities within a single country we should not use the mean. 
+Thus, we use the median. ]
+
+```{r btw-cts-ineq}
+source("R/SDG_10_global_ineq_between_countries.R")
+```
+
+---
+.left-column[
+.big[This is the distribution of all the medians of the world in 2015. 
+
+Each median reprsents the level of welfare of each country]
+]
+.right-column[
+```{r meddist}
+pp50d_15
+```
+]
+
+---
+.left-column[
+.big[Bottom 10]
+]
+.right-column[
+```{r meddist10}
+pp50d_15 + 
+  annotate("rect", xmin = 0, 
+           xmax = maxq[qp50 == 1, maxq], 
+           ymin = 0, 
+           ymax = Inf, 
+           alpha = .6,
+           fill      = "#CC503E")
+  
+```
+]
+---
+.left-column[
+.big[Bottom 20]
+]
+.right-column[
+```{r meddist20}
+pp50d_15 + 
+  annotate("rect", xmin = 0, 
+           xmax = maxq[qp50 == 1, maxq], 
+           ymin = 0, 
+           ymax = Inf, 
+           alpha = .6,
+           fill      = "#CC503E") + 
+  annotate("rect", xmin = maxq[qp50 == 1, maxq], 
+           xmax = maxq[qp50 == 2, maxq], 
+           ymin = 0, 
+           ymax = Inf, 
+           alpha = .4,
+           fill      = "#CC503E")
+  
+```
+]
+---
+.left-column[
+.big[Bottom 40]
+]
+.right-column[
+```{r meddist40}
+pp50d_15 + 
+  annotate("rect", xmin = 0, 
+           xmax = maxq[qp50 == 1, maxq], 
+           ymin = 0, 
+           ymax = Inf, 
+           alpha = .6,
+           fill      = "#CC503E") + 
+  annotate("rect", xmin = maxq[qp50 == 1, maxq], 
+           xmax = maxq[qp50 == 2, maxq], 
+           ymin = 0, 
+           ymax = Inf, 
+           alpha = .4,
+           fill      = "#CC503E") +
+  annotate("rect", xmin = maxq[qp50 == 2, maxq], 
+           xmax = maxq[qp50 == 4, maxq], 
+           ymin = 0, 
+           ymax = Inf, 
+           alpha = .2,
+           fill      = "#CC503E")
+
+```
+]
+---
+.left-column[
+.big[In fact, most of the world (about 75%) is in this part of the distribution]
+]
+.right-column[
+```{r meddistmost}
+pp50d_15 + 
+  annotate("rect", xmin = 0, 
+           xmax = maxq[qp50 == 8, minq], 
+           ymin = 0, 
+           ymax = Inf, 
+           alpha = .2,
+           fill      = "#CC503E")
+
+```
+]
+---
+.left-column[
+.big[Only the top 10 is on this part of the distribution]
+]
+.right-column[
+```{r top10med}
+pp50d_15 + 
+  annotate("rect", xmin = maxq[qp50 == 10, minq], 
+           xmax = maxq[qp50 == 10, maxq], 
+           ymin = 0, 
+           ymax = Inf, 
+           alpha = .2,
+           fill      = "#CC503E")
+
+```
+]
+---
+.left-column[
+.big[According to Palma (YYYY), this part of the distribution (5th to 9th deciles) remains relatively stable]
+]
+.right-column[
+```{r f50to90}
+pp50d_15 + 
+  annotate("rect", xmin = maxq[qp50 == 4, maxq], 
+           xmax = maxq[qp50 == 9, maxq], 
+           ymin = 0, 
+           ymax = Inf, 
+           alpha = .2,
+           fill      = "#1D6996")
+
+```
+]
+---
+.left-column[
+.big[All the action happens in these two sections. So, we could analyze how inequality has changed over time by looking at the ratio of share of income of the top 10 to the B40 (Palma index)]
+]
+.right-column[
+```{r b40t10}
+pp50d_15 + 
+  annotate("rect", xmin = 0, 
+           xmax = maxq[qp50 == 4, maxq], 
+           ymin = 0, 
+           ymax = Inf, 
+           alpha = .6,
+           fill      = "#CC503E") + 
+   annotate("rect", xmin = maxq[qp50 == 10, minq], 
+           xmax = maxq[qp50 == 10, maxq], 
+           ymin = 0, 
+           ymax = Inf, 
+           alpha = .2,
+           fill      = "#CC503E")
+
+```
+]
+---
+.left-column[
+.big[This relation has decreased over time]
+]
+.right-column[
+```{r palmatime}
+ggplot(data  = pr,
+       aes(
+         x = year,
+         y = palma
+       )) +
+  geom_line() +
+  geom_point() +
+  theme_classic()
+```
+]
+---
+.left-column[
+.big[Or, we can see the evolution of this distribution over time]
+]
+.right-column[
+```{r medevol}
+ggplot(filter(dfq, !is.na(p50)),
+                aes(x = p50,
+                    fill  = factor(year))) +
+  geom_density(alpha = .2)+
+  theme_minimal() +
+  labs(x = "Distribution of medians over time") +
+  theme(
+    legend.title = element_blank(),
+    legend.position = c(.8, .5),
+    legend.direction = "horizontal"
+  )
+
+```
+]
+---
+.pull-left[
+.large[Inequality within countries]
+
+- .big[we need to use relative measures of inequality]
+
+- .big[Most countries in LAC and several other countries have reduced within inequality. In other countries within inequality has increased]
+
+- .big[Relative measures of inequality are not useful to compare inequality between countries ]
+
+- .big[In absolute terms, righ countries are more unequal than poor countries.]
+
+]
+--
+
+.pull-right[
+.large[Inequality among (between) countries]
+
+- .big[We need absolute measures of inequality]
+
+- .big[Inequality has decreased over time between the countries in the top 10 and the ones in the bottom 40]
+
+]

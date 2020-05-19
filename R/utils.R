@@ -1,29 +1,7 @@
 library("tidyverse")
 library("povcalnetR")
 
-add_and <- function(x) {
-  if (!(is.character(x))) {
-    warning("`x` must be character. coercing to character")
-    x <- as.character(x)
-  }
-
-  lx <- length(x)
-  if (lx == 1) {
-    y <- x
-  }
-  else if (lx == 2) {
-    y <- paste(x[1], "and", x[2])
-  }
-  else {
-    y <- c(x[1:lx - 1], paste("and", x[lx]))
-    y <- paste(y, collapse = ", ")
-  }
-  return(y)
-}
-
-
 source("R/povcalnet_iterate.R")
-library("povcalnetR")
 rcv_dist <- function(country,
                      year,
                      coverage,
@@ -138,6 +116,8 @@ palette <- c("#1D6996", "#EDAD08", "#0F8554", "#DCB0F2",
              "#467378", "#7C7C7C", "#D3B484", "#B3B3B3"
 )
 # scales::show_col(palette[1:12])
+# scales::show_col(palette[13:24])
+# scales::show_col(palette[25:36])
 
 
 add_and <- function(x) {
@@ -234,3 +214,87 @@ gini <- function(y, w = NULL) {
 #   gini <- 1+(1/N) - (2/(my*N^2))*sum(t2*w, na.rm = TRUE)
 #   return(gini)
 # }
+
+
+
+eq_quantiles <- function(x, y, w, nq = 10, name = "q") {
+  tryCatch(
+    expr = {
+      y <- enquo(y)
+      w <- enquo(w)
+
+      df <- x %>%
+        arrange(!! y) %>%
+        mutate(
+          N  = sum(!!w),
+          cw = cumsum(!!w),
+          !! name :=  floor(cw/((N+1)/nq)) + 1
+        ) %>%
+        select(-c(N,cw))
+
+    }, # end of expr section
+
+    error = function(e) {
+      df <- tibble(
+        message = e$message
+      )
+    }
+
+  ) # End of trycatch
+
+  return(df)
+}
+
+create_welf <- function(x) {
+  tryCatch(
+    expr = {
+      df <- x %>%
+        filter(regioncode == "XX") %>%
+        arrange(povertyline) %>%
+        mutate(
+          population = population*1e6,
+          popshr     = if_else (row_number() > 1,         # population share
+                                headcount - lag(headcount),
+                                headcount),
+          weight     = population*popshr, # people below threshold
+
+          # cumm welfare
+          welfare   = povertyline*(population*headcount - population*povertygap),
+
+          # cnvert to bin from cumm
+          welfare   =  if_else (row_number() > 1,
+                                welfare - lag(welfare),
+                                welfare),
+
+          # per capita
+          welfare    = welfare/weight
+        ) %>%
+        select(povertyline, headcount, popshr, weight, welfare)
+
+    }, # end of expr section
+
+    error = function(e) {
+      print(e$message)
+    }
+
+  ) # End of trycatch
+
+  return(df)
+}
+
+ovv_info <- function(df, one_val_var){
+  tryCatch(
+    expr = {
+      df %>%
+        slice(1) %>%
+        select(one_val_var)
+    }, # end of expr section
+
+    error = function(e) {
+      tibble(
+        message = e$message
+      )
+    } # end of finally section
+  ) # End of trycatch
+}
+

@@ -44,22 +44,10 @@ source("R/povcalnet_iterate.R")
 # year <- c(1981, 1990, 1999, 2005, 2010, 2015)
 year <- c(1993, 2002, 2015)
 
-regions  <- c("ECA", "MNA", "SSA", "LAC", "OHI", "SAS", "EAP", "WLD")
 
 # countries <- map_dfr(regions,  function(x)
 #   data.frame(country = get_countries(region_code = x))) %>%
 #   pull
-
-
-#------ regions
-rdf <- as.list(expand.grid(goal = c(c(1:9) / 10, .9999),
-                           region = regions,
-                           year = year,
-                           stringsAsFactors = FALSE))
-
-dfr <- pmap_dfr(rdf, povcalnet_iterate)
-write_rds(dfr, "data/dfr.rds")
-
 
 #------- countries
 countries <- get_countries("WLD")
@@ -73,5 +61,17 @@ cdf <- as.list(expand.grid(goal = c(c(1:9) / 10, .9999),
 
 dfc <- pmap_dfr(cdf, povcalnet_iterate)
 write_rds(dfc, "data/dfc.rds")
+
+#------ regions
+regions  <- c("ECA", "MNA", "SSA", "LAC", "OHI", "SAS", "EAP", "WLD")
+rdf <- as.list(expand.grid(goal = c(c(1:9) / 10, .9999),
+                           region = regions,
+                           year = year,
+                           stringsAsFactors = FALSE))
+
+dfr <- pmap_dfr(rdf, povcalnet_iterate)
+write_rds(dfr, "data/dfr.rds")
+
+
 
 
