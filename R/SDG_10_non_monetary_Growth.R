@@ -41,13 +41,16 @@ indList <- c("per_sa_allsa.cov_q1_tot",
              "SL.EMP.VULN.FE.ZS",
              "SL.EMP.VULN.MA.ZS",
              "IQ.CPA.SOCI.XQ",
-             "DT.ODA.OATL.KD")
+             "DT.ODA.OATL.KD",
+             "TM.TAX.MRCH.SM.AR.ZS",
+             "DT.ODA.ALLD.KD")
 
 # get data
 panel_WDI(indList, start=year0, end = year1, maxdist=max_span, cb = TRUE, long = T)
 
 # Calculate growth
 WDI <- WDI %>% 
+  mutate(countryname = if_else(countrycode=="COD", "Congo Dem", countryname)) %>% 
   arrange(indicatorID, countrycode, Year) %>% 
   group_by(indicatorID, countrycode) %>% 
   mutate( growth = (((value[2] / value[1])^(1/(usedey-usedsy)))-1) * 100 )  # Annualized growth
@@ -322,4 +325,41 @@ CPIinc %>%
 
 
 
-#### Target 
+#### Target 10.b.1 Total resource flows for development, by recipient and donorcountries and type of flow ####
+
+AID <- WDI %>% 
+  filter(indicatorID == "DT.ODA.ALLD.KD") %>% 
+  drop_na() %>% 
+  ungroup() %>% 
+  group_by(countrycode) %>%
+  arrange(countrycode, Year) %>%
+  mutate(Year=paste0("v", Year)) %>% 
+  spread("Year", "value") %>% 
+  mutate(change = v2017 - v2007)
+
+# The goal cares for the porest nations, let's create separate dataset with the data for the lower income nations
+
+
+AID %>%
+  filter(incomegroup != "High income") %>% 
+  group_by(countrycode) %>% 
+  filter(row_number()==n()) %>% 
+  ungroup() %>% 
+  mutate(country = fct_reorder(countryname, growth)) %>% 
+  ggplot() +
+  geom_bar(aes(x = country, y=growth, fill = incomegroup), stat = "identity", alpha = 0.6 ) +
+  scale_fill_manual(values=c("#F8766D", "#00BA38", "#619CFF"))+
+  # geom_bar(aes(x = country, y=v2007), stat = "identity", alpha = 0.6 , fill= "blue4") +
+  geom_hline( yintercept =  mean(AID[AID$incomegroup=="Low income",]$growth, na.rm = T), color = "red") +
+  geom_hline( yintercept =  mean(AID[AID$incomegroup=="Lower middle income",]$growth, na.rm = T), color = "darkgreen") +
+  geom_hline( yintercept =  mean(AID[AID$incomegroup=="Upper middle income",]$growth, na.rm = T), color = "blue") +
+  scale_y_continuous(expand = c(0,0), breaks = scales::pretty_breaks(n = 10)) + theme_tufte() +
+  xlab("") +
+  ylab("Score") +
+  coord_flip()
+# theme(
+#   axis.text = element_text(angle=90)
+# )
+
+
+
