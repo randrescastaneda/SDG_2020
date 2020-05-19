@@ -79,6 +79,10 @@ cf <- bind_rows(c1,c2, c3) %>%
     N  = sum(weight, na.rm = TRUE),
     cw = cumsum(weight),
     q  =  floor(cw/((N+1)/nq)) + 1,
+  ) %>%
+  ungroup() %>%
+  mutate(
+    cty = fct_reorder(countrycode, welfare)
   )
 
 
@@ -88,38 +92,70 @@ cf <- bind_rows(c1,c2, c3) %>%
 
 # medians
 md <- cf %>%
-  group_by(countrycode) %>%
+  group_by(cty) %>%
   summarise(med = weighted.median(welfare, weight)) %>%
   arrange(med)
 
 cts <- md %>%
-  pull(countrycode)
+  pull(cty)
 
 #
-# ggplot(data = filter(cf, welfare < 100),
-#        aes(x = welfare,
-#            weight = weight,
-#            fill  = countrycode)) +
-#   geom_histogram(bins = 100,
-#                  position="identity",
-#                  alpha = .5) +
-#   # geom_density(alpha=0.6)    +
-#   scale_y_continuous(labels = addUnits) +
-#   scale_x_continuous(labels = scales::dollar) +
-#   scale_fill_manual(values = palette,
-#                      breaks = cts) +
-#   geom_vline(data = md,
-#              aes(xintercept = med,
-#                  color      = countrycode),
-#              linetype = "dashed") +
-#   scale_color_manual(values = palette,
-#                      breaks = cts) +
-#   theme_classic() +
-#   theme(
-#     legend.title = element_blank()
-#   ) +
-#   labs(y = "Population",
-#        x = "Daily income")
+ggplot(data = filter(cf, welfare < 100),
+       aes(x = welfare,
+           weight = weight,
+           fill  = cty)) +
+  geom_histogram(bins = 100,
+                 position="identity",
+                 alpha = .5) +
+  # geom_density(alpha=0.6)    +
+  scale_y_continuous(labels = addUnits) +
+  scale_x_continuous(labels = scales::dollar) +
+  scale_fill_manual(values = palette,
+                     breaks = cts) +
+  geom_vline(data = md,
+             aes(xintercept = med,
+                 color      = cty),
+             linetype = "dashed") +
+  scale_color_manual(values = palette[1:3],
+                     breaks = cts) +
+  theme_classic() +
+  theme(
+    legend.title = element_blank()
+  ) +
+  labs(y = "Population",
+       x = "Daily income")
+
+
+ggplot(data = filter(cf, welfare < 100,
+                     countrycode != "COL"),
+       aes(x = welfare,
+           weight = weight,
+           fill  = cty)) +
+  geom_histogram(bins = 100,
+                 position="identity",
+                 alpha = .5) +
+  # geom_density(alpha=0.6)    +
+  scale_y_continuous(labels = addUnits) +
+  scale_x_continuous(labels = scales::dollar) +
+  scale_fill_manual(values = palette[1:3],
+                     breaks = cts) +
+  geom_vline(data = md,
+             aes(xintercept = med,
+                 color      = cty),
+             linetype = "dashed") +
+  scale_color_manual(values = palette,
+                     breaks = cts) +
+  theme_classic() +
+  theme(
+    legend.title = element_blank()
+  ) +
+  labs(y = "Population",
+       x = "Daily income")
+
+
+
+
+
 
 
 #----------------------------------------------------------
