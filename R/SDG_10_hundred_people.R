@@ -70,99 +70,78 @@ c2$countrycode <- "FIN"
 c3 <- read_rds("data/cts_dist.rds")$COL2015national
 c3$countrycode <- "COL"
 
-
 nq   <- 100 # No. of quantiles
-cf <- bind_rows(c1,c2, c3) %>%
-  arrange(countrycode, welfare) %>%
-  group_by(countrycode) %>%
-  mutate(
-    N  = sum(weight, na.rm = TRUE),
-    cw = cumsum(weight),
-    q  =  floor(cw/((N+1)/nq)) + 1,
-  ) %>%
-  ungroup() %>%
-  mutate(
-    cty = fct_reorder(countrycode, welfare)
-  )
-
+cf <- as.data.table(bind_rows(c1,c2, c3))
+cf <- cf[order(countrycode, welfare)
+         ][,
+           c("N", "cw", "q") := {
+             N  <- sum(weight, na.rm = TRUE)
+             cw <- cumsum(weight)
+             q  <- floor(cw/((N+1)/nq)) + 1
+             list(N, cw, q)
+           },
+           by = .(countrycode)
+           ][,
+             cty := fct_reorder(countrycode, welfare)
+             ]
 
 #----------------------------------------------------------
-# Hundred people
+# Stacking people
 #----------------------------------------------------------
 
 # medians
-md <- cf %>%
-  group_by(cty) %>%
-  summarise(med = weighted.median(welfare, weight)) %>%
-  arrange(med)
 
-cts <- md %>%
-  pull(cty)
+md <- cf[
+  ,
+  .(med = weighted.median(welfare, weight)),
+  by = .(cty)
+  ][
+    order(med)
+    ]
+
+cts <- md[, cty]
+
+
 
 #
-ggplot(data = filter(cf, welfare < 100),
-       aes(x = welfare,
-           weight = weight,
-           fill  = cty)) +
-  geom_histogram(bins = 100,
-                 position="identity",
-                 alpha = .5) +
-  # geom_density(alpha=0.6)    +
-  scale_y_continuous(labels = addUnits) +
-  scale_x_continuous(labels = scales::dollar) +
-  scale_fill_manual(values = palette,
-                     breaks = cts) +
-  geom_vline(data = md,
-             aes(xintercept = med,
-                 color      = cty),
-             linetype = "dashed") +
-  scale_color_manual(values = palette[1:3],
-                     breaks = cts) +
-  theme_classic() +
-  theme(
-    legend.title = element_blank()
-  ) +
-  labs(y = "Population",
-       x = "Daily income")
-
-
-ggplot(data = filter(cf, welfare < 100,
-                     countrycode != "COL"),
-       aes(x = welfare,
-           weight = weight,
-           fill  = cty)) +
-  geom_histogram(bins = 100,
-                 position="identity",
-                 alpha = .5) +
-  # geom_density(alpha=0.6)    +
-  scale_y_continuous(labels = addUnits) +
-  scale_x_continuous(labels = scales::dollar) +
-  scale_fill_manual(values = palette[1:3],
-                     breaks = cts) +
-  geom_vline(data = md,
-             aes(xintercept = med,
-                 color      = cty),
-             linetype = "dashed") +
-  scale_color_manual(values = palette,
-                     breaks = cts) +
-  theme_classic() +
-  theme(
-    legend.title = element_blank()
-  ) +
-  labs(y = "Population",
-       x = "Daily income")
-
-
-
-
-
+# ggplot(data = filter(cf, welfare < 100),
+#        aes(x = welfare,
+#            weight = weight,
+#            fill  = cty)) +
+#   geom_histogram(bins = 100,
+#                  position="identity",
+#                  alpha = .5) +
+#   # geom_density(alpha=0.6)    +
+#   scale_y_continuous(labels = addUnits) +
+#   scale_x_continuous(labels = scales::dollar) +
+#   scale_fill_manual(values = palette,
+#                      breaks = cts) +
+#   geom_vline(data = md,
+#              aes(xintercept = med,
+#                  color      = cty),
+#              linetype = "dashed") +
+#   scale_color_manual(values = palette[1:3],
+#                      breaks = cts) +
+#   theme_classic() +
+#   theme(
+#     legend.title = element_blank()
+#   ) +
+#   labs(y = "Population",
+#        x = "Daily income")
 
 
 #----------------------------------------------------------
-# Organize in a different way
+# Share of income
 #----------------------------------------------------------
+cq <- cf[,
+         .(welfare = sum(welfare)),
+         by = .(countrycode, cty, q)
+         ]
 
-
+ggplot(data  = cq,
+       aes(x = q,
+           fill = cty)) +
+  geom_histogram(aes(y=..density..))
 
 
 #----------------------------------------------------------

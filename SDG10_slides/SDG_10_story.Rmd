@@ -306,6 +306,11 @@ ggplot(data = filter(cf, welfare < 100),
 
 ```
 ]
+---
+class: middle, center
+
+### we need to compare distributions in a different way
+
 
 ---
 ```{r ginichange}
