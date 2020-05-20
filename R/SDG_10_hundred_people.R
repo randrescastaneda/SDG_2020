@@ -73,8 +73,57 @@ c3$countrycode <- "COL"
 nq   <- 100 # No. of quantiles
 cf <- as.data.table(bind_rows(c1,c2, c3))
 
+cf <- cf[order(countrycode, welfare)
+         ][,
+             cty := fct_reorder(countrycode, welfare)
+             ]
 
-cf <- cf[
+#----------------------------------------------------------
+# Stacking people
+#----------------------------------------------------------
+
+# medians
+
+md <- cf[
+  ,
+  .(med = weighted.median(welfare, weight)),
+  by = .(cty)
+  ][
+    order(med)
+    ]
+
+cts <- md[, cty]
+
+# ggplot(data = filter(cf, welfare < 100),
+#        aes(x = welfare,
+#            weight = weight,
+#            fill  = cty)) +
+#   geom_histogram(bins = 100,
+#                  position="identity",
+#                  alpha = .5) +
+#   # geom_density(alpha=0.6)    +
+#   scale_y_continuous(labels = addUnits) +
+#   scale_x_continuous(labels = scales::dollar) +
+#   scale_fill_manual(values = palette[1:3],
+#                      breaks = cts) +
+#   geom_vline(data = md,
+#              aes(xintercept = med,
+#                  color      = cty),
+#              linetype = "dashed") +
+#   scale_color_manual(values = palette[1:3],
+#                      breaks = cts) +
+#   theme_classic() +
+#   theme(
+#     legend.title = element_blank()
+#   ) +
+#   labs(y = "Population",
+#        x = "Daily income")
+
+#----------------------------------------------------------
+# Share of income
+#----------------------------------------------------------
+
+df <- cf[
   order(countrycode, welfare)
   ][,
     pc := cut(x = headcount,
@@ -113,15 +162,14 @@ cf <- cf[
             by = .(countrycode)
             ][
               order(countrycode, pc, Sy)
-              ][,
-                cty := fct_reorder(countrycode, welfare)
-                ]
+              ]
 
 #--------- Make sure Pens parade holds
 # given that the distribution was recoevered, it could be the case that some
 # particular rates are just simply not avaialble in the distribution and thus
 # it is impossible to know some values
-cf <- cf[order(countrycode, pc),
+
+df <- df[order(countrycode, pc),
    lagSy := Sy - shift(Sy,
                        n = 1,
                        fill = 0,
@@ -132,13 +180,11 @@ cf <- cf[order(countrycode, pc),
                    + 0.005*Sy,                                 # plus some difference
                    Sy),
      by = .(countrycode)
-     ][
-       countrycode == "COL"
      ]
 
 
 pens <- ggplot(
-  data = cf,
+  data = df[countrycode == "COL"],
   aes(
     x = as.factor(headcount),
     y = Sy
