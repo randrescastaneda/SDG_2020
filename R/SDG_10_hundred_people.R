@@ -72,92 +72,73 @@ c3$countrycode <- "COL"
 
 nq   <- 100 # No. of quantiles
 cf <- as.data.table(bind_rows(c1,c2, c3))
-cf <- cf[order(countrycode, welfare)
-         ][,
-           c("N", "cw", "q", "Sy", "Csy", "pc") := {
-             o       <- order(welfare)
-             welfare <- welfare[o]
-             weight  <- weight[o]
-
-             N  <- sum(weight, na.rm = TRUE)
-             cw <- cumsum(weight)
-             q  <- floor(cw/((N+1)/nq)) + 1
-
-             Y    <-  N*weighted.mean(welfare, weight, na.rm = TRUE)   # total welfare
-             Sy   <-  (welfare*weight)/Y   # share of income
-             Csy  <-  cumsum(Sy)           # Cummulative share of income of q in total welfare
-             pc   <-  cut(Csy, breaks = seq(0, 1, by = .01), labels = FALSE)
-             list(N, cw, q, Sy, Csy, pc)
-           },
-           by = .(countrycode)
-           ][,
-             cty := fct_reorder(countrycode, welfare)
-             ]
-
-#----------------------------------------------------------
-# Stacking people
-#----------------------------------------------------------
-
-# medians
-
-md <- cf[
-  ,
-  .(med = weighted.median(welfare, weight)),
-  by = .(cty)
-  ][
-    order(med)
-    ]
-
-cts <- md[, cty]
 
 
+cf <- cf[
+  order(countrycode, welfare)
+  ][,
+    pc := cut(x = headcount,
+              breaks = seq(0, 1, by = 1/nq),
+              labels = FALSE),
+    by = .(countrycode)
+    ][ ,
+       .SD[which.min(headcount)],
+       by = .(countrycode, pc)
+       ][ ,
+          c("yl", "CSy") :=  {
 
-#
-# ggplot(data = filter(cf, welfare < 100),
-#        aes(x = welfare,
-#            weight = weight,
-#            fill  = cty)) +
-#   geom_histogram(bins = 100,
-#                  position="identity",
-#                  alpha = .5) +
-#   # geom_density(alpha=0.6)    +
-#   scale_y_continuous(labels = addUnits) +
-#   scale_x_continuous(labels = scales::dollar) +
-#   scale_fill_manual(values = palette[1:3],
-#                      breaks = cts) +
-#   geom_vline(data = md,
-#              aes(xintercept = med,
-#                  color      = cty),
-#              linetype = "dashed") +
-#   scale_color_manual(values = palette[1:3],
-#                      breaks = cts) +
-#   theme_classic() +
-#   theme(
-#     legend.title = element_blank()
-#   ) +
-#   labs(y = "Population",
-#        x = "Daily income")
+            # Parameters
+            Y    <-  population*mean          # total welfare
+            Nl   <-  population*(pc/nq)       # population in the percentile
+            zl   <-  Nl*povertyline           # line times the population
+            AGl  <-  povertygap*population*povertyline  # Total gap in each line
+
+            # total income per percentile
+            yl   <-  zl - AGl
+            yl   <-  yl*(Y/max(yl))           # normalize income to max
+
+            # Cummulative share of income of q in total welfare
+            CSy  <-   yl/Y
+
+            #return
+            list(yl, CSy)
+          },
+          by = .(countrycode)
+          ][
+            order(countrycode, pc),
+            Sy := CSy - shift(CSy,  # share of income per quantile in total income
+                              n = 1,
+                              fill = 0,
+                              type = "lag"),
+            by = .(countrycode)
+            ][
+              order(countrycode, pc, Sy)
+              ][,
+                cty := fct_reorder(countrycode, welfare)
+                ]
+
+#--------- Make sure Pens parade holds
+# given that the distribution was recoevered, it could be the case that some
+# particular rates are just simply not avaialble in the distribution and thus
+# it is impossible to know some values
+cf <- cf[order(countrycode, pc),
+   lagSy := Sy - shift(Sy,
+                       n = 1,
+                       fill = 0,
+                       type = "lag"),
+   by = .(countrycode)
+   ][,
+     Sy := if_else(lagSy < 0, shift(Sy, n = 1, fill = 0, type = "lag")  #previous observation
+                   + 0.005*Sy,                                 # plus some difference
+                   Sy),
+     by = .(countrycode)
+     ][
+       countrycode == "COL"
+     ]
 
 
-#----------------------------------------------------------
-# Share of income
-#----------------------------------------------------------
-df <- cf[cf[,
-            .I[which.max(Sy)],
-            by = .(countrycode, pc)
-            ]$V1
-         ][countrycode == "COL"
-               ]
-
-df <- cf[,
-         .(Sy        = sum(Sy, na.rm = TRUE),
-           headcount = max(headcount)),
-         by = .(countrycode, pc)
-         ][countrycode == "COL"
-               ]
-
-ggplot(
-  data = df,
+pens <- ggplot(
+  data = cf,
   aes(
     x = as.factor(headcount),
     y = Sy
@@ -165,14 +146,15 @@ ggplot(
 ) +
   geom_bar(stat = "identity")
 
+plotly::ggplotly(pens)
 
-#----------------------------------------------------------
-#
-#----------------------------------------------------------
+pens <- ggplot(
+  data = cf,
+  aes(
+    x = as.factor(headcount),
+    y = welfare
+  )
+) +
+  geom_bar(stat = "identity")
 
-#----------------------------------------------------------
-#
-#----------------------------------------------------------
-
-
-
+plotly::ggplotly(pens)
