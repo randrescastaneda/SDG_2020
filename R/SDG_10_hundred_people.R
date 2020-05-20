@@ -61,24 +61,33 @@ dfr <- read_rds("data/dfr.rds")
 #   Set up
 #----------------------------------------------------------
 
-c1 <- read_rds("data/cts_dist.rds")$CRI2015national
+c1 <- read_rds("data/recovered_dist.rds")$CRI2015national
 c1$countrycode <- "CRI"
 
-c2 <- read_rds("data/cts_dist.rds")$FIN2015national
+c2 <- read_rds("data/recovered_dist.rds")$FIN2015national
 c2$countrycode <- "FIN"
 
-c3 <- read_rds("data/cts_dist.rds")$COL2015national
+c3 <- read_rds("data/recovered_dist.rds")$COL2015national
 c3$countrycode <- "COL"
 
 nq   <- 100 # No. of quantiles
 cf <- as.data.table(bind_rows(c1,c2, c3))
 cf <- cf[order(countrycode, welfare)
          ][,
-           c("N", "cw", "q") := {
+           c("N", "cw", "q", "Sy", "Csy", "pc") := {
+             o       <- order(welfare)
+             welfare <- welfare[o]
+             weight  <- weight[o]
+
              N  <- sum(weight, na.rm = TRUE)
              cw <- cumsum(weight)
              q  <- floor(cw/((N+1)/nq)) + 1
-             list(N, cw, q)
+
+             Y    <-  N*weighted.mean(welfare, weight, na.rm = TRUE)   # total welfare
+             Sy   <-  (welfare*weight)/Y   # share of income
+             Csy  <-  cumsum(Sy)           # Cummulative share of income of q in total welfare
+             pc   <-  cut(Csy, breaks = seq(0, 1, by = .01), labels = FALSE)
+             list(N, cw, q, Sy, Csy, pc)
            },
            by = .(countrycode)
            ][,
@@ -114,7 +123,7 @@ cts <- md[, cty]
 #   # geom_density(alpha=0.6)    +
 #   scale_y_continuous(labels = addUnits) +
 #   scale_x_continuous(labels = scales::dollar) +
-#   scale_fill_manual(values = palette,
+#   scale_fill_manual(values = palette[1:3],
 #                      breaks = cts) +
 #   geom_vline(data = md,
 #              aes(xintercept = med,
@@ -133,15 +142,28 @@ cts <- md[, cty]
 #----------------------------------------------------------
 # Share of income
 #----------------------------------------------------------
-cq <- cf[,
-         .(welfare = sum(welfare)),
-         by = .(countrycode, cty, q)
-         ]
+df <- cf[cf[,
+            .I[which.max(Sy)],
+            by = .(countrycode, pc)
+            ]$V1
+         ][countrycode == "COL"
+               ]
 
-ggplot(data  = cq,
-       aes(x = q,
-           fill = cty)) +
-  geom_histogram(aes(y=..density..))
+df <- cf[,
+         .(Sy        = sum(Sy, na.rm = TRUE),
+           headcount = max(headcount)),
+         by = .(countrycode, pc)
+         ][countrycode == "COL"
+               ]
+
+ggplot(
+  data = df,
+  aes(
+    x = as.factor(headcount),
+    y = Sy
+  )
+) +
+  geom_bar(stat = "identity")
 
 
 #----------------------------------------------------------
