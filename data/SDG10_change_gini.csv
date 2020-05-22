@@ -1,0 +1,593 @@
+countrycode,coveragetype,datatype,region,countryname,incomegroup,regionname,gini_2000,gini_2018,year_1,year_2,text,x,n
+ALB,N,consumption,ECA,Albania,Upper middle income,Europe and Central Asia,0.29374659999999997,0.3317109,1999,2018,"County: Albania
+Range: 1999-2018
+Region: ECA
+",1,1
+ARG,U,income,LAC,Argentina,High income,Latin America and the Caribbean,0.4979204,0.4138425,1999,2018,"County: Argentina
+Range: 1999-2018
+Region: LAC
+",1,1
+ARM,N,consumption,ECA,Armenia,Upper middle income,Europe and Central Asia,0.3621972,0.344335,1999,2018,"County: Armenia
+Range: 1999-2018
+Region: ECA
+",1,1
+AUS,N,income,OHI,Australia,High income,Other High Income countries,0.3406077666666667,0.3439943,1999,2018,"County: Australia
+Range: 1999-2018
+Region: OHI
+",1,1
+AUT,N,income,OHI,Austria,High income,Other High Income countries,0.26825116666666665,0.2973758,1999,2018,"County: Austria
+Range: 1999-2018
+Region: OHI
+",1,1
+AZE,N,consumption,ECA,Azerbaijan,Upper middle income,Europe and Central Asia,0.2840187666666667,0.2655491,1999,2018,"County: Azerbaijan
+Range: 1999-2018
+Region: ECA
+",1,1
+BDI,N,consumption,SSA,Burundi,Low income,Sub-saharan Africa,0.352385736,0.3862482,1999,2018,"County: Burundi
+Range: 1999-2018
+Region: SSA
+",1,1
+BEL,N,income,OHI,Belgium,High income,Other High Income countries,0.28156335714285713,0.2737232,1999,2018,"County: Belgium
+Range: 1999-2018
+Region: OHI
+",1,1
+BEN,N,consumption,SSA,Benin,Low income,Sub-saharan Africa,0.385782,0.4775591,1999,2018,"County: Benin
+Range: 1999-2018
+Region: SSA
+",1,1
+BFA,N,consumption,SSA,Burkina Faso,Low income,Sub-saharan Africa,0.44589419090909094,0.3530123,1999,2018,"County: Burkina Faso
+Range: 1999-2018
+Region: SSA
+",1,1
+BGD,N,consumption,SAS,Bangladesh,Lower middle income,South Asia,0.3137009,0.3238527,1999,2018,"County: Bangladesh
+Range: 1999-2018
+Region: SAS
+",1,1
+BGR,N,income,ECA,Bulgaria,Upper middle income,Europe and Central Asia,0.3357313,0.4037905,2008,2018,"County: Bulgaria
+Range: 2008-2018
+Region: ECA
+",1,1
+BIH,N,consumption,ECA,Bosnia and Herzegovina,Upper middle income,Europe and Central Asia,0.2996645,0.3303019,1999,2018,"County: Bosnia and Herzegovina
+Range: 1999-2018
+Region: ECA
+",1,1
+BLR,N,consumption,ECA,Belarus,Upper middle income,Europe and Central Asia,0.3173815,0.2524053,1999,2018,"County: Belarus
+Range: 1999-2018
+Region: ECA
+",1,1
+BOL,N,income,LAC,Bolivia,Lower middle income,Latin America and the Caribbean,0.5809705,0.4219057,1999,2018,"County: Bolivia
+Range: 1999-2018
+Region: LAC
+",1,1
+BRA,N,income,LAC,Brazil,Upper middle income,Latin America and the Caribbean,0.5899159,0.5387844,1999,2018,"County: Brazil
+Range: 1999-2018
+Region: LAC
+",1,1
+BTN,N,consumption,SAS,Bhutan,Lower middle income,South Asia,0.40898,0.3744141,1999,2018,"County: Bhutan
+Range: 1999-2018
+Region: SAS
+",1,1
+BWA,N,consumption,SSA,Botswana,Upper middle income,Sub-saharan Africa,0.5382075117647058,0.5332503,1999,2018,"County: Botswana
+Range: 1999-2018
+Region: SSA
+",1,1
+CAF,N,consumption,SSA,Central African Republic,Low income,Sub-saharan Africa,0.5878368,0.5623661,1999,2018,"County: Central African Republic
+Range: 1999-2018
+Region: SSA
+",1,1
+CAN,N,income,OHI,Canada,High income,Other High Income countries,0.32579370869565216,0.3379898,1999,2018,"County: Canada
+Range: 1999-2018
+Region: OHI
+",1,1
+CHE,N,income,OHI,Switzerland,High income,Other High Income countries,0.3230396428571429,0.3267633,1999,2018,"County: Switzerland
+Range: 1999-2018
+Region: OHI
+",1,1
+CHL,N,income,LAC,Chile,High income,Latin America and the Caribbean,0.53108614,0.4444094,1999,2018,"County: Chile
+Range: 1999-2018
+Region: LAC
+",1,1
+CHN,R,consumption,EAP,China,Upper middle income,East Asia and Pacific,0.3538942,0.3317984,1999,2018,"County: China
+Range: 1999-2018
+Region: EAP
+",1,1
+CHN,U,consumption,EAP,China,Upper middle income,East Asia and Pacific,0.3154756,0.3612483,1999,2018,"County: China
+Range: 1999-2018
+Region: EAP
+",1,1
+CIV,N,consumption,SSA,Cote d'Ivoire,Lower middle income,Sub-saharan Africa,0.42037745,0.414748,1999,2018,"County: Cote d'Ivoire
+Range: 1999-2018
+Region: SSA
+",1,1
+CMR,N,consumption,SSA,Cameroon,Lower middle income,Sub-saharan Africa,0.4479319842105263,0.4664087,1999,2018,"County: Cameroon
+Range: 1999-2018
+Region: SSA
+",1,1
+COD,N,consumption,SSA,"Congo, Democratic Republic of",Low income,Sub-saharan Africa,0.4216363,0.4209971,1999,2018,"County: Congo, Democratic Republic of
+Range: 1999-2018
+Region: SSA
+",1,1
+COG,N,consumption,SSA,"Congo, Republic of",Lower middle income,Sub-saharan Africa,0.4733054,0.4893867,1999,2018,"County: Congo, Republic of
+Range: 1999-2018
+Region: SSA
+",1,1
+COL,N,income,LAC,Colombia,Upper middle income,Latin America and the Caribbean,0.5873956,0.504187,1999,2018,"County: Colombia
+Range: 1999-2018
+Region: LAC
+",1,1
+COM,N,consumption,SSA,Comoros,Low income,Sub-saharan Africa,0.5592516,0.4533459,1999,2018,"County: Comoros
+Range: 1999-2018
+Region: SSA
+",1,1
+CPV,N,consumption,SSA,Cabo Verde,Lower middle income,Sub-saharan Africa,0.524963,0.4238109,1999,2018,"County: Cabo Verde
+Range: 1999-2018
+Region: SSA
+",1,1
+CRI,N,income,LAC,Costa Rica,Upper middle income,Latin America and the Caribbean,0.4766533,0.4796122,1999,2018,"County: Costa Rica
+Range: 1999-2018
+Region: LAC
+",1,1
+CYP,N,income,OHI,Cyprus,High income,Other High Income countries,0.300894,0.3141623,1999,2018,"County: Cyprus
+Range: 1999-2018
+Region: OHI
+",1,1
+CZE,N,income,ECA,Czech Republic,High income,Europe and Central Asia,0.26177055,0.2485221,1999,2018,"County: Czech Republic
+Range: 1999-2018
+Region: ECA
+",1,1
+DEU,N,income,OHI,Germany,High income,Other High Income countries,0.29739315,0.3187067,1999,2018,"County: Germany
+Range: 1999-2018
+Region: OHI
+",1,1
+DJI,N,consumption,MNA,Djibouti,Lower middle income,Middle East and North Africa,0.3999784,0.4158799,1999,2018,"County: Djibouti
+Range: 1999-2018
+Region: MNA
+",1,1
+DNK,N,income,OHI,Denmark,High income,Other High Income countries,0.2553627333333333,0.2874666,1999,2018,"County: Denmark
+Range: 1999-2018
+Region: OHI
+",1,1
+DOM,N,income,LAC,Dominican Republic,Upper middle income,Latin America and the Caribbean,0.4855598,0.4368672,1999,2018,"County: Dominican Republic
+Range: 1999-2018
+Region: LAC
+",1,1
+DZA,N,consumption,MNA,Algeria,Upper middle income,Middle East and North Africa,0.341569036,0.2761573,1999,2018,"County: Algeria
+Range: 1999-2018
+Region: MNA
+",1,1
+ECU,N,income,LAC,Ecuador,Upper middle income,Latin America and the Caribbean,0.5860199,0.4544,1999,2018,"County: Ecuador
+Range: 1999-2018
+Region: LAC
+",1,1
+EGY,N,consumption,MNA,"Egypt, Arab Republic of",Lower middle income,Middle East and North Africa,0.3192654857142857,0.3153395,1999,2018,"County: Egypt, Arab Republic of
+Range: 1999-2018
+Region: MNA
+",1,1
+ESP,N,income,OHI,Spain,High income,Other High Income countries,0.3227088,0.3465455,1999,2018,"County: Spain
+Range: 1999-2018
+Region: OHI
+",1,1
+EST,N,income,ECA,Estonia,High income,Europe and Central Asia,0.3344894,0.3035503,2005,2018,"County: Estonia
+Range: 2005-2018
+Region: ECA
+",1,1
+ETH,N,consumption,SSA,Ethiopia,Low income,Sub-saharan Africa,0.422673764,0.3499312,1999,2018,"County: Ethiopia
+Range: 1999-2018
+Region: SSA
+",1,1
+FIN,N,income,OHI,Finland,High income,Other High Income countries,0.25803526666666665,0.2738309,1999,2018,"County: Finland
+Range: 1999-2018
+Region: OHI
+",1,1
+FJI,N,consumption,EAP,Fiji,Upper middle income,East Asia and Pacific,0.3810205,0.366966,1999,2018,"County: Fiji
+Range: 1999-2018
+Region: EAP
+",1,1
+FRA,N,income,OHI,France,High income,Other High Income countries,0.3184085857142857,0.3163207,1999,2018,"County: France
+Range: 1999-2018
+Region: OHI
+",1,1
+FSM,N,consumption,EAP,"Micronesia, Federated States of",Lower middle income,East Asia and Pacific,0.423558,0.4005763,1999,2018,"County: Micronesia, Federated States of
+Range: 1999-2018
+Region: EAP
+",1,1
+GAB,N,consumption,SSA,Gabon,Upper middle income,Sub-saharan Africa,0.4218499,0.3802437,1999,2018,"County: Gabon
+Range: 1999-2018
+Region: SSA
+",1,1
+GBR,N,income,OHI,United Kingdom,High income,Other High Income countries,0.3696672,0.3477961,1999,2018,"County: United Kingdom
+Range: 1999-2018
+Region: OHI
+",1,1
+GEO,N,consumption,ECA,Georgia,Lower middle income,Europe and Central Asia,0.4014977,0.3641136,1999,2018,"County: Georgia
+Range: 1999-2018
+Region: ECA
+",1,1
+GHA,N,consumption,SSA,Ghana,Lower middle income,Sub-saharan Africa,0.3895456529411765,0.4352088,1999,2018,"County: Ghana
+Range: 1999-2018
+Region: SSA
+",1,1
+GIN,N,consumption,SSA,Guinea,Low income,Sub-saharan Africa,0.4147849772727273,0.337297,1999,2018,"County: Guinea
+Range: 1999-2018
+Region: SSA
+",1,1
+GMB,N,consumption,SSA,"Gambia, The",Low income,Sub-saharan Africa,0.4680119227272727,0.3591883,1999,2018,"County: Gambia, The
+Range: 1999-2018
+Region: SSA
+",1,1
+GNB,N,consumption,SSA,Guinea-Bissau,Low income,Sub-saharan Africa,0.3824991,0.5066424,1999,2018,"County: Guinea-Bissau
+Range: 1999-2018
+Region: SSA
+",1,1
+GRC,N,income,OHI,Greece,High income,Other High Income countries,0.357869,0.3435202,1999,2018,"County: Greece
+Range: 1999-2018
+Region: OHI
+",1,1
+GTM,N,income,LAC,Guatemala,Upper middle income,Latin America and the Caribbean,0.5342868548387096,0.4827859,1999,2018,"County: Guatemala
+Range: 1999-2018
+Region: LAC
+",1,1
+HND,N,income,LAC,Honduras,Lower middle income,Latin America and the Caribbean,0.5535134,0.5208153,1999,2018,"County: Honduras
+Range: 1999-2018
+Region: LAC
+",1,1
+HRV,N,income,ECA,Croatia,High income,Europe and Central Asia,0.3225743,0.3035458,2011,2018,"County: Croatia
+Range: 2011-2018
+Region: ECA
+",2,2
+HUN,N,income,ECA,Hungary,High income,Europe and Central Asia,0.2751404,0.3058412,2008,2018,"County: Hungary
+Range: 2008-2018
+Region: ECA
+",2,2
+IDN,R,consumption,EAP,Indonesia,Lower middle income,East Asia and Pacific,0.2475679,0.3244419,1999,2018,"County: Indonesia
+Range: 1999-2018
+Region: EAP
+",1,1
+IDN,U,consumption,EAP,Indonesia,Lower middle income,East Asia and Pacific,0.3537327,0.4005402,1999,2018,"County: Indonesia
+Range: 1999-2018
+Region: EAP
+",1,1
+IRL,N,income,OHI,Ireland,High income,Other High Income countries,0.34999430000000004,0.328076,1999,2018,"County: Ireland
+Range: 1999-2018
+Region: OHI
+",1,1
+IRN,N,consumption,MNA,"Iran, Islamic Republic of",Upper middle income,Middle East and North Africa,0.43577096,0.4080294,1999,2018,"County: Iran, Islamic Republic of
+Range: 1999-2018
+Region: MNA
+",1,1
+IRQ,N,consumption,MNA,Iraq,Upper middle income,Middle East and North Africa,0.2860061,0.2954186,1999,2018,"County: Iraq
+Range: 1999-2018
+Region: MNA
+",1,1
+ISL,N,income,OHI,Iceland,High income,Other High Income countries,0.2683604,0.2678797,1999,2018,"County: Iceland
+Range: 1999-2018
+Region: OHI
+",1,1
+ISR,N,income,OHI,Israel,High income,Other High Income countries,0.4178791,0.3901302,2005,2018,"County: Israel
+Range: 2005-2018
+Region: OHI
+",1,1
+ITA,N,income,OHI,Italy,High income,Other High Income countries,0.3468575,0.35928,1999,2018,"County: Italy
+Range: 1999-2018
+Region: OHI
+",1,1
+JAM,N,consumption,LAC,Jamaica,Upper middle income,Latin America and the Caribbean,0.440802,0.4545747,1999,2018,"County: Jamaica
+Range: 1999-2018
+Region: LAC
+",1,1
+JOR,N,consumption,MNA,Jordan,Upper middle income,Middle East and North Africa,0.3472493,0.3365573,1999,2018,"County: Jordan
+Range: 1999-2018
+Region: MNA
+",1,1
+JPN,N,income,OHI,Japan,High income,Other High Income countries,0.3484232,0.3285473,1999,2018,"County: Japan
+Range: 1999-2018
+Region: OHI
+",1,1
+KAZ,N,consumption,ECA,Kazakhstan,Upper middle income,Europe and Central Asia,0.35094725000000004,0.2745028,1999,2018,"County: Kazakhstan
+Range: 1999-2018
+Region: ECA
+",1,1
+KEN,N,consumption,SSA,Kenya,Lower middle income,Sub-saharan Africa,0.5209786321428572,0.4077577,1999,2018,"County: Kenya
+Range: 1999-2018
+Region: SSA
+",1,1
+KGZ,N,consumption,ECA,Kyrgyz Republic,Lower middle income,Europe and Central Asia,0.38352200000000003,0.2769033,1999,2018,"County: Kyrgyz Republic
+Range: 1999-2018
+Region: ECA
+",1,1
+KOR,N,income,OHI,"Korea, Republic of",High income,Other High Income countries,0.3170298,0.3155805,1999,2018,"County: Korea, Republic of
+Range: 1999-2018
+Region: OHI
+",1,1
+LAO,N,consumption,EAP,Lao People's Democratic Republic,Lower middle income,East Asia and Pacific,0.3512237217391304,0.3638628,1999,2018,"County: Lao People's Democratic Republic
+Range: 1999-2018
+Region: EAP
+",1,1
+LBR,N,consumption,SSA,Liberia,Low income,Sub-saharan Africa,0.3647775,0.3526546,1999,2018,"County: Liberia
+Range: 1999-2018
+Region: SSA
+",1,1
+LCA,N,income,LAC,St. Lucia,Upper middle income,Latin America and the Caribbean,0.446601232,0.5123331,1999,2018,"County: St. Lucia
+Range: 1999-2018
+Region: LAC
+",1,1
+LKA,N,consumption,SAS,Sri Lanka,Lower middle income,South Asia,0.3954295,0.3981108,1999,2018,"County: Sri Lanka
+Range: 1999-2018
+Region: SAS
+",1,1
+LSO,N,consumption,SSA,Lesotho,Lower middle income,Sub-saharan Africa,0.5110296,0.448797,1999,2018,"County: Lesotho
+Range: 1999-2018
+Region: SSA
+",1,1
+LTU,N,income,ECA,Lithuania,High income,Europe and Central Asia,0.3530221,0.372897,2005,2018,"County: Lithuania
+Range: 2005-2018
+Region: ECA
+",2,2
+LUX,N,income,OHI,Luxembourg,High income,Other High Income countries,0.29648364285714285,0.3489651,1999,2018,"County: Luxembourg
+Range: 1999-2018
+Region: OHI
+",1,1
+LVA,N,income,ECA,Latvia,High income,Europe and Central Asia,0.3898148,0.3557193,2005,2018,"County: Latvia
+Range: 2005-2018
+Region: ECA
+",2,2
+MAR,N,consumption,MNA,Morocco,Lower middle income,Middle East and North Africa,0.39378218235294116,0.3954851,1999,2018,"County: Morocco
+Range: 1999-2018
+Region: MNA
+",1,1
+MDA,N,consumption,ECA,Moldova,Lower middle income,Europe and Central Asia,0.4262421,0.2566165,1999,2018,"County: Moldova
+Range: 1999-2018
+Region: ECA
+",1,1
+MDG,N,consumption,SSA,Madagascar,Low income,Sub-saharan Africa,0.3860748,0.4264818,1999,2018,"County: Madagascar
+Range: 1999-2018
+Region: SSA
+",1,1
+MDV,N,consumption,SAS,Maldives,Upper middle income,South Asia,0.4131203,0.3128565,1999,2018,"County: Maldives
+Range: 1999-2018
+Region: SAS
+",1,1
+MEX,N,consumption,LAC,Mexico,Upper middle income,Latin America and the Caribbean,0.4862803,0.4544023,1999,2012,"County: Mexico
+Range: 1999-2012
+Region: LAC
+",1,1
+MKD,N,income,ECA,North Macedonia,Upper middle income,Europe and Central Asia,0.4016062,0.342002,2010,2018,"County: North Macedonia
+Range: 2010-2018
+Region: ECA
+",2,2
+MLI,N,consumption,SSA,Mali,Low income,Sub-saharan Africa,0.4429890588235294,0.3303796,1999,2018,"County: Mali
+Range: 1999-2018
+Region: SSA
+",1,1
+MLT,N,income,OHI,Malta,High income,Other High Income countries,0.2801998,0.2923224,1999,2018,"County: Malta
+Range: 1999-2018
+Region: OHI
+",1,1
+MMR,N,consumption,EAP,Myanmar,Lower middle income,East Asia and Pacific,0.3806851,0.3069687,1999,2018,"County: Myanmar
+Range: 1999-2018
+Region: EAP
+",1,1
+MNG,N,consumption,EAP,Mongolia,Lower middle income,East Asia and Pacific,0.3299374666666667,0.3274099,1999,2018,"County: Mongolia
+Range: 1999-2018
+Region: EAP
+",1,1
+MOZ,N,consumption,SSA,Mozambique,Low income,Sub-saharan Africa,0.5367899272727273,0.5399668,1999,2018,"County: Mozambique
+Range: 1999-2018
+Region: SSA
+",1,1
+MRT,N,consumption,SSA,Mauritania,Lower middle income,Sub-saharan Africa,0.44305088,0.3261935,1999,2018,"County: Mauritania
+Range: 1999-2018
+Region: SSA
+",1,1
+MUS,N,consumption,SSA,Mauritius,Upper middle income,Sub-saharan Africa,0.3565342,0.3676121,1999,2018,"County: Mauritius
+Range: 1999-2018
+Region: SSA
+",1,1
+MWI,N,consumption,SSA,Malawi,Low income,Sub-saharan Africa,0.6288358,0.4469431,1999,2018,"County: Malawi
+Range: 1999-2018
+Region: SSA
+",1,1
+MYS,N,income,EAP,Malaysia,Upper middle income,East Asia and Pacific,0.4549272,0.410372,1999,2018,"County: Malaysia
+Range: 1999-2018
+Region: EAP
+",1,1
+NAM,N,consumption,SSA,Namibia,Upper middle income,Sub-saharan Africa,0.6331876,0.5906661,1999,2018,"County: Namibia
+Range: 1999-2018
+Region: SSA
+",1,1
+NER,N,consumption,SSA,Niger,Low income,Sub-saharan Africa,0.41094288,0.3427658,1999,2018,"County: Niger
+Range: 1999-2018
+Region: SSA
+",1,1
+NGA,N,consumption,SSA,Nigeria,Lower middle income,Sub-saharan Africa,0.5000314785714286,0.4296644,1999,2018,"County: Nigeria
+Range: 1999-2018
+Region: SSA
+",1,1
+NLD,N,income,OHI,Netherlands,High income,Other High Income countries,0.280634,0.2853582,1999,2018,"County: Netherlands
+Range: 1999-2018
+Region: OHI
+",1,1
+NOR,N,income,OHI,Norway,High income,Other High Income countries,0.3059756,0.2698733,2005,2018,"County: Norway
+Range: 2005-2018
+Region: OHI
+",1,1
+NPL,N,consumption,SAS,Nepal,Low income,South Asia,0.3441821,0.3284059,1999,2018,"County: Nepal
+Range: 1999-2018
+Region: SAS
+",1,1
+PAK,N,consumption,SAS,Pakistan,Lower middle income,South Asia,0.3336850774193548,0.3345022,1999,2018,"County: Pakistan
+Range: 1999-2018
+Region: SAS
+",1,1
+PAN,N,income,LAC,Panama,High income,Latin America and the Caribbean,0.5645578,0.4921247,1999,2018,"County: Panama
+Range: 1999-2018
+Region: LAC
+",1,1
+PER,N,income,LAC,Peru,Upper middle income,Latin America and the Caribbean,0.5634364,0.4282366,1999,2018,"County: Peru
+Range: 1999-2018
+Region: LAC
+",1,1
+PHL,N,consumption,EAP,Philippines,Lower middle income,East Asia and Pacific,0.405867964516129,0.4010611,1999,2018,"County: Philippines
+Range: 1999-2018
+Region: EAP
+",1,1
+PNG,N,consumption,EAP,Papua New Guinea,Lower middle income,East Asia and Pacific,0.4493123,0.4185079,1999,2018,"County: Papua New Guinea
+Range: 1999-2018
+Region: EAP
+",1,1
+POL,N,consumption,ECA,Poland,High income,Europe and Central Asia,0.3259037,0.3182353,1999,2015,"County: Poland
+Range: 1999-2015
+Region: ECA
+",1,1
+PRT,N,income,OHI,Portugal,High income,Other High Income countries,0.3873696,0.3380384,1999,2018,"County: Portugal
+Range: 1999-2018
+Region: OHI
+",1,1
+PRY,N,income,LAC,Paraguay,Upper middle income,Latin America and the Caribbean,0.5457747,0.4621782,1999,2018,"County: Paraguay
+Range: 1999-2018
+Region: LAC
+",1,1
+PSE,N,consumption,MNA,West Bank and Gaza,Lower middle income,Middle East and North Africa,0.3404466,0.3369004,1999,2018,"County: West Bank and Gaza
+Range: 1999-2018
+Region: MNA
+",1,1
+ROU,N,income,ECA,Romania,Upper middle income,Europe and Central Asia,0.3591389,0.3601683,2015,2018,"County: Romania
+Range: 2015-2018
+Region: ECA
+",2,2
+RUS,N,consumption,ECA,Russian Federation,Upper middle income,Europe and Central Asia,0.3744344,0.3747301,1999,2018,"County: Russian Federation
+Range: 1999-2018
+Region: ECA
+",1,1
+RWA,N,consumption,SSA,Rwanda,Low income,Sub-saharan Africa,0.4854727,0.4371005,1999,2018,"County: Rwanda
+Range: 1999-2018
+Region: SSA
+",1,1
+SDN,N,consumption,SSA,Sudan,Lower middle income,Sub-saharan Africa,0.3539534,0.342432,1999,2018,"County: Sudan
+Range: 1999-2018
+Region: SSA
+",1,1
+SEN,N,consumption,SSA,Senegal,Low income,Sub-saharan Africa,0.48470579545454545,0.4028523,1999,2018,"County: Senegal
+Range: 1999-2018
+Region: SSA
+",1,1
+SLB,N,consumption,EAP,Solomon Islands,Lower middle income,East Asia and Pacific,0.4609685,0.3705493,1999,2018,"County: Solomon Islands
+Range: 1999-2018
+Region: EAP
+",1,1
+SLE,N,consumption,SSA,Sierra Leone,Low income,Sub-saharan Africa,0.3403024,0.3569018,2011,2018,"County: Sierra Leone
+Range: 2011-2018
+Region: SSA
+",1,1
+SLV,N,income,LAC,El Salvador,Lower middle income,Latin America and the Caribbean,0.5219769,0.3861712,1999,2018,"County: El Salvador
+Range: 1999-2018
+Region: LAC
+",1,1
+SRB,N,consumption,ECA,Serbia,Upper middle income,Europe and Central Asia,0.3196536,0.3035106,1999,2018,"County: Serbia
+Range: 1999-2018
+Region: ECA
+",1,1
+STP,N,consumption,SSA,Sao Tome and Principe,Lower middle income,Sub-saharan Africa,0.3082127,0.5631984,2010,2018,"County: Sao Tome and Principe
+Range: 2010-2018
+Region: SSA
+",1,1
+SVK,N,income,ECA,Slovak Republic,High income,Europe and Central Asia,0.26500124999999997,0.2516775,1999,2018,"County: Slovak Republic
+Range: 1999-2018
+Region: ECA
+",2,2
+SVN,N,income,ECA,Slovenia,High income,Europe and Central Asia,0.2404289,0.2421931,1999,2018,"County: Slovenia
+Range: 1999-2018
+Region: ECA
+",1,1
+SWE,N,income,OHI,Sweden,High income,Other High Income countries,0.25569663333333337,0.287746,1999,2018,"County: Sweden
+Range: 1999-2018
+Region: OHI
+",1,1
+SWZ,N,consumption,SSA,Eswatini,Lower middle income,Sub-saharan Africa,0.590447368,0.5457979,1999,2018,"County: Eswatini
+Range: 1999-2018
+Region: SSA
+",1,1
+TCD,N,consumption,SSA,Chad,Low income,Sub-saharan Africa,0.3982457,0.4332121,1999,2018,"County: Chad
+Range: 1999-2018
+Region: SSA
+",1,1
+TGO,N,consumption,SSA,Togo,Low income,Sub-saharan Africa,0.4221258,0.4305614,1999,2018,"County: Togo
+Range: 1999-2018
+Region: SSA
+",1,1
+THA,N,consumption,EAP,Thailand,Upper middle income,East Asia and Pacific,0.4309159,0.3641217,1999,2018,"County: Thailand
+Range: 1999-2018
+Region: EAP
+",1,1
+TJK,N,consumption,ECA,Tajikistan,Low income,Europe and Central Asia,0.2954314,0.3399572,1999,2018,"County: Tajikistan
+Range: 1999-2018
+Region: ECA
+",1,1
+TON,N,consumption,EAP,Tonga,Upper middle income,East Asia and Pacific,0.3769018,0.3758744,1999,2018,"County: Tonga
+Range: 1999-2018
+Region: EAP
+",1,1
+TUN,N,consumption,MNA,Tunisia,Lower middle income,Middle East and North Africa,0.37850350714285713,0.3281588,1999,2018,"County: Tunisia
+Range: 1999-2018
+Region: MNA
+",1,1
+TUR,N,consumption,ECA,Turkey,Upper middle income,Europe and Central Asia,0.41812516,0.4187752,1999,2018,"County: Turkey
+Range: 1999-2018
+Region: ECA
+",1,1
+TZA,N,consumption,SSA,Tanzania,Low income,Sub-saharan Africa,0.3696333035714286,0.4049123,1999,2018,"County: Tanzania
+Range: 1999-2018
+Region: SSA
+",1,1
+UGA,N,consumption,SSA,Uganda,Low income,Sub-saharan Africa,0.4373986967741936,0.4275369,1999,2018,"County: Uganda
+Range: 1999-2018
+Region: SSA
+",1,1
+UKR,N,consumption,ECA,Ukraine,Lower middle income,Europe and Central Asia,0.290457,0.2607149,2002,2018,"County: Ukraine
+Range: 2002-2018
+Region: ECA
+",1,1
+URY,N,income,LAC,Uruguay,High income,Latin America and the Caribbean,0.4407491,0.3968724,1999,2018,"County: Uruguay
+Range: 1999-2018
+Region: LAC
+",1,1
+USA,N,income,OHI,United States,High income,Other High Income countries,0.4033618,0.4142605,2010,2018,"County: United States
+Range: 2010-2018
+Region: OHI
+",1,1
+UZB,N,consumption,ECA,Uzbekistan,Lower middle income,Europe and Central Asia,0.38858424999999996,0.352688,1999,2018,"County: Uzbekistan
+Range: 1999-2018
+Region: ECA
+",1,1
+VEN,N,income,LAC,"Venezuela, Republica Bolivariana de",Upper middle income,Latin America and the Caribbean,0.483244,0.4694131,1999,2018,"County: Venezuela, Republica Bolivariana de
+Range: 1999-2018
+Region: LAC
+",1,1
+VNM,N,consumption,EAP,Vietnam,Lower middle income,East Asia and Pacific,0.36685815,0.3571555,1999,2018,"County: Vietnam
+Range: 1999-2018
+Region: EAP
+",1,1
+WSM,N,consumption,EAP,Samoa,Upper middle income,East Asia and Pacific,0.4073552,0.3873181,1999,2018,"County: Samoa
+Range: 1999-2018
+Region: EAP
+",1,1
+XKX,N,consumption,ECA,Kosovo,Lower middle income,Europe and Central Asia,0.2895386,0.2901294,2002,2018,"County: Kosovo
+Range: 2002-2018
+Region: ECA
+",1,1
+YEM,N,consumption,MNA,"Yemen, Republic of",Low income,Middle East and North Africa,0.3526767947368421,0.3670709,1999,2018,"County: Yemen, Republic of
+Range: 1999-2018
+Region: MNA
+",1,1
+ZAF,N,consumption,SSA,South Africa,Upper middle income,Sub-saharan Africa,0.6204545666666667,0.6302607,1999,2018,"County: South Africa
+Range: 1999-2018
+Region: SSA
+",1,1
+ZMB,N,consumption,SSA,Zambia,Lower middle income,Sub-saharan Africa,0.4989535357142857,0.5713606,1999,2018,"County: Zambia
+Range: 1999-2018
+Region: SSA
+",1,1
+ZWE,N,consumption,SSA,Zimbabwe,Low income,Sub-saharan Africa,0.4315358,0.4433708,1999,2018,"County: Zimbabwe
+Range: 1999-2018
+Region: SSA
+",1,1

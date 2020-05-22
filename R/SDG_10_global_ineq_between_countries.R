@@ -83,7 +83,7 @@ dgr <- dfq %>%
 #----------------------------------------------------------
 setDT(dfq)
 p50d_15 <- dfq[year == 2015,
-            .(p50, qp50)]
+            .(countrycode, p50, qp50)]
 
 maxq <- p50d_15[,
              .(maxq = max(p50),
@@ -171,14 +171,14 @@ pr <- s90[s40, on = "year", s40 := i.s40
 #   Charts
 #----------------------------------------------------------
 
-ggplot(data  = filter(dgr, gr == "gr9010"),
-       aes(
-         x = year,
-         y = value,
-         color = gr
-       )) +
-  geom_line() +
-  geom_point() +
-  theme_classic()
+# ggplot(data  = filter(dgr, gr == "gr9010"),
+#        aes(
+#          x = year,
+#          y = value,
+#          color = gr
+#        )) +
+#   geom_line() +
+#   geom_point() +
+#   theme_classic()
 
 
