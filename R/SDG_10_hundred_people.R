@@ -61,16 +61,15 @@ dfr <- read_rds("data/dfr.rds")
 #   Set up
 #----------------------------------------------------------
 
-c1 <- read_rds("data/recovered_dist.rds")$CRI2015national
+c1 <- read_rds("data/recovered_dist.rds")$CRI2018national
 c1$countrycode <- "CRI"
 
-c2 <- read_rds("data/recovered_dist.rds")$FIN2015national
+c2 <- read_rds("data/recovered_dist.rds")$FIN2018national
 c2$countrycode <- "FIN"
 
-c3 <- read_rds("data/recovered_dist.rds")$COL2015national
+c3 <- read_rds("data/recovered_dist.rds")$COL2018national
 c3$countrycode <- "COL"
 
-nq   <- 100 # No. of quantiles
 cf <- as.data.table(bind_rows(c1,c2, c3))
 
 cf <- cf[order(countrycode, welfare)
@@ -123,11 +122,24 @@ cts <- md[, cty]
 # Share of income
 #----------------------------------------------------------
 
+nq <- 100
+tl <- 2.5  # Tolerance
+cf[
+  ,
+  n := as.double(.N/(nq)),
+  by = .(countrycode)
+  ][
+    ,
+    nq := if_else(n > (tl), (nq),
+                  ceiling( ((nq)*n) / (tl))
+    )
+    ]
+
 df <- cf[
   order(countrycode, welfare)
   ][,
     pc := cut(x = headcount,
-              breaks = seq(0, 1, by = 1/nq),
+              breaks = seq(0, 1, by = 1/min(nq)),
               labels = FALSE),
     by = .(countrycode)
     ][ ,
@@ -164,43 +176,182 @@ df <- cf[
               order(countrycode, pc, Sy)
               ]
 
+# Add variable for cummulative income
+df[ ,
+    qc := factor(
+      if_else(between(CSy, 0, .2), 1,
+              if_else(between(CSy, .2, .4, incbounds = FALSE), 2,
+                      if_else(between(CSy, .4, .6), 3,
+                              if_else(between(CSy, .6, .8, incbounds = FALSE), 4,5)
+                      )
+              )
+      ),
+      labels = c("< 20%", "< 40%", "< 60%", "< 80%", "< 100%")
+    )
+    ]
+
 #--------- Make sure Pens parade holds
 # given that the distribution was recoevered, it could be the case that some
 # particular rates are just simply not avaialble in the distribution and thus
 # it is impossible to know some values
 
-df <- df[order(countrycode, pc),
-   lagSy := Sy - shift(Sy,
-                       n = 1,
-                       fill = 0,
-                       type = "lag"),
+#--------- Share of welfare
+
+# lagged and lead obs
+df[order(countrycode, pc),
+  `:=`(lgSy = shift(Sy,
+                  n = 1,
+                  fill = 0,
+                  type = "lag"),
+       ldSy = shift(Sy,
+                     n = 1,
+                     fill = 0,
+                     type = "lead"),
+       ld2Sy = shift(Sy,
+                    n = 2,
+                    fill = 0,
+                    type = "lead"),
+       i     = .I
+       ),
    by = .(countrycode)
-   ][,
-     Sy := if_else(lagSy < 0, shift(Sy, n = 1, fill = 0, type = "lag")  #previous observation
-                   + 0.005*Sy,                                 # plus some difference
-                   Sy),
-     by = .(countrycode)
-     ]
+   ]
+
+# Get differences
+df[
+  ,
+  c("dlgSy", "dldSy", "dld2Sy") := {
+    dlgSy  <- Sy   - lgSy
+    dldSy  <- Sy   - ldSy
+    dld2Sy <- ldSy - ld2Sy
+    list(dlgSy, dldSy, dld2Sy)
+  }
+]
+
+# Fix problematic cases
+
+df[
+  ,
+  Sy := if_else(dldSy > 0 & ldSy != 0, (ldSy + lgSy)/2,
+                 if_else(dld2Sy > 0 & dld2Sy <= abs(dldSy), Sy + abs(dld2Sy)*.99,
+                         Sy)
+                 ),
+  by = .(countrycode)
+  ]
+
+#--------- welfare
+
+# lagged and lead obs
+df[order(countrycode, pc),
+  `:=`(lgwelfare = shift(welfare,
+                  n = 1,
+                  fill = 0,
+                  type = "lag"),
+       ldwelfare = shift(welfare,
+                     n = 1,
+                     fill = 0,
+                     type = "lead"),
+       ld2welfare = shift(welfare,
+                    n = 2,
+                    fill = 0,
+                    type = "lead"),
+       i     = .I
+       ),
+   by = .(countrycode)
+   ]
+
+# Get differences
+df[
+  ,
+  c("dlgwelfare", "dldwelfare", "dld2welfare") := {
+    dlgwelfare  <- welfare   - lgwelfare
+    dldwelfare  <- welfare   - ldwelfare
+    dld2welfare <- ldwelfare - ld2welfare
+    list(dlgwelfare, dldwelfare, dld2welfare)
+  }
+]
+
+# Fix problematic cases
+
+df[
+  ,
+  welfare := if_else(dldwelfare > 0 & ldwelfare != 0, (ldwelfare + lgwelfare)/2,
+                 if_else(dld2welfare > 0 & dld2welfare <= abs(dldwelfare), welfare + abs(dld2welfare)*.99,
+                         welfare)
+                 ),
+  by = .(countrycode)
+  ]
+
+df <- df[, .(countrycode, pc, headcount, Sy, welfare, qc)]
 
 
-pens <- ggplot(
-  data = df[countrycode == "COL"],
-  aes(
-    x = as.factor(headcount),
-    y = Sy
-  )
-) +
-  geom_bar(stat = "identity")
+# gtest <- ggplot(
+#   data = df[countrycode == "FIN"],
+#   aes(
+#     x = as.factor(headcount),
+#     y = Sy,
+#     fill = qc
+#   )
+# ) +
+#   geom_bar(stat  = "identity")+
+#   theme_classic() +
+#   theme(
+#     legend.title =  element_blank(),
+#     axis.text.x = element_blank()
+#   ) +
+#   labs(
+#     y = "Share of total income",
+#     x = "Percentile"
+#   ) +
+#   scale_y_continuous(labels = scales::percent)
+#
+# plotly::ggplotly(gtest)
+#
 
-plotly::ggplotly(pens)
 
-pens <- ggplot(
-  data = cf,
-  aes(
-    x = as.factor(headcount),
-    y = welfare
-  )
-) +
-  geom_bar(stat = "identity")
 
-plotly::ggplotly(pens)
+# [order(countrycode, headcount)
+#        ][,
+#          hc := factor(headcount, headcount)
+#        ]
+
+
+# ggplot(
+#   data = df[countrycode == "COL"],
+#   aes(
+#     x = as.factor(headcount),
+#     y = Sy,
+#     fill = qc
+#   )
+# ) +
+#   geom_bar(stat = "identity")+
+#   theme_classic() +
+#   theme(
+#     legend.title =  element_blank(),
+#     axis.text.x = element_blank()
+#   ) +
+#   labs(
+#     y = "Share of total income",
+#     x = "Percentile"
+#   ) +
+#   scale_y_continuous(labels = scales::percent)
+#
+# ggplot(
+#   data = df[countrycode == "FIN"],
+#   aes(
+#     x = as.factor(headcount),
+#     y = welfare,
+#     fill = qc
+#   )
+# ) +
+#   geom_bar(stat = "identity")+
+#   theme_classic() +
+#   theme(
+#     legend.title =  element_blank(),
+#     axis.text.x = element_blank()
+#   ) +
+#   labs(
+#     y = "Daily income",
+#     x = "Percentile"
+#   ) +
+#   scale_y_continuous(labels = scales::dollar)
+#

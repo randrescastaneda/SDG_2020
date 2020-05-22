@@ -18,6 +18,7 @@ output:
 options(htmltools.dir.version = FALSE)
 library(knitr)
 library(scales)
+library(ggpubr)
 
 knitr::opts_chunk$set(
   warning = FALSE,
@@ -192,7 +193,7 @@ pcf <- ggplot(data = filter(cf, welfare < 100,
   ) +
   labs(y = "Population",
        x = "Daily income")
-
+pcf
 
 ```
 ]
@@ -240,7 +241,7 @@ pcfc <- ggplot(data = filter(cf, welfare < 100),
   labs(y = "Population",
        x = "Daily income")
 
-
+pcfc
 ```
 ]
 ---
@@ -259,14 +260,234 @@ pcfc
 class: middle, center
 
 ### We need to compare distributions in a different way
+---
+.left-column[
+.big[Instead of stacking people, let's represent the population with 100 people from the poorest to the richest. The size of the bars represents the amount of money that each person has.]
+]
+.right-column[
+```{r crim}
 
+wcri <- ggplot(
+  data = df[countrycode == "CRI"],
+  aes(
+    x = as.factor(headcount),
+    y = welfare,
+    fill = qc
+  )
+) +
+  geom_bar(stat = "identity")+
+  theme_classic() +
+  theme(
+    legend.title =  element_blank(),
+    axis.text.x = element_blank()
+  ) +
+  labs(
+    y = "Daily income",
+    x = "Percentile", 
+    title = "Costa Rica"
+  ) +
+  scale_y_continuous(labels = scales::dollar)
+
+wcol <- ggplot(
+  data = df[countrycode == "COL"],
+  aes(
+    x = as.factor(headcount),
+    y = welfare,
+    fill = qc
+  )
+) +
+  geom_bar(stat = "identity")+
+  theme_classic() +
+  theme(
+    legend.title =  element_blank(),
+    axis.text.x = element_blank()
+  ) +
+  labs(
+    y = "Daily income",
+    x = "Percentile", 
+    title = "Colombia"
+  ) +
+  scale_y_continuous(labels = scales::dollar)
+
+wfin <- ggplot(
+  data = df[countrycode == "FIN"],
+  aes(
+    x = as.factor(headcount),
+    y = welfare,
+    fill = qc
+  )
+) +
+  geom_bar(stat = "identity")+
+  theme_classic() +
+  theme(
+    legend.title =  element_blank(),
+    axis.text.x = element_blank()
+  ) +
+  labs(
+    y = "Daily income",
+    x = "Percentile", 
+    title = "Findland"
+  ) +
+  scale_y_continuous(labels = scales::dollar)
+
+wcri
+
+```
+]
 
 ---
+.left-column[
+.big[Under this approach, we can see that Costa Rica is Richer than Colombia in all its population and slightly less unequal. A higher proportion of the population has larger shared of total income.]
+]
+.right-column[
+```{r cricolm}
+mxwelfare <- df[countrycode != "FIN", max(welfare)]
+
+
+ggarrange(
+  wcol +
+  scale_y_continuous(labels = scales::dollar, 
+                     limits = c(0, mxwelfare)), 
+  wcri +
+  scale_y_continuous(labels = scales::dollar, 
+                     limits = c(0, mxwelfare)) +
+  theme(axis.title.y = element_blank()), 
+          ncol = 2, nrow =1, 
+          common.legend = TRUE, 
+          hjust = -1)
+```
+]
+---
+.left-column[
+.big[Yet, none of these two countries compare with the level of income and relatively more equalitarian distribution than Findland
+]
+]
+.right-column[
+```{r ccfm}
+mxwelfare <- df[, max(welfare)]
+
+pccfm <- ggarrange(
+  wcol +
+  scale_y_continuous(labels = scales::dollar, 
+                     limits = c(0, mxwelfare)), 
+  wcri +
+  scale_y_continuous(labels = scales::dollar, 
+                     limits = c(0, mxwelfare)) +
+  theme(axis.title.y = element_blank()), 
+  wfin +
+  scale_y_continuous(labels = scales::dollar, 
+                     limits = c(0, mxwelfare)) +
+  theme(axis.title.y = element_blank()),
+          ncol = 3, nrow =1, 
+          common.legend = TRUE, 
+          hjust = -1)
+pccfm
+```
+]
+---
+.left-column[
+.big[Income levels, however, may distort inequality comparisons as their nominal values do not allow us to see the distribution.
+]
+]
+.right-column[
+```{r ccfm2}
+pccfm
+```
+]
+---
+.left-column[
+.big[Thus, it is better to see the share of income that each person has. In this case we can see how unequal the distribution of Colombia is in comparison to Findland's]
+]
+.right-column[
+```{r ccfsy}
+mxSy <- df[, max(Sy)]
+
+ccol <- ggplot(
+  data = df[countrycode == "COL"],
+  aes(
+    x = as.factor(headcount),
+    y = Sy,
+    fill = qc
+  )
+) +
+  geom_bar(stat  = "identity")+
+  theme_classic() +
+  theme(
+    legend.title =  element_blank(),
+    axis.text.x = element_blank()
+  ) +
+  labs(
+    y = "Share of total income",
+    x = "Percentile"
+  ) +
+  scale_y_continuous(labels = scales::percent, 
+                     limits = c(0, mxSy))
+
+ccri <- ggplot(
+  data = df[countrycode == "CRI"],
+  aes(
+    x = as.factor(headcount),
+    y = Sy,
+    fill = qc
+  )
+) +
+  geom_bar(stat  = "identity")+
+  theme_classic() +
+  theme(
+    legend.title =  element_blank(),
+    axis.text.x = element_blank(), 
+    axis.title.y = element_blank()
+  ) +
+  labs(
+    y = "Share of total income",
+    x = "Percentile"
+  ) +
+  scale_y_continuous(labels = scales::percent, 
+                     limits = c(0, mxSy))
+
+
+cfin <- ggplot(
+  data = df[countrycode == "FIN"],
+  aes(
+    x = as.factor(headcount),
+    y = Sy,
+    fill = qc
+  )
+) +
+  geom_bar(stat  = "identity")+
+  theme_classic() +
+  theme(
+    legend.title =  element_blank(),
+    axis.text.x = element_blank(), 
+    axis.title.y = element_blank()
+  ) +
+  labs(
+    y = "Share of total income",
+    x = "Percentile"
+  ) +
+  scale_y_continuous(labels = scales::percent, 
+                     limits = c(0, mxSy))
+
+ggarrange(ccol, ccri, cfin, 
+          labels = c("Colombia", "Costa Rica", "Findland"),
+          ncol = 3, nrow =1, 
+          common.legend = TRUE, 
+          hjust = -1)
+
+
+
+```
+]
+---
+class: middle, center
+
+### If we want to compare all the countries we can see the well-known measure, Gini coefficient. 
+
 ```{r ginichange}
 source("R/SDG_10_Gini_Change.R")
 
 ```
-
+---
 .left-column[
 .big[In this chart we can see the Gini coefficient of all countries from 2000 to 2018. If the dot is below the line, inequality has decreased during this period. If it is above the line, inequality has increased.]
 
@@ -689,7 +910,46 @@ source("R/SDG_10_global_ineq_between_countries.R")
 
 ---
 .left-column[
-.big[This is the distribution of all the medians of the world in 2015. 
+.big[Remember this chart?]
+]
+.right-column[
+```{r p50cri}
+wcri
+```
+]
+---
+.left-column[
+.big[Let's get income of the the person that is right in the middle of the distribution. That value is known as the median.]
+]
+.right-column[
+```{r p50cri2}
+h50 <- df[countrycode == "CRI"
+   ][,
+     p50 := abs(.5 - headcount)
+     ][
+       p50 == min(p50)
+     ]
+
+wcri +
+ggrepel::geom_label_repel(
+  data = h50,
+  aes(label = scales::dollar(welfare)),
+  show.legend = FALSE,
+  force = 20,
+  box.padding = 1.2,
+  # max.overlaps = 2,
+  segment.curvature = 0.5,
+  # segment.ncp = 3,
+  # segment.angle = 20,
+  nudge_y = 5
+)
+```
+]
+---
+.left-column[
+.big[Now, let's do the same for all the countries in the world and stack them up again according to their incomes.
+
+This is the distribution of all the medians of the world in 2015. 
 
 Each median reprsents the level of welfare of each country]
 ]
