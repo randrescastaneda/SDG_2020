@@ -124,7 +124,7 @@ ggplot(data = filter(cf, welfare < 100,
 
 This is the distribution of Costa Rica 
 
-and this is the one for Findland
+and this is the one for Finland
 ]
 ]
 .right-column[
@@ -158,11 +158,11 @@ ggplot(data = filter(cf, welfare < 100,
 
 ---
 .left-column[
-It is relatively easy to see that the distribution of Findland is more equalitarian than the one in Costa Rica. we can see several things
+It is relatively easy to see that the distribution of Finland is more equalitarian than the one in Costa Rica. we can see several things
 
 - Most people in Costa Rica live below $25 to $30 dollars a day. 
-- Findland distribution has a wider bell, whereas Costa Rica's bell is more contracted towards the left side of the distribution
-- The typical person in Findland has higher income than the typical person in Costa Rica. 
+- Finland distribution has a wider bell, whereas Costa Rica's bell is more contracted towards the left side of the distribution
+- The typical person in Finland has higher income than the typical person in Costa Rica. 
 
 ]
 .right-column[
@@ -246,7 +246,7 @@ pcfc
 ]
 ---
 .left-column[
-.big[We lose the capacity to compare distributions because the population of Colombia is almost ten times higher than the one in Findland or Costa Rica.  
+.big[We lose the capacity to compare distributions because the population of Colombia is almost ten times higher than the one in Finland or Costa Rica.  
 ]
 ]
 .right-column[
@@ -326,7 +326,7 @@ wfin <- ggplot(
   labs(
     y = "Daily income",
     x = "Percentile", 
-    title = "Findland"
+    title = "Finland"
   ) +
   scale_y_continuous(labels = scales::dollar)
 
@@ -359,7 +359,7 @@ ggarrange(
 ]
 ---
 .left-column[
-.big[Yet, none of these two countries compare with the level of income and relatively more equalitarian distribution than Findland
+.big[Yet, none of these two countries compare with the level of income and relatively more equalitarian distribution than Finland
 ]
 ]
 .right-column[
@@ -396,7 +396,7 @@ pccfm
 ]
 ---
 .left-column[
-.big[Thus, it is better to see the share of income that each person has. In this case we can see how unequal the distribution of Colombia is in comparison to Findland's]
+.big[Thus, it is better to see the share of income that each person has. In this case we can see how unequal the distribution of Colombia is in comparison to Finland's]
 ]
 .right-column[
 ```{r ccfsy}
@@ -469,7 +469,7 @@ cfin <- ggplot(
                      limits = c(0, mxSy))
 
 ggarrange(ccol, ccri, cfin, 
-          labels = c("Colombia", "Costa Rica", "Findland"),
+          labels = c("Colombia", "Costa Rica", "Finland"),
           ncol = 3, nrow =1, 
           common.legend = TRUE, 
           hjust = -1)
