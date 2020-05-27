@@ -1,0 +1,96 @@
+---
+title: Goal 10. Reduce inequalities
+subtitle: 
+author: R.Andres Castaneda
+date: Created `r Sys.Date()`
+output:
+  redoc::redoc:
+    reference_docx: template.docx
+    highlight_outputs: yes
+    margins: 1
+    line_numbers: no
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+knitr::opts_chunk$set(
+  collapse   = TRUE,
+  warning    = FALSE,
+  message    = FALSE,
+  echo       = FALSE,
+  fig.retina = 3 
+  # fig.width  = 8,
+  # fig.align  = "center"
+)
+knitr::opts_knit$set(
+  root.dir = ".."
+)
+```
+
+```{r calculations, echo=FALSE}
+library("english")
+library("scales")
+library("tidyverse")
+library("stringi")
+library("ggplot2")
+library("ggpubr")
+
+source("R/SDG_10_non_monetary_Growth.R")
+
+options(scipen=1, digits=2)
+
+```
+
+Social protection policies
+===============================
+
+Goal 10 supports the adoption  of policies that progressively achieve greater equality. Social safety net programs are increasing popular policies to address the fight against poverty and inequality. If properly implemented, safety nets can enhance people to escape poverty and increase the resilience of vulnerable people facing a hard time. Considering the countries with enough data, the coverage of the safety net programs for each quintile of income from the poorest to the richest are `r  stri_replace_last(str_c(aggregate( value ~ quintile, coverd, function(x) c(mean = round(mean(x, na.rm=TRUE), 2)), na.action = na.pass )$value, collapse = "%, "), replacement = c(" and"), regex = ",")`%, respectively.  The poorest being more widely covered is desirable, which effectively happens. Moreover, in average, the coverage gets reduced as the income increases. 
+
+Analysing the trend in time may be valuable. Figure 1 shows how the coverage of the safety net programs has growth in 10 years in different income groups. Overall a steady growth in coverage for all groups of income is observed, however the poorest do not seem to be attaining coverage much faster than the wealthy. For the poorest the average annual coverage growth was `r paste0(round(mean(coverd[coverd$indicatorID == "per_sa_allsa.cov_q1_tot",]$growth), digits = 2), "%")`, meanwhile for the richest was `r paste0(round(mean(coverd[coverd$indicatorID == "per_sa_allsa.cov_q5_tot",]$growth), digits = 2), "%")`. The countries in which the poorest population coverage increased the most rapidly were `r  stri_replace_last(str_c(unique(top_n(n = 3*2, as.data.frame(coverd[coverd$indicatorID == "per_sa_allsa.cov_q1_tot",]) , wt = growth)$country), collapse = ", "), replacement = c(" and"), regex = ",")`, while in `r  stri_replace_last(str_c(unique(top_n(n = -3*2, as.data.frame(coverd[coverd$indicatorID == "per_sa_allsa.cov_q1_tot",]) , wt = growth)$country), collapse = ", "), replacement = c(" and"), regex = ",")` they experienced the slowest.
+ 
+```{r, fig.width = 12, fig.asp=0.3}
+plot(SPcover)
+```
+
+Concerning the safety net programs redistributive capacity, on average their incidence for the poorest quintile is `r round(mean(incd$v2017, na.rn=T), digits=2)`, experiencing a mean annual growth of `r round(mean(incd$growth, na.rm=T), digits=2)`. Interestingly the average annual growth of the bottom 10 countries in 2007 is `r round(mean((top_n(incd, wt = v2007, n = -10))$growth), digits=2)`, while the growth rate for the top 10 is `r round(mean((top_n(incd, wt = v2007, n = 10))$growth), digits = 2)`. Hence, the countries with the lowest initial incidence are increasing in average their focus to the poor, while the countries that a decade ago had programs better targeting the poorer segments of the population, are decreasing their incidence. Figure 2 shows the annual growth of the safety net programs incidence over the poorest segment of the population and its relationship with the initial incidence. 
+
+
+```{r, fig.width = 12, fig.asp=0.3}
+plot(SPinc)
+```
+
+The Country Policy and Institutional Assessment (CPIA) intends to capture the quality of a country's policies and institutional arrangements, focusing on central elements under the country's control, and rates the countries between 1 (low) and 6 (high), depending on the assess quality of their policies. The assessment is grouped in several key topics, including social protection and labour policies. For the group of countries with an assessment, figure 3 shows the rating in 2007 and 2017. In 2007 the average rating was `r round(mean(CPIss$v2007), digits=2)`, this `r ifelse(round(mean(CPIss$v2007), digits=2) > round(mean(CPIss$v2017), digits=2), "decreased", "increased")` to `r round(mean(CPIss$v2017), digits=2)` in 2017. This `r ifelse(abs(mean(CPIss$v2017)-mean(CPIss$v2007)) < 1, "small change", "change")` is driven by `r nrow(CPIss[CPIss$change > 0,])` countries securing a better rating of their policies, and  `r nrow(CPIss[CPIss$change < 0,])` obtaining lower ratings of their social protection and labour policies. `r ifelse(nrow(CPIss[CPIss$change == 0,])>(nrow(CPIss)/3), "Many","Some")` countries kept their rating unchanged, suggesting a lack of meaningful advance on their social policies and labour regulations.
+
+```{r, fig.width = 6, fig.asp=1.6}
+plot(SPcpi)
+```
+
+
+Remittences
+=====================
+
+
+
+```{r, fig.width = 12, fig.asp=0.8}
+plot(premit)
+```
+
+
+```{r, fig.width = 12, fig.asp=0.8}
+plot(premitc)
+```
+
+
+Social Inclusion
+====================
+
+```{r, fig.width = 6, fig.asp=1.6}
+plot(pincCPI)
+```
+
+International Aid
+===================
+
+```{r, fig.width = 12, fig.asp=0.8}
+plot(pAID)
+```
