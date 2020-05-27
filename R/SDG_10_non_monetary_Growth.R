@@ -1,6 +1,6 @@
 # Growth Incidence Curve social programs 
 
-setwd("C:/Users/wb562350/OneDrive - WBG/Documents/Git/Research/SDG_2020")
+#setwd("C:/Users/wb562350/OneDrive - WBG/Documents/Git/Research/SDG_2020")
 
 library(wbstats)
 library(tidyverse)
@@ -70,9 +70,7 @@ coverind <- c("per_sa_allsa.cov_q1_tot",
              "per_sa_allsa.cov_q2_tot",
              "per_sa_allsa.cov_q3_tot",
              "per_sa_allsa.cov_q4_tot",
-             "per_sa_allsa.cov_q5_tot",
-             "SI.RMT.COST.OB.ZS",
-             "SI.RMT.COST.IB.ZS")
+             "per_sa_allsa.cov_q5_tot")
 
 coverd <-  WDI %>%
   filter(indicatorID %in% coverind) %>% 
@@ -81,28 +79,30 @@ coverd <-  WDI %>%
   filter(countrycode != "CMR") # Odd value in Cameron 
 
 
-footnote <-  str_remove_all("Percentage of population per quintile participating in cash transfers and last resort 
+footnote <-  str_remove_all("Coverage as Percentage of population per quintile participating in cash transfers and last resort 
   programs, noncontributory social pensions, other cash transfers programs (child, family 
   and orphan allowances, birth and death grants, disability benefits, and other allowances), 
   conditional cash transfers, in-kind food transfers (food stamps and vouchers, food rations,
   supplementary feeding, and emergency food distribution), school feeding, other social
   assistance programs (housing allowances, scholarships, fee waivers, health subsidies, 
   and other social assistance) and public works programs (cash for work and food for work).
-  Estimates include both direct and indirect beneficiaries.", "\n")
-
+  Estimates include both direct and indirect beneficiaries. Average compound annual growth rate.", "\n")
+ 
 # plot
-heat <- ggplot(coverd,aes(countrycode, quintile) ) +
+SPcover <- ggplot(coverd,aes(countrycode, quintile) ) +
   geom_tile(aes(fill= growth)) +
   scale_fill_distiller(palette = "RdBu",  limits=c(-40, 40), breaks=seq(-40,40,by=10)) +
-  labs(title = "Coverage of social safety net programs", 
+  labs(title = "Annual Growth in coverage of social safety net programs", 
   subtitle = "in quintile (% of population)",
   caption = str_wrap(footnote, width = 200) ) +
   theme(
-    plot.caption = element_text(hjust = 0)
+    plot.caption = element_text(hjust = 0),
+    plot.caption.position =  "plot",
+    plot.title.position = "plot"
   ) +
   xlab("")
   
-heat
+SPcover
 
 #### Target 10.4 - Social Protection: compare incidence in the lowest quintile ####
 
@@ -114,15 +114,51 @@ incd <- WDI%>%
   ungroup() %>% 
   mutate(id = row_number()) %>% 
   filter(countrycode != "CMR") # Odd value in Cameron 
-  
 
-ggplot(incd, aes(x = v2007, y = growth, size = v2007, color = incomegroup, label = countrycode)) +
-  geom_point() +
-  geom_text(hjust=1.5, vjust=0.7, size = 3, angle = 0, alpha = 0.8)+
+footnote <-  str_remove_all("Benefit incidence of social safety net programs to poorest quintile shows the
+                            percentage of total social safety net benefits received by the poorest 20% of 
+                            the population.", "\n")
+
+lm_fit <- lm(growth ~ v2007, data=incd)
+# save predictions of the model in the new data frame 
+# together with variable you want to plot against
+predicted_df <- data.frame(growth_pred = predict(lm_fit, incd), v2007=incd$v2007)
+
+
+SPinc <- ggplot(incd, aes(x = v2007, y = growth)) +
+  geom_point(aes( color = incomegroup)) +
+  geom_line(color='blue',data = predicted_df, aes(x=v2007, y=growth_pred), alpha = 0.2, size = 1.4) +
+  geom_text( aes(label = countrycode, color = incomegroup), hjust=1.5, vjust=0.7, size = 3, angle = 0, alpha = 0.8)+
   xlab("Initial incidence") +
-  ylab("Annual Growth")
+  ylab("Annual Growth")+
+  labs(title = "Annual Growth in incidence of social safety net programs", 
+       subtitle = "Poorest quintile of the population",
+       color = "Income Group",
+       caption = str_wrap(footnote, width = 200)) +
+  theme_minimal() +
+  theme(
+  plot.caption = element_text(hjust = 0),
+  plot.caption.position =  "plot",
+  plot.title.position = "plot"
+  )
 
 #### Target 10.4 - Social Protection: CPI social protection rating ####
+
+
+footnote <- str_remove_all("Social protection and labor assess government policies in social
+             protection and labor market regulations that reduce the risk of becoming poor,
+             assist those who are poor to better manage further risks, and ensure a minimal
+             level of welfare to all people. All criteria within each cluster receive equal weight,
+                           and each cluster has a 25 percent weight in the overall score, which is 
+                           obtained by averaging the average scores of the four clusters. For each of 
+                           the 16 criteria countries are rated on a scale of 1 (low) to 6 (high). 
+                           The scores depend on the level of performance in a given year assessed 
+                           against the criteria, rather than on changes in performance compared 
+                           with the previous year. The CPIA exercise is intended to capture the 
+                           quality of a country's policies and institutional arrangements,
+                           focusing on key elements that are within the country's control, 
+                           rather than on outcomes (such as economic growth rates) that are 
+                           influenced by events beyond the country's control.", "\n")
 
 CPIss <- WDI %>% 
   filter(indicatorID == "IQ.CPA.PROT.XQ") %>% 
@@ -134,21 +170,27 @@ CPIss <- WDI %>%
   spread("Year", "value") %>% 
   mutate(change = v2017 - v2007)
 
-CPIss %>%
+SPcpi <- CPIss %>%
   group_by(countrycode) %>% 
   filter(row_number()==n()) %>% 
   ungroup() %>% 
   mutate(country = fct_reorder(countryname, change)) %>% 
   ggplot() +
-  geom_bar(aes(x = country, y=v2017), stat = "identity", alpha = 0.6 , fill= "orange2") +
-  geom_bar(aes(x = country, y=v2007), stat = "identity", alpha = 0.6 , fill= "blue4") +
-  scale_y_continuous(expand = c(0,0), breaks = scales::pretty_breaks(n = 10)) + theme_tufte() +
-  xlab("") +
-  ylab("Score")
-  coord_flip()
-# theme(
-#   axis.text = element_text(angle=90)
-# )
+  geom_bar(aes(y = country, x=v2017), stat = "identity", alpha = 0.6 , fill= "navy") +
+  geom_bar(aes(y = country, x=v2007), stat = "identity", alpha = 0.6 , fill= "red2") +
+  scale_x_continuous(limits = c(0,7), expand = c(0,-1)) +
+  ylab("") +
+  xlab("Score") +
+  labs(title = "CPIA social protection rating",
+       subtitle = "(1=low to 6=high)",
+       caption = str_wrap(footnote, width = 100)
+  ) +
+  theme_minimal() +
+  theme(
+    plot.caption = element_text(hjust = 0),
+    plot.caption.position =  "plot",
+    plot.title.position = "plot"
+  )
 
 #### Target 10.c - Remitance Costs ####
 
@@ -220,7 +262,12 @@ prf <-  remit_from %>%
      ylab("% of percentage of the amount sent") +
      labs(title = "Cost of sending remittances from", 
           subtitle = "Cost as percentage of the amount sent for sending USD 200")+
-     scale_y_continuous(expand = c(0,0), breaks = scales::pretty_breaks(n = 10)) + theme_tufte()
+     scale_y_continuous(expand = c(0,0), breaks = scales::pretty_breaks(n = 10)) + theme_tufte() +
+  theme(
+    axis.text = element_text(size = 8)
+  )
+
+
    
 
 # to 
@@ -241,13 +288,17 @@ prt <-  remit_to %>%
       labs(title = "Cost of sending remittances to", 
            subtitle = "Cost as percentage of the amount sent for sending USD 200")+
       scale_y_continuous(expand = c(0,0), breaks = scales::pretty_breaks(n = 10)) +
-      theme_tufte()
-      # theme(
-      #   axis.text = element_text(angle = 90)
-      # )# 
+      theme_tufte() +
+      theme(
+        axis.text = element_text(size = 6)
+      )
+
+
+
+
  
  
-ggarrange(prf, prt, ncol = 2, nrow = 1)
+premit <- ggarrange(prf, prt, ncol = 2, nrow = 1)
 
 ## plot change remitance cost 
 
@@ -266,7 +317,10 @@ prfg <-  remit_from %>%
       ylab("% Annual Cost Growth") +
       labs(title = "Compound annual cost growth of sending remittances from", 
            subtitle = "Cost as percentage of the amount sent for sending USD 200")+
-      scale_y_continuous(expand = c(0,0), breaks = scales::pretty_breaks(n = 10)) + theme_tufte()
+      scale_y_continuous(expand = c(0,0), breaks = scales::pretty_breaks(n = 10)) + theme_tufte() +
+  theme(
+    axis.text = element_text(size = 8)
+  )
 
 prtg <-  remit_to %>%
   group_by(countrycode) %>% 
@@ -281,13 +335,13 @@ prtg <-  remit_to %>%
       ylab("% Annual Cost Growth") +
       labs(title = "Compound annual cost growth of sending remittances to", 
            subtitle = "Cost as percentage of the amount sent for sending USD 200")+
-      scale_y_continuous(expand = c(0,0), breaks = scales::pretty_breaks(n = 10)) + theme_tufte()
+      scale_y_continuous(expand = c(0,0), breaks = scales::pretty_breaks(n = 10)) + theme_tufte() +
+  theme(
+        axis.text = element_text(size = 6)
+      )
 
 
-ggarrange(prfg, prtg, ncol = 2, nrow = 1)
-
-
-
+premitc <- ggarrange(prfg, prtg, ncol = 2, nrow = 1)
 
 
 
@@ -304,7 +358,7 @@ CPIinc <- WDI %>%
   spread("Year", "value") %>% 
   mutate(change = v2017 - v2007)
 
-CPIinc %>%
+pincCPI <- CPIinc %>%
   group_by(countrycode) %>% 
   filter(row_number()==n()) %>% 
   ungroup() %>% 
@@ -340,7 +394,7 @@ AID <- WDI %>%
 # The goal cares for the porest nations, let's create separate dataset with the data for the lower income nations
 
 
-AID %>%
+pAID <- AID %>%
   filter(incomegroup != "High income") %>% 
   group_by(countrycode) %>% 
   filter(row_number()==n()) %>% 
