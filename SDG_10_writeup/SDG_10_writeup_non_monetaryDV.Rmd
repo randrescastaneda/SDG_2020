@@ -35,6 +35,13 @@ library("stringi")
 library("ggplot2")
 library("ggpubr")
 
+source("R/get_WDI.R")
+
+# setwd("..")
+get_WDI(indicator = "BX.TRF.PWKR.CD.DT", circayr = 2017, cb = F)
+data_remit <-  WDI
+rm(WDI)
+
 source("R/SDG_10_non_monetary_Growth.R")
 
 options(scipen=1, digits=2)
@@ -66,14 +73,18 @@ plot(SPcpi)
 ```
 
 
-Remittences
+Remittances
 =====================
 
+During 2017, an estimate of \$`r sum(data_remit$BX.TRF.PWKR.CD.DT)/(10^9)` billion dollars was sent as remittances across the globe. From the total of remittances  `r ((sum(data_remit[data_remit$incomegroup == 'Low income' | data_remit$incomegroup == 'Lower middle income', ]$BX.TRF.PWKR.CD.DT)/(10^9)) / (sum(data_remit$BX.TRF.PWKR.CD.DT)/(10^9)))*100`% were sent to low income and lower-middle income countries; being the lower income countries the top recipients.
 
+The cost of sending money abroad can be very high, and especially harsh for low income workers sending money to their families back home, as the associated cost of sending money can be substantial compared to the amount sent. The high cost of remittances is often a source of inequality, hence the goal 10 seeks to reduce the cost of remitting money abroad to less to 3 percent, however we still far to accomplish such goal. By 2017, for the countries with enough data, the cost of sending 200 USD was on average `r mean(remit_from[remit_from$year == 2017,]$value)`% of the sent value. The most expensive countries to send remittances from are `r stri_replace_last(str_c(unique((top_n(as.data.frame(remit_from[remit_from$year==2017,]), n=3, wt = value))$countryname), collapse = ", "), replacement = c(" and"), regex = ",")`, and among the high-income countries `r stri_replace_last(str_c(unique((top_n(as.data.frame(remit_from[remit_from$year==2017 & remit_from$incomegroup == "High income",]), n=3, wt = value))$countryname), collapse = ", "), replacement = c(" and"), regex = ",")` have the higher remittances cost. Meanwhile, workers sending money to `r stri_replace_last(str_c(unique((top_n(as.data.frame(remit_to[remit_from$year==2017,]), n=3, wt = value))$countryname), collapse = ", "), replacement = c(" and"), regex = ",")` are the ones facing the higher cost of to send money back to their families.
 
 ```{r, fig.width = 12, fig.asp=0.8}
 plot(premit)
 ```
+
+In the lapse of time from 2011 to 2017, the 2011's average fare of `r mean(remit_from[ remit_from$year==2011 | remit_from$year==2012,]$value)`% was annually `r ifelse(mean(remit_from[ remit_from$year==2011 | remit_from$year==2012,]$value) >  mean(remit_from[remit_from$year == 2017,]$value), "reduced", "increased") ` by an average of `r abs(mean(remit_from[remit_from$year == 2017 & remit_from$span > 5,]$growth))`% of the fare. `r stri_replace_last(str_c(unique((top_n(as.data.frame(remit_from[remit_from$year == 2017 & remit_from$span > 5,]), n=-3, wt = growth))$countryname), collapse = ", "), replacement = c(" and"), regex = ",")` are the countries with the higher annual average reduction on the remittances cost, while countries as `r stri_replace_last(str_c(unique((top_n(as.data.frame(remit_from[remit_from$year == 2017 & remit_from$span > 5,]), n=3, wt = growth))$countryname), collapse = ", "), replacement = c(" and"), regex = ",")` increased the cost of sending money abroad.
 
 
 ```{r, fig.width = 12, fig.asp=0.8}
@@ -84,6 +95,8 @@ plot(premitc)
 Social Inclusion
 ====================
 
+Social inclusion and anti-discriminatory policies and laws are important to achieve equal opportunities and to progressively reduce inequality. The Country Policy and Institutional Assessment (CPIA) considers a cluster of criteria regarding social inclusion and equity, and rates countries from 1 (low) to 6 (high) depending on the policies implemented on the country on such regards. For countries with enough data, `r nrow(CPIinc[CPIinc$change >0,])` countries improved their rating, by enhancing or implementing social inclusion polices, `r nrow(CPIinc[CPIinc$change ==0,])` did not have a significative improvement on their social inclusion polices, and `r nrow(CPIinc[CPIinc$change < 0,])` had an overall downgrade on the assessment of their social and anti-discriminatory policies. `r stri_replace_last(str_c(unique(top_n(as.data.frame(CPIinc), wt=change, n=3)$countryname), collapse = ", "), replacement = c(" and"), regex = ",")` were the countries that improved the most their policies on social inclusion and equity, while `r stri_replace_last(str_c(unique(top_n(as.data.frame(CPIinc), wt=change, n=-3)$countryname), collapse = ", "), replacement = c(" and"), regex = ",")` were the ones with the fewer advance in such matters. 
+
 ```{r, fig.width = 6, fig.asp=1.6}
 plot(pincCPI)
 ```
@@ -91,6 +104,9 @@ plot(pincCPI)
 International Aid
 ===================
 
-```{r, fig.width = 12, fig.asp=0.8}
+As part of the goal to reduce inequalities, the flow of aid to the countries in need is encourage. The average net official aid and development assistance received by a low-income country in 2007 was `r mean(AID[AID$incomegroup == "Low income",]$v2007)/(10^6)` million dollars\footnote{constant 2016 US Dollars}, `r mean(AID[AID$incomegroup == "Lower middle income",]$v2007)/(10^6)` million for a lower middle-income country and `r mean(AID[AID$incomegroup == "Upper middle income",]$v2007)/(10^6)` million for an upper middle income nation. The average net received aid `r ifelse(mean(AID$growth)>0,"increased","decreased")` by `r mean(AID$growth)`% annually. Being the low income countries to ones to observed to most rapid increase in flows, with an mean annual increase of `r mean(AID[AID$incomegroup == "Low income",]$growth)`%, receiving in average `r (mean(AID[AID$incomegroup == "Low income",]$v2017)/(10^9))` billion in 2017. Figure 7 shows the annual change in the received aid per country. Aid increased the most rapidly in `r stri_replace_last(str_c(unique(top_n(as.data.frame(AID), wt=growth, n=3)$countryname), collapse = ", "), replacement = c(" and"), regex = ",")` while it decreased the fastest in `r stri_replace_last(str_c(unique(top_n(as.data.frame(AID), wt=growth, n=-3)$countryname), collapse = ", "), replacement = c(" and"), regex = ",")`. From the `r nrow(AID[AID$incomegroup=="Low income",])` low-income countries with enough data `r nrow(AID[AID$incomegroup=="Low income" & AID$growth > 0,])` increased the amount of aid received, while at the same time `r (nrow(AID[AID$incomegroup=="Lower middle income" & AID$growth > 0,])/nrow(AID[AID$incomegroup=="Lower middle income",])) * 100`% and `r (nrow(AID[AID$incomegroup=="Upper middle income" & AID$growth > 0,])/nrow(AID[AID$incomegroup=="Upper middle income",]))*100`% of the lower and upper middle-income countries, observed an increase, respectively. Moreover, the mean annual growth rate of the lower-income countries was `r mean(AID[AID$incomegroup=="Low income",]$growth)/mean(AID[AID$incomegroup=="Upper middle income",]$growth)` times higher than on for the upper middle-income countries, and `r mean(AID[AID$incomegroup=="Low income",]$growth)/mean(AID[AID$incomegroup=="Lower middle income",]$growth)` times higher compared to the lower middle-income nations.
+
+
+```{r, fig.width = 12, fig.asp=1.5}
 plot(pAID)
 ```

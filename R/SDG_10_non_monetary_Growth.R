@@ -348,6 +348,21 @@ premitc <- ggarrange(prfg, prtg, ncol = 2, nrow = 1)
 
 #### Target 10.3  - CPIA policies for social inclusion/equity ####
 
+footnote <- str_remove_all("The policies for social inclusion and equity cluster includes gender equality,
+                          equity of public resource use, building human resources, social protection and labor, and policies and 
+                          institutions for environmental sustainability.
+                          . All criteria within each cluster receive equal weight,
+                           and each cluster has a 25 percent weight in the overall score, which is 
+                           obtained by averaging the average scores of the four clusters. For each of 
+                           the 16 criteria countries are rated on a scale of 1 (low) to 6 (high). 
+                           The scores depend on the level of performance in a given year assessed 
+                           against the criteria, rather than on changes in performance compared 
+                           with the previous year. The CPIA exercise is intended to capture the 
+                           quality of a country's policies and institutional arrangements,
+                           focusing on key elements that are within the country's control, 
+                           rather than on outcomes (such as economic growth rates) that are 
+                           influenced by events beyond the country's control.", "\n")
+
 CPIinc <- WDI %>% 
   filter(indicatorID == "IQ.CPA.SOCI.XQ") %>% 
   drop_na() %>% 
@@ -364,22 +379,41 @@ pincCPI <- CPIinc %>%
   ungroup() %>% 
   mutate(country = fct_reorder(countryname, change)) %>% 
   ggplot() +
-  geom_bar(aes(x = country, y=v2017), stat = "identity", alpha = 0.6 , fill= "orange2") +
-  geom_bar(aes(x = country, y=v2007), stat = "identity", alpha = 0.6 , fill= "blue4") +
-  scale_y_continuous(expand = c(0,0), breaks = scales::pretty_breaks(n = 10)) + theme_tufte() +
+  geom_bar(aes(x = country, y=v2017), stat = "identity", alpha = 0.6 , fill= "navy") +
+  geom_bar(aes(x = country, y=v2007), stat = "identity", alpha = 0.6 , fill= "red2") +
+  scale_y_continuous(limits = c(0,7), expand = c(0,-1)) +
   xlab("") +
   ylab("Score") +
-  coord_flip()
-  # theme(
-  #   axis.text = element_text(angle=90)
-  # )
-  
+  coord_flip() +
+  labs(title = "CPIA policies for social inclusion/equity cluster average",
+       subtitle = "(1=low to 6=high)",
+       caption = str_wrap(footnote, width = 100)
+  ) +
+  theme_minimal() +
+  theme(
+    plot.caption = element_text(hjust = 0),
+    plot.caption.position =  "plot",
+    plot.title.position = "plot"
+  )
 
 
 
 
 
 #### Target 10.b.1 Total resource flows for development, by recipient and donorcountries and type of flow ####
+
+footnote <- str_remove_all("	Net official development assistance is disbursement flows 
+                           (net of repayment of principal) that meet the DAC definition 
+                           of ODA and are made to countries and territories on the DAC 
+                           list of aid recipients. Net official aid refers to aid flows 
+                           (net of repayments) from official donors to countries and 
+                           territories in part II of the DAC list of recipients: more 
+                           advanced countries of Central and Eastern Europe, the countries 
+                           of the former Soviet Union, and certain advanced developing countries 
+                           and territories. Official aid is provided under terms and conditions
+                           similar to those for ODA. Part II of the DAC List was abolished in 2005.
+                           The collection of data on official aid and other resource flows to Part 
+                           II countries ended with 2004 data. Data are in constant 2016 U.S. dollars.", "\n")
 
 AID <- WDI %>% 
   filter(indicatorID == "DT.ODA.ALLD.KD") %>% 
@@ -407,13 +441,22 @@ pAID <- AID %>%
   geom_hline( yintercept =  mean(AID[AID$incomegroup=="Low income",]$growth, na.rm = T), color = "red") +
   geom_hline( yintercept =  mean(AID[AID$incomegroup=="Lower middle income",]$growth, na.rm = T), color = "darkgreen") +
   geom_hline( yintercept =  mean(AID[AID$incomegroup=="Upper middle income",]$growth, na.rm = T), color = "blue") +
-  scale_y_continuous(expand = c(0,0), breaks = scales::pretty_breaks(n = 10)) + theme_tufte() +
+  scale_y_continuous(expand = c(0,0), breaks = scales::pretty_breaks(n = 10)) + 
   xlab("") +
-  ylab("Score") +
-  coord_flip()
-# theme(
-#   axis.text = element_text(angle=90)
-# )
+  ylab("Annual Compound Growth %") +
+  coord_flip()+
+  labs(title = "Annual Growth Net official development assistance and official aid received",
+       subtitle = "(constant 2016 US$)",
+       caption = str_wrap(footnote, width = 200)
+  ) +
+  theme_tufte() +
+  theme(
+    plot.caption = element_text(hjust = 0),
+    plot.caption.position =  "plot",
+    plot.title.position = "plot",
+    axis.text = element_text(size = 8)
+  )
+
 
 
 
