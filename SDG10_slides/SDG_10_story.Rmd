@@ -59,6 +59,39 @@ class: middle, center
 ### Inequality within countries (Relative inequality)
 ---
 .left-column[
+.big[Let's start with perfect equality. here we represent the population with 100 people, from the poorest to the richest. The size of the bars represents the amount of money that each person has.]
+]
+.right-column[
+```{r pereq}
+mxwcri <- df[countrycode == "CRI"
+             ][, max(welfare)
+               ]
+
+ggplot(
+  data = pe,
+  aes(
+    x = as.factor(headcount),
+    y = welfare,
+    fill = qc
+  )
+) +
+  geom_bar(stat = "identity")+
+  theme_classic() +
+  theme(
+    legend.title =  element_blank(),
+    axis.text.x = element_blank()
+  ) +
+  labs(
+    y = "Daily income",
+    x = "Percentile",
+    title = "Perfect Equality"
+  ) +
+  scale_y_continuous(labels = scales::dollar, 
+                     limits = c(0, mxwcri))
+```
+]
+---
+.left-column[
 .big[Instead of stacking people, let's represent the population with 100 people from the poorest to the richest. The size of the bars represents the amount of money that each person has.]
 ]
 .right-column[

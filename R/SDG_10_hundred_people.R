@@ -123,22 +123,71 @@ cts <- md[, cty]
 #   Perfect equalit
 #----------------------------------------------------------
 
+nq <- 100
+tl <- 2.5  # Tolerance
+
 setDT(c1)
 wm <- c1[, weighted.mean(welfare, weight)]
 
 # perfect equality df
-pe <- data.table(
-  weight = c1$weight,
-  welfare = wm
-)
+
+pe <- c1[,
+         `:=`(weight  = c1[, sum(weight)/.N],
+             welfare = mean/30.42,
+             countrycode = "PEQ")
+         ]
+
+# headcount
+pe[, headcount := cumsum(weight)/sum(weight)]
+
+# Quantiles
+pe[
+  ,
+  n := as.double(.N/(nq))
+  ][
+    ,
+    nq := if_else(n > (tl), (nq),
+                  ceiling( ((nq)*n) / (tl))
+    )
+    ]
+
+pe[,
+  pc := cut(x = headcount,
+            breaks = seq(0, 1, by = 1/min(nq)),
+            labels = FALSE)
+  ][ ,
+     .SD[which.min(headcount)],
+     by = .(pc)
+     ]
+
+
+
+#cummulative welfare
+pe[, CSy := cumsum(welfare*weight)/(sum(weight)*welfare)]
+
+
+# equal division of income
+pe[ ,
+    qc := factor(
+      if_else(between(CSy, 0, .2), 1,
+              if_else(between(CSy, .2, .4, incbounds = FALSE), 2,
+                      if_else(between(CSy, .4, .6), 3,
+                              if_else(between(CSy, .6, .8, incbounds = FALSE), 4,5)
+                      )
+              )
+      ),
+      labels = c("< 20%", "< 40%", "< 60%", "< 80%", "< 100%")
+    )
+    ]
+
+
 
 
 #----------------------------------------------------------
 # Share of income
 #----------------------------------------------------------
 
-nq <- 100
-tl <- 2.5  # Tolerance
+
 cf[
   ,
   n := as.double(.N/(nq)),
