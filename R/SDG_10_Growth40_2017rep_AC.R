@@ -1,4 +1,3 @@
-setwd("C:/Users/wb562350/OneDrive - WBG/Documents/Git/Research/SDG_2020")
 
 library(wbstats)
 library(tidyverse)
@@ -119,24 +118,19 @@ WDI <- left_join(WDI, cr, by = "countrycode") %>%
 # data <- WDI %>%
 # filter(countrycode %in% list2017)
 
-temp         <- sortvariable
-sortvariable <- paste0("OLD", sortvariable)
 
 data <- WDI %>%
   filter(OLDdiff > 0 & !is.na(diff & OLDdiff))
 
-# data <- data %>%
-#   rowwise() %>%
-#   mutate_(ordervar = ordervariable) %>%
-#   mutate_(sortvar = sortvariable) %>%
-#   arrange(ordervar, sortvar)
-
-
-
 data <-  data %>%
-  mutate(ordervar = !! sym(ordervariable)) %>%
-  mutate(sortvar  =  !! sym(temp)) %>%
-  arrange(ordervar, sortvar)
+  mutate(
+    ordervar = !! sym(ordervariable),
+    ordervar = factor(x = ordervar),
+    ordervar = fct_relevel(ordervar, "Low income", "Lower middle income",
+                 "Upper middle income", "High income"),
+    sortvar  =  !! sym(sortvariable)
+    ) %>%
+  arrange(-ordervar, sortvar)
 
 
 # data$id <- seq(1, nrow(data))
@@ -161,7 +155,8 @@ data <- data %>%
   mutate(
     Growth40 = as.numeric(as.character(Growth40)),
     Growth = as.numeric(as.character(Growth))
-  )
+  ) %>%
+  drop_na()
 
 breaks <- seq(min(data$Growth40, na.rm = T),
   max(data$Growth40, na.rm = T),
@@ -170,9 +165,9 @@ breaks <- seq(min(data$Growth40, na.rm = T),
 
 
 # Plot
-p <- ggplot(data) +
+p <- ggplot(data,
+            aes(y = id)) +
   geom_segment(aes(
-    y = id,
     yend = id,
     x = Growth40,
     xend = Growth
@@ -180,7 +175,7 @@ p <- ggplot(data) +
   color = rgb(0, 0, 0, 0.3)
   ) +
   geom_point(
-    aes(y = id, x = Growth, text = country),
+    aes(x = Growth, text = country),
     color = "black",
     fill = "white",
     shape = 21,
@@ -188,7 +183,7 @@ p <- ggplot(data) +
     size = 2
   ) +
   geom_point(
-    aes(y = id, x = Growth40, text = country),
+    aes(x = Growth40, text = country),
     color = "white",
     fill = "red",
     shape = 21,
@@ -196,7 +191,6 @@ p <- ggplot(data) +
   ) +
   geom_segment(
     aes(
-      y = id,
       yend = id,
       x = OLDGrowth40,
       xend = OLDGrowth
@@ -205,7 +199,7 @@ p <- ggplot(data) +
     alpha = 0.5
   ) +
   geom_point(
-    aes(y = id, x = OLDGrowth, text = country),
+    aes(x = OLDGrowth, text = country),
     color = "steelblue4",
     fill = "white",
     shape = 21,
@@ -214,7 +208,7 @@ p <- ggplot(data) +
     alpha = 0.5
   ) +
   geom_point(
-    aes(y = id, x = OLDGrowth40, text = country),
+    aes(x = OLDGrowth40, text = country),
     color = "white",
     fill = "steelblue4",
     shape = 21,
@@ -226,11 +220,16 @@ p <- ggplot(data) +
     axis.text.y = element_blank(),
     axis.title.y = element_blank(),
   ) +
-  xlab("Growth") +
-  ylab("") +
+  labs(
+    title = "Growth Bottom 40 vs National Average - 2012-2017",
+    subtitle = "Old top countries",
+    caption = "Bottom and Total growth as reported in the Global Database of Share Prosperity.",
+    x = "Growth",
+    y = ""
+  ) +
   geom_text(
     data = data,
-    aes(y = id, x = -7, label = country),
+    aes(x = -7, label = country),
     angle = 0,
     alpha = 0.6,
     size = 2
@@ -256,17 +255,9 @@ p <- ggplot(data) +
     xintercept = 0,
     color = "red",
     linetype = "dashed"
-  ) +
-  ggtitle("Growth Bottom 40 vs National Average - 2012-2017", subtitle = "Old top countries") +
-  labs(
-    caption = paste(
-      "Bottom and Total growth as reported in the Global Database of Share Prosperity."
-    )
   )
+
 
 p
 
-p2s <- p
-p2 <- ggplotly(p)
-
-sortvariable <- temp
+ggplotly(p)
