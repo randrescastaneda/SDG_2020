@@ -118,6 +118,21 @@ cts <- md[, cty]
 #   labs(y = "Population",
 #        x = "Daily income")
 
+
+#----------------------------------------------------------
+#   Perfect equalit
+#----------------------------------------------------------
+
+setDT(c1)
+wm <- c1[, weighted.mean(welfare, weight)]
+
+# perfect equality df
+pe <- data.table(
+  weight = c1$weight,
+  welfare = wm
+)
+
+
 #----------------------------------------------------------
 # Share of income
 #----------------------------------------------------------
