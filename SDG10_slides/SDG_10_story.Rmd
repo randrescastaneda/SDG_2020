@@ -19,6 +19,7 @@ options(htmltools.dir.version = FALSE)
 library(knitr)
 library(scales)
 library(ggpubr)
+library(here)
 
 knitr::opts_chunk$set(
   warning = FALSE,
@@ -50,8 +51,12 @@ class: middle, center, inverse
 
 ### Story of welfare inequality
 ```{r distsim}
-source("R/utils.R")
-source("R/SDG_10_hundred_people.R")
+if (length(ls(pattern = "ld1")) == 0 ) {
+  source(here("R", "utils.R"))
+  source(here("R", "SDG_10_hundred_people.R"))
+  ld1 <-  1
+}
+
 ```
 ---
 class: middle, center
@@ -59,7 +64,7 @@ class: middle, center
 ### Inequality within countries (Relative inequality)
 ---
 .left-column[
-.big[Let's start with perfect equality. here we represent the population with 100 people, from the poorest to the richest. The size of the bars represents the amount of money that each person has.]
+Let's start with an economy in which everybody has the same amount of money, i.e., perfect equality. To make it simple, let's plot the income level of 100 people of this economy, from the poorest to the richest. Since all the people have the same amount of money, The size of the bars have the same legth for everybody.
 ]
 .right-column[
 ```{r pereq}
@@ -67,10 +72,12 @@ mxwcri <- df[countrycode == "CRI"
              ][, max(welfare)
                ]
 
-ggplot(
+mnwl <- pe[1, welfare]
+
+pe_p <- ggplot(
   data = pe,
   aes(
-    x = as.factor(headcount),
+    x = hcf,
     y = welfare,
     fill = qc
   )
@@ -88,154 +95,134 @@ ggplot(
   ) +
   scale_y_continuous(labels = scales::dollar, 
                      limits = c(0, mxwcri))
+
+pe_p
 ```
 ]
 ---
 .left-column[
-.big[Instead of stacking people, let's represent the population with 100 people from the poorest to the richest. The size of the bars represents the amount of money that each person has.]
+This is how the distribution of Costa Rica would look like if everybody had the current per capita daily income, `r dollar(mnwl)` at 2011 PPP values. 
+
 ]
 .right-column[
-```{r crim}
+```{r pe2}
+pe_p + labs(
+  title = "Perfect Equality in Costa Rica"
+)
+```
+]
+---
+.left-column[
+Since it is 100 people in an equalitarian economy, each person has 1 percent of the total income.
+]
+.right-column[
+```{r pe3}
+mxSy <- df[, max(Sy)]
 
-wcri <- ggplot(
-  data = df[countrycode == "CRI"],
-  aes(
-    x = as.factor(headcount),
-    y = welfare,
-    fill = qc
-  )
+ggplot(
+    data = pe,
+    aes(
+        x = hcf,
+        y = Sy,
+        fill = qc
+    )
 ) +
-  geom_bar(stat = "identity")+
+    geom_bar(stat  = "identity")+
+    theme_classic() +
+    theme(
+        legend.title =  element_blank(),
+        axis.text.x = element_blank()
+    ) +
+    labs(
+        y = "Share of total income",
+        x = "Percentile"
+    ) +
+    scale_y_continuous(labels = scales::percent, 
+                       limits = c(0, mxSy))
+
+```
+]
+---
+```{r pedrcri}
+f40ti <- 
+crpe[
+  countrycode == "CRI"
+  ][, 
+   md := abs(CSy - .2) 
+   ][
+     md == min(md),
+     headcount
+   ]
+
+b20cr <- 
+crpe[
+    countrycode == "CRI"
+][, 
+  md := abs(headcount - .2) 
+][
+    md == min(md),
+    CSy
+]
+
+
+```
+
+.left-column[
+Yet, the real distribution looks like this.
+
+Under perfect equality, the bottom 20% of the population has 20% of total income. In the real distribution, The bottom 20% of the population has `r percent(b20cr)` of the distribution and the first 20% of total income is held by the bottom `r percent(f40ti)`. 
+]
+.right-column[
+```{r cri1}
+pe_rd_cri <- ggplot( ) +
+  geom_bar(data = crpe,
+           aes(
+             x = hcf,
+             y = Sy,
+             fill = qc, 
+             alpha = aph
+           ),
+           stat  = "identity", position = "dodge")+
   theme_classic() +
   theme(
     legend.title =  element_blank(),
-    axis.text.x = element_blank()
+    axis.text.x = element_blank(), 
+    axis.title.y = element_blank()
   ) +
   labs(
-    y = "Daily income",
-    x = "Percentile", 
-    title = "Costa Rica"
+    title = "Perfect Equality and Real Distribution in Costa Rica",
+    y = "Share of total income",
+    x = "Percentile"
   ) +
-  scale_y_continuous(labels = scales::dollar)
-
-wcol <- ggplot(
-  data = df[countrycode == "COL"],
-  aes(
-    x = as.factor(headcount),
-    y = welfare,
-    fill = qc
-  )
-) +
-  geom_bar(stat = "identity")+
-  theme_classic() +
-  theme(
-    legend.title =  element_blank(),
-    axis.text.x = element_blank()
-  ) +
-  labs(
-    y = "Daily income",
-    x = "Percentile", 
-    title = "Colombia"
-  ) +
-  scale_y_continuous(labels = scales::dollar)
-
-wfin <- ggplot(
-  data = df[countrycode == "FIN"],
-  aes(
-    x = as.factor(headcount),
-    y = welfare,
-    fill = qc
-  )
-) +
-  geom_bar(stat = "identity")+
-  theme_classic() +
-  theme(
-    legend.title =  element_blank(),
-    axis.text.x = element_blank()
-  ) +
-  labs(
-    y = "Daily income",
-    x = "Percentile", 
-    title = "Finland"
-  ) +
-  scale_y_continuous(labels = scales::dollar)
-
-wcri
-
+  scale_y_continuous(labels = scales::percent, 
+                     limits = c(0, mxSy)) +
+  guides(
+    alpha = FALSE
+  ) + 
+  scale_alpha(range = c(0.4, 1)) 
+pe_rd_cri
 ```
 ]
-
 ---
 .left-column[
-.big[Under this approach, we can see that Costa Rica is Richer than Colombia in all its population and slightly less unequal. A higher proportion of the population has larger shared of total income.]
+But how unequal is this country in contrast to other country?
 ]
 .right-column[
-```{r cricolm}
-mxwelfare <- df[countrycode != "FIN", max(welfare)]
-
-
-ggarrange(
-  wcol +
-  scale_y_continuous(labels = scales::dollar, 
-                     limits = c(0, mxwelfare)), 
-  wcri +
-  scale_y_continuous(labels = scales::dollar, 
-                     limits = c(0, mxwelfare)) +
-  theme(axis.title.y = element_blank()), 
-          ncol = 2, nrow =1, 
-          common.legend = TRUE, 
-          hjust = -1)
+```{r cricolun}
+pe_rd_cri
 ```
 ]
 ---
 .left-column[
-.big[Yet, none of these two countries compare with the level of income and relatively more equalitarian distribution than Finland
-]
-]
-.right-column[
-```{r ccfm}
-mxwelfare <- df[, max(welfare)]
-
-pccfm <- ggarrange(
-  wcol +
-  scale_y_continuous(labels = scales::dollar, 
-                     limits = c(0, mxwelfare)), 
-  wcri +
-  scale_y_continuous(labels = scales::dollar, 
-                     limits = c(0, mxwelfare)) +
-  theme(axis.title.y = element_blank()), 
-  wfin +
-  scale_y_continuous(labels = scales::dollar, 
-                     limits = c(0, mxwelfare)) +
-  theme(axis.title.y = element_blank()),
-          ncol = 3, nrow =1, 
-          common.legend = TRUE, 
-          hjust = -1)
-pccfm
-```
-]
----
-.left-column[
-.big[Income levels, however, may distort inequality comparisons as their nominal values do not allow us to see the distribution.
-]
-]
-.right-column[
-```{r ccfm2}
-pccfm
-```
-]
----
-.left-column[
-.big[Thus, it is better to see the share of income that each person has. In this case we can see how unequal the distribution of Colombia is in comparison to Finland's]
+When compared to Colombia, Costa Rica seems to be less unequal. 
 ]
 .right-column[
 ```{r ccfsy}
-mxSy <- df[, max(Sy)]
 
 ccol <- ggplot(
   data = df[countrycode == "COL"],
   aes(
-    x = as.factor(headcount),
+    x = hcf,
     y = Sy,
     fill = qc
   )
@@ -256,7 +243,7 @@ ccol <- ggplot(
 ccri <- ggplot(
   data = df[countrycode == "CRI"],
   aes(
-    x = as.factor(headcount),
+    x = hcf,
     y = Sy,
     fill = qc
   )
@@ -279,7 +266,7 @@ ccri <- ggplot(
 cfin <- ggplot(
   data = df[countrycode == "FIN"],
   aes(
-    x = as.factor(headcount),
+    x = hcf,
     y = Sy,
     fill = qc
   )
@@ -298,9 +285,9 @@ cfin <- ggplot(
   scale_y_continuous(labels = scales::percent, 
                      limits = c(0, mxSy))
 
-ggarrange(ccol, ccri, cfin, 
-          labels = c("Colombia", "Costa Rica", "Finland"),
-          ncol = 3, nrow =1, 
+ggarrange(ccol, ccri,  
+          labels = c("Colombia", "Costa Rica"),
+          ncol = 2, nrow =1, 
           common.legend = TRUE, 
           hjust = -1)
 
@@ -309,12 +296,44 @@ ggarrange(ccol, ccri, cfin,
 ```
 ]
 ---
+.left-column[
+When compared to Colombia, Costa Rica seems to be less unequal. 
+
+But compared to Finland it is way more unequal. 
+
+]
+.right-column[
+```{r crifincol2}
+crifincol2 <- ggarrange(ccol, ccri, cfin, 
+          labels = c("Colombia", "Costa Rica", "Finland"),
+          ncol = 3, nrow =1, 
+          common.legend = TRUE, 
+          hjust = -1)
+
+crifincol2
+```
+]
+---
+.left-column[
+Though informative, if we wanted to compare all the countries at once, this type of graphs are not suitable for the job. It would be too messy. Thus we need to  use a different measure. 
+]
+.right-column[
+```{r crifincol3}
+crifincol2
+```
+]
+---
 class: middle, center
 
 ### If we want to compare all the countries we can see the well-known measure, Gini coefficient. 
 
 ```{r ginichange}
-source("R/SDG_10_Gini_Change.R")
+
+if (length(ls(pattern = "ld2")) == 0 ) {
+  source("R/SDG_10_Gini_Change.R")
+  ld2 <-  1
+}
+
 
 ```
 ---
@@ -389,7 +408,12 @@ p_g +
 ---
 
 ```{r p1090-calc}
-source("R/SDG_10_p10p90p50.R")
+if (length(ls(pattern = "ld3")) == 0 ) {
+  source("R/SDG_10_p10p90p50.R")
+  ld3 <-  1
+}
+
+
 ```
 
 ### comparison across countries?
@@ -735,7 +759,10 @@ class: middle, center, inverse
 Thus, we use the median. ]
 
 ```{r btw-cts-ineq}
-source("R/SDG_10_global_ineq_between_countries.R")
+if (length(ls(pattern = "ld4")) == 0 ) {
+  source("R/SDG_10_global_ineq_between_countries.R")
+  ld4 <-  1
+}
 ```
 
 ---

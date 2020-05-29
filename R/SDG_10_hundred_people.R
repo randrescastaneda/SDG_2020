@@ -120,7 +120,7 @@ cts <- md[, cty]
 
 
 #----------------------------------------------------------
-#   Perfect equalit
+#   Perfect equality
 #----------------------------------------------------------
 
 nq <- 100
@@ -151,7 +151,7 @@ pe[
     )
     ]
 
-pe[,
+pe <- pe[,
   pc := cut(x = headcount,
             breaks = seq(0, 1, by = 1/min(nq)),
             labels = FALSE)
@@ -162,7 +162,7 @@ pe[,
 
 
 
-#cummulative welfare
+# cumulative welfare
 pe[, CSy := cumsum(welfare*weight)/(sum(weight)*welfare)]
 
 
@@ -180,7 +180,10 @@ pe[ ,
     )
     ]
 
-
+pe[, `:=`(Sy = 0.01,
+          hcf = rowid(countrycode)
+          )
+   ]
 
 
 #----------------------------------------------------------
@@ -338,14 +341,36 @@ df[
 
 df[
   ,
-  welfare := if_else(dldwelfare > 0 & ldwelfare != 0, (ldwelfare + lgwelfare)/2,
-                 if_else(dld2welfare > 0 & dld2welfare <= abs(dldwelfare), welfare + abs(dld2welfare)*.99,
-                         welfare)
+  welfare := if_else(dldwelfare > 0 & ldwelfare != 0,
+                     (ldwelfare + lgwelfare)/2,
+                     if_else(dld2welfare > 0 & dld2welfare <= abs(dldwelfare),
+                             welfare + abs(dld2welfare)*.99,
+                             welfare
+                             )
                  ),
   by = .(countrycode)
   ]
 
-df <- df[, .(countrycode, pc, headcount, Sy, welfare, qc)]
+#
+# df <- df[,
+#          c("hcf") := {
+#            hcf <- 1/nq
+#            hcf <- cumsum(hcf)
+#            hcf <- as.factor(hcf)
+#            list(hcf)
+#          },
+#          by = .(countrycode)
+# ]
+
+df <- df[, .(countrycode, pc, headcount, Sy, welfare, qc, CSy)]
+df[, hcf := rowid(countrycode)]
+
+
+crpe <- rbindlist(list(df[countrycode == "CRI"], pe), fill = TRUE)
+crpe[, hcf := rowid(countrycode)]
+crpe[, hcf := as.factor(hcf)]
+crpe[, aph := if_else(countrycode == "PEQ", 1, 2)]
+
 
 
 # gtest <- ggplot(
