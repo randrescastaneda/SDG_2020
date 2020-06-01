@@ -1,0 +1,48 @@
+---
+title: "Bottom 40 story"
+output:
+  xaringan::moon_reader:
+    seal: false
+    css: ["css/sfah.css", "css/fonts.css", "default"]
+    self_contained: false
+    lib_dir: libs
+    mathjax: "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_HTMLorMML"
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      slideNumberFormat: "%current%"
+      ratio: "16:9"
+      titleSlideClass: ["left", "middle", "inverse"]
+---
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+library(knitr)
+library(scales)
+library(ggpubr)
+library(xaringanthemer)
+library(here)
+
+knitr::opts_chunk$set(
+  warning = FALSE,
+  collapse = TRUE,
+  message = FALSE,
+  echo = FALSE,
+  fig.retina = 3,
+  fig.width = 10
+)
+
+# options(knitr.table.format = "html")
+library(fontawesome) # from github: https://github.com/rstudio/fontawesome
+xaringanExtra::use_xaringan_extra(c("tile_view", "animate_css", "tachyons"))
+```
+
+class: inverse, right, bottom
+## Bottom 40
+
+## A changing story
+
+???
+Intcomments
+
+---
