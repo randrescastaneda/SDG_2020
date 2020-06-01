@@ -14,9 +14,9 @@ source(here("R", "panel_WDI.R")) # Wrapper to wb function from wbstat
 ordervariable <-
   "incomegroup" # how to group countries, works with region, incomegroup or both c("region","incomegroup")
 sortvariable <-
-  "Growth40" # How to sort values within groups Growth40, Growth, diff, diffabs?
+  "OLDGrowth" # How to sort values within groups Growth40, Growth, diff, diffabs?
 rankvariable <-
-  c("diff", "Growth40") # How to rank countries: Growth40, Growth, diff, diffabs?
+  c("diff", "OLDGrowth") # How to rank countries: Growth40, Growth, diff, diffabs?
 filename <- "" # root file name
 
 
@@ -72,7 +72,7 @@ WDI2017 <- WDI2017 %>%
   extract(year, into = "Year", regex = "([0-9]+)") %>%
   mutate(Year = as.numeric(as.character(Year)))
 
-# I'll keep just those indicatores I care for
+# I'll keep just those indicators I care for
 WDI2017 <- WDI2017 %>%
   filter(indicatorID %in% c("SI.SPR.PC40.ZG", "SI.SPR.PCAP.ZG")) %>%
   drop_na() %>%
@@ -126,17 +126,23 @@ data <- WDI %>%
 data <-  data %>%
   mutate(
     ordervar = !! sym(ordervariable),
-    ordervar = factor(x = ordervar),
-    ordervar = fct_relevel(ordervar, "Low income", "Lower middle income",
-                 "Upper middle income", "High income"),
+    ordervar = factor(x = ordervar,
+                      levels = c("Low income", "Lower middle income",
+                                 "Upper middle income", "High income")
+                      ),
     sortvar  =  !! sym(sortvariable)
     ) %>%
-  arrange(-ordervar, sortvar)
+  group_by(ordervar) %>%
+  arrange(sortvar) %>%
+  mutate(
+    yid = row_number()
+  ) %>%
+  ungroup()
 
 
 # data$id <- seq(1, nrow(data))
 
-# empy space between regions
+# empty space between regions
 empty_bar        <- 1
 to_add           <- data.frame(matrix(NA, empty_bar * length(unique(data$ordervar)), ncol(data)))
 colnames(to_add) <- colnames(data)

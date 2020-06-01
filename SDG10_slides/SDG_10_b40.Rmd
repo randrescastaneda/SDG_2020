@@ -50,17 +50,17 @@ if (length(ls(pattern = "ld_b40_1")) == 0 ) { # load data?
   ld_b40_1 <-  1
 }
 
+  
 b40chart <- function(data, ...) {
-
-  df <- data %>%
-    filter(...) %>%
-    arrange(ordervar, sortvar ) %>%
+  
+  df <- data   %>%
+    filter(...)  %>%
     mutate(
-      cty = factor(country, levels = country)
+      cty = factor(country, country)
     )
-
-  p <- ggplot(data = df,
-              aes(y = cty)) +
+  
+p <- ggplot(data = df,
+         aes(y = cty)) +
     theme_minimal() +
     theme(
       axis.text.y       = element_text(size = 5),
@@ -79,40 +79,118 @@ b40chart <- function(data, ...) {
       color               = "red",
       linetype            = "dashed"
     )  +
-    facet_grid(
-      incomegroup ~ .,
-      scales              = "free",
-      space               = "free",
-      switch              = "y"
-    )
-  return(p)
+  facet_grid(
+    incomegroup ~ ., 
+    scales              = "free",
+    space               = "free",
+    switch              = "y"
+  ) +
+  geom_segment(
+    aes(
+      yend              = cty,
+      x                 = OLDGrowth40,
+      xend              = OLDGrowth
+    ),
+    color               = "steelblue4",
+    alpha               = 0.5
+  ) +
+  geom_point(
+    aes(x               = OLDGrowth),
+    color               = "steelblue4",
+    fill                = "white",
+    shape               = 21,
+    stroke              = 0.7,
+    size                = 2,
+    alpha               = 0.5
+  ) +
+  geom_point(
+    aes(x               = OLDGrowth40),
+    color               = "white",
+    fill                = "steelblue4",
+    shape               = 21,
+    size                = 2,
+    alpha               = 0.5
+  ) 
+
+return(p) 
 }
 
+
+p1 <- b40chart(data)
+
+nsp <- list(
+  geom_segment(
+    aes(
+      yend              = cty,
+      x                 = Growth40,
+      xend              = Growth
+    ),
+    color               = rgb(0, 0, 0, 0.3)
+  ) ,
+  geom_point(
+    aes(x               = Growth),
+    color               = "black",
+    fill                = "white",
+    shape               = 21,
+    stroke              = 0.7,
+    size                = 2
+  ) ,
+  geom_point(
+    aes(x               = Growth40),
+    color               = "white",
+    fill                = "red",
+    shape               = 21,
+    size                = 2
+  )
+)
 
 ```
 ---
 .left-column[
+Let's select some of countries for which we had shared prosperity data three years ago and rank them according to growth of their bottom 40. 
+]
+---
+.left-column[
+Let's select the countries for which we have shared prosperity data three years ago and rank them according to growth of their bottom 40. 
 
+Here, incomes of the poorest people are growing faster than average for the **2008-2013** period
 ]
 .right-column[
 ```{r b401}
-ggplot(data,
-            aes(y = id)) +
-  geom_segment(aes(
-    yend = id,
-    x = Growth40,
-    xend = Growth
-  ),
-  color = rgb(0, 0, 0, 0.3)
-  ) +
-  geom_point(
-    aes(x = Growth, text = country),
-    color = "black",
-    fill = "white",
-    shape = 21,
-    stroke = 0.7,
-    size = 2
-  )
+p1
+```
+]
+---
+.left-column[
+Some low income countries seem to be doing very well.  
+]
+.right-column[
+```{r b402}
+pli <- b40chart(data, incomegroup == "Low income")
+pli
 ```
 ]
 
+---
+.left-column[
+Yet, three years later, for the period **2012-2017**, the story reverted for some of them. 
+
+Tanzania and Uganda switched from having positive and higher bottom 40 growth than average in 2008-2013 to present negative growth in their bottom 40 in 2012-2017. 
+]
+.right-column[
+```{r b403}
+pli + nsp
+  
+```
+]
+
+---
+.left-column[
+In lower middle countries, we see two different patterns. Some countries:
+]
+.right-column[
+```{r b402}
+plm <- b40chart(data, incomegroup == "Lower middle income")
+plm
+```
+]
