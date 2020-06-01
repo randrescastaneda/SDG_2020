@@ -153,7 +153,7 @@ Here we have all the countries of the world and their corresponding Gini coeffic
 
 
 
-### comparison across countries?
+### Comparison across countries?
 .big[The Gini coefficient is useful for comparing the level of inequality in one economy over time. However, it is insufficient to understand the level inequality **between** two countries. By comparing the Gini coefficient of two different economies, we can say that the population of the one with the higher coefficient faces higher levels of inequality *among itself* than the population of the other economy, but we cannot say anything about the level of inequality between the two populations. ]
 
 ---
@@ -270,7 +270,9 @@ Most countries in Africa are at the far left of the chart, whereas the high-inco
 ---
 ### Relative Vs Absolute inequality
 
-.big[This kind of inequality is known as realtive inequality because it depends on the distribution of welfare within the context in which it is measured. That is, relative inequality does not say anything about the level of welfare between two countries. It only allows us to see if the inequality between the population of one country has icreased or decreased over time, but it does not say anything about how unequal the populations of two different economies are. We need absolute measures of inequality for this endeavor. 
+.big[When two points of the distribution are compared proportionally to each other (i.e., how many time one is larger than the other), it is known as relative inequality. In contrast, when the same two points are compared differentially to each other (i.e., the monetary distance between the two), it is known as absolute inequality. Each of these measures is useful for different purposes. Relative inequality aims to measure the level of disproportionality across the distribution, whereas absolute inequality provides a sense of welfare across the distribution. 
+
+When we compare the income distributions of two countries using relative measures of inequality like the Gini coefficient, we are unable to say anything about the difference in welfare between the two populations. When the Gini coefficient of country A is higher than the Gini of country B, we can only say that inequality within A is higher than inequality within B, but we can't say anything about the inequality between A and B. 
 ]
 
 ---
@@ -279,31 +281,34 @@ class: middle, center, inverse
 
 ## Inequality between countries
 
---
 
-.big[We can't use a relative measue of inequality to compare inequality across countries]
-
---
-
-.big[We need a measure that attempts to summarize a destribution in one single value. ]
-
---
-
-.big[To avoid extremes inequalities within a single country we should not use the mean. 
-Thus, we use the median. ]
-
-
+---
+### Inequality between countries
+To estimate inequality between countries, we need to make sure that the level of welfare of each country is not affected by its own within inequality. Otherwise, inequality between countries could be confounded by inequality within countries. A simple, yet not perfect, approach to do this is the use a measure of welfare that is not affected by outliers or by unexpected changes in the distribution. 
 
 ---
 .left-column[
-.big[Remember this chart?]
+Remember this chart?
+
+Let's use monetary values in the Y axis rather than share of income.
 ]
 .right-column[
 &lt;img src="SDG_10_story_files/figure-html/p50cri-1.png" width="720" /&gt;
 ]
 ---
+
 .left-column[
-.big[Let's get income of the the person that is right in the middle of the distribution. That value is known as the median.]
+.big[like this]
+]
+.right-column[
+&lt;img src="SDG_10_story_files/figure-html/label-1.png" width="720" /&gt;
+]
+---
+.left-column[
+.big[
+like this
+
+Let's get the income of the person whose place is right in the middle of the distribution. That value is known as the median.]
 ]
 .right-column[
 &lt;img src="SDG_10_story_files/figure-html/p50cri2-1.png" width="720" /&gt;
@@ -314,7 +319,7 @@ Thus, we use the median. ]
 
 This is the distribution of all the medians of the world in 2015. 
 
-Each median reprsents the level of welfare of each country]
+Each median represents the level of welfare of each country]
 ]
 .right-column[
 &lt;img src="SDG_10_story_files/figure-html/meddist-1.png" width="720" /&gt;
