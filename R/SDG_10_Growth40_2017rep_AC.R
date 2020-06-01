@@ -153,45 +153,6 @@ data <- data %>%
   drop_na()
 
 
-b40chart <- function(data, ...) {
-
-  df <- data %>%
-    filter(...) %>%
-    arrange(ordervar, sortvar ) %>%
-    mutate(
-      cty = factor(country, levels = country)
-    )
-
-  p <- ggplot(data = df,
-              aes(y = cty)) +
-    theme_minimal() +
-    theme(
-      axis.text.y       = element_text(size = 5),
-      axis.title.y      = element_blank(),
-      strip.text.y.left = element_text(size = 7)
-    ) +
-    labs(
-      title               = "Growth Bottom 40 vs National Average",
-      subtitle            = "Sorted by top countries",
-      caption             = "Bottom and Total growth as reported in the Global Database of Share Prosperity.",
-      x                   = "Growth",
-      y                   = ""
-    ) +
-    geom_vline(
-      xintercept          = 0,
-      color               = "red",
-      linetype            = "dashed"
-    )  +
-    facet_grid(
-      incomegroup ~ .,
-      scales              = "free",
-      space               = "free",
-      switch              = "y"
-    )
-  return(p)
-}
-
-
 
 
 # Plot
