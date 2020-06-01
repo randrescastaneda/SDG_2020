@@ -142,15 +142,8 @@ to_add           <- data.frame(matrix(NA, empty_bar * length(unique(data$orderva
 colnames(to_add) <- colnames(data)
 to_add$ordervar  <- rep(unique(data$ordervar), each = empty_bar)
 data             <- rbind(data, to_add)
-data             <- data %>% arrange(ordervar, sortvar)
+data             <- arrange(data, ordervar, sortvar)
 data$id          <- seq(1, nrow(data))
-
-# set lines
-a <- data %>%
-  group_by(ordervar) %>%
-  summarise(max = max(id), mean = mean(id)) %>%
-  ungroup() %>%
-  mutate(val = max(max) + 2)
 
 data <- data %>%
   mutate(
@@ -159,10 +152,46 @@ data <- data %>%
   ) %>%
   drop_na()
 
-breaks <- seq(min(data$Growth40, na.rm = T),
-  max(data$Growth40, na.rm = T),
-  length.out = 5
-)
+
+b40chart <- function(data, ...) {
+
+  df <- data %>%
+    filter(...) %>%
+    arrange(ordervar, sortvar ) %>%
+    mutate(
+      cty = factor(country, levels = country)
+    )
+
+  p <- ggplot(data = df,
+              aes(y = cty)) +
+    theme_minimal() +
+    theme(
+      axis.text.y       = element_text(size = 5),
+      axis.title.y      = element_blank(),
+      strip.text.y.left = element_text(size = 7)
+    ) +
+    labs(
+      title               = "Growth Bottom 40 vs National Average",
+      subtitle            = "Sorted by top countries",
+      caption             = "Bottom and Total growth as reported in the Global Database of Share Prosperity.",
+      x                   = "Growth",
+      y                   = ""
+    ) +
+    geom_vline(
+      xintercept          = 0,
+      color               = "red",
+      linetype            = "dashed"
+    )  +
+    facet_grid(
+      incomegroup ~ .,
+      scales              = "free",
+      space               = "free",
+      switch              = "y"
+    )
+  return(p)
+}
+
+
 
 
 # Plot
