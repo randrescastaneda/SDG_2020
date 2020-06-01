@@ -44,5 +44,36 @@ class: inverse, right, bottom
 
 ???
 Intcomments
+```{r initcal}
+if (length(ls(pattern = "ld_b40_1")) == 0 ) { # load data?
+  source(here("R", "SDG_10_Growth40_2017rep_AC.R"))
+  ld_b40_1 <-  1
+}
 
+```
 ---
+.left-column[
+
+]
+.right-column[
+```{r b401}
+ggplot(data,
+            aes(y = id)) +
+  geom_segment(aes(
+    yend = id,
+    x = Growth40,
+    xend = Growth
+  ),
+  color = rgb(0, 0, 0, 0.3)
+  ) +
+  geom_point(
+    aes(x = Growth, text = country),
+    color = "black",
+    fill = "white",
+    shape = 21,
+    stroke = 0.7,
+    size = 2
+  )
+```
+]
+

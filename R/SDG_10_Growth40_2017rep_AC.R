@@ -4,10 +4,11 @@ library(tidyverse)
 library(data.table)
 library(scales)
 library(hrbrthemes)
-library(plotly)
+library(here)
 
 # functions
-source("R/panel_WDI.R") # Wrapper to wb function from wbstat
+
+source(here("R", "panel_WDI.R")) # Wrapper to wb function from wbstat
 
 # parameters
 ordervariable <-
@@ -34,7 +35,7 @@ filename <- "" # root file name
 # Load Share Prosperity Data
 WDI <-
   read.csv2(
-    "data/WDI2020.csv",
+    here("data", "WDI2020.csv"),
     sep = ",",
     dec = ".",
     stringsAsFactors = F
@@ -54,7 +55,7 @@ WDI <- WDI %>%
 # Load the old WDI data
 WDI2017 <-
   read.csv2(
-    "data/WDI2017.csv",
+    here("data", "WDI2017.csv"),
     sep = ",",
     dec = ".",
     stringsAsFactors = F
@@ -95,7 +96,7 @@ WDI <- full_join(WDI, WDI2017, by = "countrycode") %>%
 
 
 # -- Add Region ID
-cr <- read_rds("data/cty_regs_names.rds") %>%
+cr <- read_rds(here("data", "cty_regs_names.rds")) %>%
   setDT() %>%
   select(-lending)
 
@@ -165,99 +166,99 @@ breaks <- seq(min(data$Growth40, na.rm = T),
 
 
 # Plot
-p <- ggplot(data,
-            aes(y = id)) +
-  geom_segment(aes(
-    yend = id,
-    x = Growth40,
-    xend = Growth
-  ),
-  color = rgb(0, 0, 0, 0.3)
-  ) +
-  geom_point(
-    aes(x = Growth, text = country),
-    color = "black",
-    fill = "white",
-    shape = 21,
-    stroke = 0.7,
-    size = 2
-  ) +
-  geom_point(
-    aes(x = Growth40, text = country),
-    color = "white",
-    fill = "red",
-    shape = 21,
-    size = 2
-  ) +
-  geom_segment(
-    aes(
-      yend = id,
-      x = OLDGrowth40,
-      xend = OLDGrowth
-    ),
-    color = "steelblue4",
-    alpha = 0.5
-  ) +
-  geom_point(
-    aes(x = OLDGrowth, text = country),
-    color = "steelblue4",
-    fill = "white",
-    shape = 21,
-    stroke = 0.7,
-    size = 2,
-    alpha = 0.5
-  ) +
-  geom_point(
-    aes(x = OLDGrowth40, text = country),
-    color = "white",
-    fill = "steelblue4",
-    shape = 21,
-    size = 2,
-    alpha = 0.5
-  ) +
-  theme_minimal() +
-  theme(
-    axis.text.y = element_blank(),
-    axis.title.y = element_blank(),
-  ) +
-  labs(
-    title = "Growth Bottom 40 vs National Average - 2012-2017",
-    subtitle = "Old top countries",
-    caption = "Bottom and Total growth as reported in the Global Database of Share Prosperity.",
-    x = "Growth",
-    y = ""
-  ) +
-  geom_text(
-    data = data,
-    aes(x = -7, label = country),
-    angle = 0,
-    alpha = 0.6,
-    size = 2
-  ) +
-  geom_text(
-    data = a,
-    aes(y = mean, x = 8, label = ordervar),
-    angle = 0,
-    alpha = 0.6,
-    size = 3
-  ) +
-  geom_segment(
-    data = a,
-    aes(
-      y = max,
-      yend = max,
-      x = -5,
-      xend = 10
-    ),
-    color = rgb(0, 0, 0, 0.3)
-  ) +
-  geom_vline(
-    xintercept = 0,
-    color = "red",
-    linetype = "dashed"
-  )
-
-
-p
-
-ggplotly(p)
+# p <- ggplot(data,
+#             aes(y = id)) +
+#   geom_segment(aes(
+#     yend = id,
+#     x = Growth40,
+#     xend = Growth
+#   ),
+#   color = rgb(0, 0, 0, 0.3)
+#   ) +
+#   geom_point(
+#     aes(x = Growth, text = country),
+#     color = "black",
+#     fill = "white",
+#     shape = 21,
+#     stroke = 0.7,
+#     size = 2
+#   ) +
+#   geom_point(
+#     aes(x = Growth40, text = country),
+#     color = "white",
+#     fill = "red",
+#     shape = 21,
+#     size = 2
+#   ) +
+#   geom_segment(
+#     aes(
+#       yend = id,
+#       x = OLDGrowth40,
+#       xend = OLDGrowth
+#     ),
+#     color = "steelblue4",
+#     alpha = 0.5
+#   ) +
+#   geom_point(
+#     aes(x = OLDGrowth, text = country),
+#     color = "steelblue4",
+#     fill = "white",
+#     shape = 21,
+#     stroke = 0.7,
+#     size = 2,
+#     alpha = 0.5
+#   ) +
+#   geom_point(
+#     aes(x = OLDGrowth40, text = country),
+#     color = "white",
+#     fill = "steelblue4",
+#     shape = 21,
+#     size = 2,
+#     alpha = 0.5
+#   ) +
+#   theme_minimal() +
+#   theme(
+#     axis.text.y = element_blank(),
+#     axis.title.y = element_blank(),
+#   ) +
+#   labs(
+#     title = "Growth Bottom 40 vs National Average - 2012-2017",
+#     subtitle = "Old top countries",
+#     caption = "Bottom and Total growth as reported in the Global Database of Share Prosperity.",
+#     x = "Growth",
+#     y = ""
+#   ) +
+#   geom_text(
+#     data = data,
+#     aes(x = -7, label = country),
+#     angle = 0,
+#     alpha = 0.6,
+#     size = 2
+#   ) +
+#   geom_text(
+#     data = a,
+#     aes(y = mean, x = 8, label = ordervar),
+#     angle = 0,
+#     alpha = 0.6,
+#     size = 3
+#   ) +
+#   geom_segment(
+#     data = a,
+#     aes(
+#       y = max,
+#       yend = max,
+#       x = -5,
+#       xend = 10
+#     ),
+#     color = rgb(0, 0, 0, 0.3)
+#   ) +
+#   geom_vline(
+#     xintercept = 0,
+#     color = "red",
+#     linetype = "dashed"
+#   )
+#
+#
+# p
+#
+# ggplotly(p)
