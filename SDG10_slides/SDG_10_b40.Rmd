@@ -1,0 +1,284 @@
+---
+title: "Bottom 40 story"
+output:
+  xaringan::moon_reader:
+    seal: false
+    css: ["css/sfah.css", "css/fonts.css", "default"]
+    self_contained: false
+    lib_dir: libs
+    mathjax: "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_HTMLorMML"
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      slideNumberFormat: "%current%"
+      ratio: "16:9"
+      titleSlideClass: ["left", "middle", "inverse"]
+---
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+library(knitr)
+library(scales)
+library(ggpubr)
+library(xaringanthemer)
+library(here)
+
+knitr::opts_chunk$set(
+  warning = FALSE,
+  collapse = TRUE,
+  message = FALSE,
+  echo = FALSE,
+  fig.retina = 3,
+  fig.width = 10
+)
+
+# options(knitr.table.format = "html")
+library(fontawesome) # from github: https://github.com/rstudio/fontawesome
+xaringanExtra::use_xaringan_extra(c("tile_view", "animate_css", "tachyons"))
+```
+
+class: inverse, right, bottom
+## Bottom 40
+
+## A changing story
+
+???
+Intcomments
+```{r initcal}
+if (length(ls(pattern = "ld_b40_1")) == 0 ) { # load data?
+  source(here("R", "SDG_10_B40_Two_Periods.R"))
+  ld_b40_1 <-  1
+}
+```
+
+```{r chartfunc}
+b40chart <- function(data, ...) {
+  
+  df <- data   %>%
+    filter(...)  %>%
+    mutate(
+      cty = factor(country, country)
+    )
+  
+  if (...length() != 0) {
+    DT   <- as.data.table(data)
+    DT   <- melt(DT, measure = patterns("Growth", "country"), 
+                 value.name = c("value", "country"))
+    
+    minx <- DT[
+      ...
+       ][
+         value == min(value), value
+         ] * 1.1
+    
+    maxx <- DT[
+      ...
+    ][
+      value == max(value), value
+      ] * 1.1
+    
+    aty  <- 15
+    sty  <- 15
+    
+  } else{
+    minx <- NA
+    maxx <- NA
+    aty  <- 10
+    sty  <- 11
+  } 
+    
+  p <- ggplot(data = df,
+              aes(y = cty)) +
+    geom_segment(
+      aes(yend    = cty,
+          x       = OLDGrowth40,
+          xend    = OLDGrowth),
+      color       = "steelblue4",
+      alpha       = 0.5) +
+    geom_point(
+      aes(x       = OLDGrowth),
+      color       = "steelblue4",
+      fill        = "white",
+      shape       = 21,
+      stroke      = 0.7,
+      size        = 2,
+      alpha       = 0.5
+    ) +
+    geom_point(
+      aes(x       = OLDGrowth40),
+      color       = "white",
+      fill        = "steelblue4",
+      shape       = 21,
+      size        = 2,
+      alpha       = 0.5
+    ) +
+    geom_vline(xintercept      = 0,
+               color           = "red",
+               linetype        = "dashed")  +
+    facet_grid(incomegroup ~ .,
+               scales           = "free",
+               space            = "free",
+               switch           = "y") +
+    theme_minimal() +
+    theme(
+      axis.text.y       = element_text(size = aty),
+      axis.title.y      = element_blank(),
+      strip.text.y.left = element_text(size = sty)
+    ) +
+    labs(
+      title               = "Growth Bottom 40 vs National Average",
+      subtitle            = "Sorted by top countries",
+      caption             = "Bottom and Total growth as reported in the Global Database of Share Prosperity.",
+      x                   = "Growth",
+      y                   = ""
+    ) +
+    scale_x_continuous(limits = c(minx, maxx))
+
+return(p) 
+}
+
+
+p1 <- b40chart(data)
+
+nsp <- list(
+  geom_segment(
+    aes(
+      yend              = cty,
+      x                 = Growth40,
+      xend              = Growth
+    ),
+    color               = rgb(0, 0, 0, 0.3)
+  ) ,
+  geom_point(
+    aes(x               = Growth),
+    color               = "black",
+    fill                = "white",
+    shape               = 21,
+    stroke              = 0.7,
+    size                = 2
+  ) ,
+  geom_point(
+    aes(x               = Growth40),
+    color               = "white",
+    fill                = "red",
+    shape               = 21,
+    size                = 2
+  )
+)
+
+```
+---
+.left-column[
+Let's select some of the countries for which we had shared prosperity in 2017 and rank them according  to the growth of their bottom 40. 
+]
+---
+.left-column[
+Let's select some of the countries for which we had shared prosperity in 2017 and rank them according  to the growth of their bottom 40. 
+
+For all these cases, incomes of the bottom 40 are growing faster than average during **2008 and 2013**
+]
+.right-column[
+```{r b401}
+p1
+```
+]
+---
+.left-column[
+Some low income countries seem to be doing very well.  
+]
+.right-column[
+```{r b402}
+
+pli <- b40chart(data, incomegroup == "Low income")
+pli 
+```
+]
+
+---
+.left-column[
+Yet, three years later, for the period **2012-2017**, the story reverted for some of them. 
+
+Tanzania and Uganda switched from having positive and higher bottom 40 growth than average in 2008-2013 to present negative growth in their bottom 40 in 2012-2017. 
+]
+.right-column[
+```{r b403}
+pli + nsp
+  
+```
+]
+
+---
+.left-column[
+In lower-middle income, we have countries, like Mongolia and Bolivia, with remarkable economic growth in their bottom 40 in contrast to their average growth. 
+]
+.right-column[
+```{r b404}
+plm <- b40chart(data, incomegroup == "Lower middle income")
+plm
+```
+]
+---
+.left-column[
+Yet, **from 2012 to 2017** the story reverted for most lower-middle income countries. Economic growth in Mongolia and Bhutan declined dramatically. Bolivia's overall growth was negative, though the bottom 40 managed to growth during this period. On the other hand, Honduras, which presented negative growth **from 2008 to 2013**, shows modest pro-rich economic growth as the average is growing faster than the bottom 40. 
+]
+.right-column[
+```{r b405}
+plm + nsp
+```
+]
+---
+.left-column[
+In general, Upper-middle economies had excellent growth **from 2008 to 2013**. With the exception of Albania, all other countries had at least positive bottom 40 growth. 
+]
+.right-column[
+```{r b406}
+pum <- b40chart(data, incomegroup == "Upper middle income")
+pum
+```
+]
+---
+.left-column[
+However, **from 2012 to 2017** countries like Belarus, Kazakhstan, and Russia reverted to negative overall growth. More generally, all upper-middle income countries with the exception of Romania, Dominican Republic, and Albania, did worst in the **2012-2017** period. 
+]
+.right-column[
+```{r b407}
+pum + nsp
+```
+]
+---
+.left-column[
+Finally, **from 2008 to 2013** some high-income countries like Chile and Panama did very well, whereas others like Iceland and Latvia had negative economic growth. 
+]
+.right-column[
+```{r b408}
+phi <- b40chart(data, incomegroup == "High income")
+phi
+```
+]
+---
+.left-column[
+Yet, **from 2012 to 2017**, with the exception of the Argentina, Germany, and Switzerland, high-income countries presented positive pro-poor growth. Latvia, whose economic performance was negative in the first period, excelled on the second period with the second to the best economic and shared prosperity performance of all. 
+]
+.right-column[
+```{r b409}
+phi + nsp
+```
+]
+---
+.left-column[
+So, the story of bottom 40 changed from this in **2008-2013** 
+]
+.right-column[
+```{r b40f1}
+p1
+```
+]
+---
+.left-column[
+So, the story of bottom 40 changed from this in **2008-2013** to this in **2012-2017**
+]
+.right-column[
+```{r b40f2}
+p1 + nsp
+```
+]

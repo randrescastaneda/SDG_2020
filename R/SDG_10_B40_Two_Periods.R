@@ -1,21 +1,49 @@
+# ==================================================
+# project:       growth of b40 in two periods
+# Author:        David Vargas (modified by Andres Castaneda)
+# Dependencies:  The World Bank
+# ----------------------------------------------------
+# Creation Date:
+# Modification Date:
+# Script version:    01
+# References:
+#
+#
+# Output:             data for charts
+# ==================================================
+
+#----------------------------------------------------------
+#   Load libraries
+#----------------------------------------------------------
 
 library(wbstats)
 library(tidyverse)
 library(data.table)
 library(scales)
 library(hrbrthemes)
-library(plotly)
+library(here)
+
+#----------------------------------------------------------
+#   subfunctions
+#----------------------------------------------------------
+
 
 # functions
-source("R/panel_WDI.R") # Wrapper to wb function from wbstat
+
+source(here("R", "panel_WDI.R")) # Wrapper to wb function from wbstat
+
+#----------------------------------------------------------
+# parameter
+#----------------------------------------------------------
+
 
 # parameters
 ordervariable <-
   "incomegroup" # how to group countries, works with region, incomegroup or both c("region","incomegroup")
 sortvariable <-
-  "Growth40" # How to sort values within groups Growth40, Growth, diff, diffabs?
+  "OLDGrowth" # How to sort values within groups Growth40, Growth, diff, diffabs?
 rankvariable <-
-  c("diff", "Growth40") # How to rank countries: Growth40, Growth, diff, diffabs?
+  c("diff", "OLDGrowth") # How to rank countries: Growth40, Growth, diff, diffabs?
 filename <- "" # root file name
 
 
@@ -34,7 +62,7 @@ filename <- "" # root file name
 # Load Share Prosperity Data
 WDI <-
   read.csv2(
-    "data/WDI2020.csv",
+    here("data", "WDI2020.csv"),
     sep = ",",
     dec = ".",
     stringsAsFactors = F
@@ -54,7 +82,7 @@ WDI <- WDI %>%
 # Load the old WDI data
 WDI2017 <-
   read.csv2(
-    "data/WDI2017.csv",
+    here("data", "WDI2017.csv"),
     sep = ",",
     dec = ".",
     stringsAsFactors = F
@@ -71,7 +99,7 @@ WDI2017 <- WDI2017 %>%
   extract(year, into = "Year", regex = "([0-9]+)") %>%
   mutate(Year = as.numeric(as.character(Year)))
 
-# I'll keep just those indicatores I care for
+# I'll keep just those indicators I care for
 WDI2017 <- WDI2017 %>%
   filter(indicatorID %in% c("SI.SPR.PC40.ZG", "SI.SPR.PCAP.ZG")) %>%
   drop_na() %>%
@@ -95,7 +123,7 @@ WDI <- full_join(WDI, WDI2017, by = "countrycode") %>%
 
 
 # -- Add Region ID
-cr <- read_rds("data/cty_regs_names.rds") %>%
+cr <- read_rds(here("data", "cty_regs_names.rds")) %>%
   setDT() %>%
   select(-lending)
 
@@ -125,31 +153,30 @@ data <- WDI %>%
 data <-  data %>%
   mutate(
     ordervar = !! sym(ordervariable),
-    ordervar = factor(x = ordervar),
-    ordervar = fct_relevel(ordervar, "Low income", "Lower middle income",
-                 "Upper middle income", "High income"),
+    ordervar = factor(x = ordervar,
+                      levels = c("Low income", "Lower middle income",
+                                 "Upper middle income", "High income")
+                      ),
     sortvar  =  !! sym(sortvariable)
     ) %>%
-  arrange(-ordervar, sortvar)
+  group_by(ordervar) %>%
+  arrange(sortvar) %>%
+  mutate(
+    yid = row_number()
+  ) %>%
+  ungroup()
 
 
 # data$id <- seq(1, nrow(data))
 
-# empy space between regions
+# empty space between regions
 empty_bar        <- 1
 to_add           <- data.frame(matrix(NA, empty_bar * length(unique(data$ordervar)), ncol(data)))
 colnames(to_add) <- colnames(data)
 to_add$ordervar  <- rep(unique(data$ordervar), each = empty_bar)
 data             <- rbind(data, to_add)
-data             <- data %>% arrange(ordervar, sortvar)
+data             <- arrange(data, ordervar, sortvar)
 data$id          <- seq(1, nrow(data))
-
-# set lines
-a <- data %>%
-  group_by(ordervar) %>%
-  summarise(max = max(id), mean = mean(id)) %>%
-  ungroup() %>%
-  mutate(val = max(max) + 2)
 
 data <- data %>%
   mutate(
@@ -158,106 +185,3 @@ data <- data %>%
   ) %>%
   drop_na()
 
-breaks <- seq(min(data$Growth40, na.rm = T),
-  max(data$Growth40, na.rm = T),
-  length.out = 5
-)
-
-
-# Plot
-p <- ggplot(data,
-            aes(y = id)) +
-  geom_segment(aes(
-    yend = id,
-    x = Growth40,
-    xend = Growth
-  ),
-  color = rgb(0, 0, 0, 0.3)
-  ) +
-  geom_point(
-    aes(x = Growth, text = country),
-    color = "black",
-    fill = "white",
-    shape = 21,
-    stroke = 0.7,
-    size = 2
-  ) +
-  geom_point(
-    aes(x = Growth40, text = country),
-    color = "white",
-    fill = "red",
-    shape = 21,
-    size = 2
-  ) +
-  geom_segment(
-    aes(
-      yend = id,
-      x = OLDGrowth40,
-      xend = OLDGrowth
-    ),
-    color = "steelblue4",
-    alpha = 0.5
-  ) +
-  geom_point(
-    aes(x = OLDGrowth, text = country),
-    color = "steelblue4",
-    fill = "white",
-    shape = 21,
-    stroke = 0.7,
-    size = 2,
-    alpha = 0.5
-  ) +
-  geom_point(
-    aes(x = OLDGrowth40, text = country),
-    color = "white",
-    fill = "steelblue4",
-    shape = 21,
-    size = 2,
-    alpha = 0.5
-  ) +
-  theme_minimal() +
-  theme(
-    axis.text.y = element_blank(),
-    axis.title.y = element_blank(),
-  ) +
-  labs(
-    title = "Growth Bottom 40 vs National Average - 2012-2017",
-    subtitle = "Old top countries",
-    caption = "Bottom and Total growth as reported in the Global Database of Share Prosperity.",
-    x = "Growth",
-    y = ""
-  ) +
-  geom_text(
-    data = data,
-    aes(x = -7, label = country),
-    angle = 0,
-    alpha = 0.6,
-    size = 2
-  ) +
-  geom_text(
-    data = a,
-    aes(y = mean, x = 8, label = ordervar),
-    angle = 0,
-    alpha = 0.6,
-    size = 3
-  ) +
-  geom_segment(
-    data = a,
-    aes(
-      y = max,
-      yend = max,
-      x = -5,
-      xend = 10
-    ),
-    color = rgb(0, 0, 0, 0.3)
-  ) +
-  geom_vline(
-    xintercept = 0,
-    color = "red",
-    linetype = "dashed"
-  )
-
-
-p
-
-ggplotly(p)
