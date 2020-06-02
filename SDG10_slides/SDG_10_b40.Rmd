@@ -49,8 +49,9 @@ if (length(ls(pattern = "ld_b40_1")) == 0 ) { # load data?
   source(here("R", "SDG_10_Growth40_2017rep_AC.R"))
   ld_b40_1 <-  1
 }
+```
 
-  
+```{r chartfunc}
 b40chart <- function(data, ...) {
   
   df <- data   %>%
@@ -59,7 +60,29 @@ b40chart <- function(data, ...) {
       cty = factor(country, country)
     )
   
-p <- ggplot(data = df,
+  if (...length() != 0) {
+    DT   <- as.data.table(data)
+    DT   <- melt(DT, measure = patterns("Growth", "country"), 
+                 value.name = c("value", "country"))
+    
+    minx <- DT[
+      ...
+       ][value == min(value), value
+         ] * 1.1
+    
+    
+    maxx <- DT[
+      ...
+       ][value == max(value), value
+         ] * 1.1
+    
+    
+  } else{
+    minx <- NA
+    maxx <- NA
+  } 
+  
+  p <- ggplot(data = df,
          aes(y = cty)) +
     theme_minimal() +
     theme(
@@ -110,7 +133,8 @@ p <- ggplot(data = df,
     shape               = 21,
     size                = 2,
     alpha               = 0.5
-  ) 
+  ) +
+  scale_x_continuous(limits = c(minx, maxx))
 
 return(p) 
 }
@@ -147,13 +171,13 @@ nsp <- list(
 ```
 ---
 .left-column[
-Let's select some of countries for which we had shared prosperity data three years ago and rank them according to growth of their bottom 40. 
+Let's select some of the countries for which we had shared prosperity in 2017 and rank them according  to the growth of their bottom 40. 
 ]
 ---
 .left-column[
-Let's select the countries for which we have shared prosperity data three years ago and rank them according to growth of their bottom 40. 
+Let's select some of the countries for which we had shared prosperity in 2017 and rank them according  to the growth of their bottom 40. 
 
-Here, incomes of the poorest people are growing faster than average for the **2008-2013** period
+For all these cases, incomes of the bottom 40 are growing faster than average during **2008 and 2013**
 ]
 .right-column[
 ```{r b401}
@@ -166,8 +190,9 @@ Some low income countries seem to be doing very well.
 ]
 .right-column[
 ```{r b402}
+
 pli <- b40chart(data, incomegroup == "Low income")
-pli
+pli 
 ```
 ]
 
@@ -189,8 +214,55 @@ pli + nsp
 In lower middle countries, we see two different patterns. Some countries:
 ]
 .right-column[
-```{r b402}
+```{r b404}
 plm <- b40chart(data, incomegroup == "Lower middle income")
 plm
+```
+]
+---
+.left-column[
+
+]
+.right-column[
+```{r b405}
+plm + nsp
+```
+]
+---
+.left-column[
+
+]
+.right-column[
+```{r b406}
+pum <- b40chart(data, incomegroup == "Upper middle income")
+pum
+```
+]
+---
+.left-column[
+
+]
+.right-column[
+```{r b407}
+pum + nsp
+```
+]
+---
+.left-column[
+
+]
+.right-column[
+```{r b408}
+phi <- b40chart(data, incomegroup == "High income")
+phi
+```
+]
+---
+.left-column[
+
+]
+.right-column[
+```{r b409}
+phi + nsp
 ```
 ]
