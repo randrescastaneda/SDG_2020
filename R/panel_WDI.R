@@ -11,7 +11,7 @@ panel_WDI <- function(indicator, start=2000, end = 2015, maxdist=5, cb = TRUE, l
     stop("The indicator must be a string")
   }
   if (length(indicator)!= 1){
-    print(paste("Constructing panel for",length(indicator),"indicators"))
+    # print(paste("Constructing panel for",length(indicator),"indicators"))
   }
   if (is.numeric(start)== F){
     stop("The circa year must be numeric")

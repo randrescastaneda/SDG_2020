@@ -1,6 +1,6 @@
 # Growth Incidence Curve social programs 
 
-#setwd("C:/Users/wb562350/OneDrive - WBG/Documents/Git/Research/SDG_2020")
+setwd("C:/Users/wb562350/OneDrive - WBG/Documents/Git/Research/SDG_2020")
 
 library(wbstats)
 library(tidyverse)
@@ -93,16 +93,44 @@ SPcover <- ggplot(coverd,aes(countrycode, quintile) ) +
   geom_tile(aes(fill= growth)) +
   scale_fill_distiller(palette = "RdBu",  limits=c(-40, 40), breaks=seq(-40,40,by=10)) +
   labs(title = "Annual Growth in coverage of social safety net programs", 
-  subtitle = "in quintile (% of population)",
-  caption = str_wrap(footnote, width = 200) ) +
+  subtitle = "in quintile (% of population)"
+  # caption = str_wrap(footnote, width = 200) 
+  ) +
   theme(
     plot.caption = element_text(hjust = 0),
     plot.caption.position =  "plot",
     plot.title.position = "plot"
   ) +
   xlab("")
-  
-SPcover
+
+
+SPcover2 <- ggplot(coverd[coverd$Year==2007,],aes(countrycode, quintile) ) +
+  geom_tile(aes(fill= value))+
+  scale_fill_distiller(palette = "Blues",  limits=c(0, 100), breaks=seq(0,100,by=20), direction = 1) +
+  labs(title = "Coverage of social safety net programs - circa 2007", 
+       subtitle = "in quintile (% of population)"
+       # caption = str_wrap(footnote, width = 200)
+       ) +
+  theme(
+    plot.caption = element_text(hjust = 0),
+    plot.caption.position =  "plot",
+    plot.title.position = "plot"
+  ) +
+  xlab("")
+
+SPcover3 <- ggplot(coverd[coverd$Year==2017,],aes(countrycode, quintile) ) +
+  geom_tile(aes(fill= value))+
+  scale_fill_distiller(palette = "Blues",  limits=c(0, 100), breaks=seq(0,100,by=20), direction = 1) +
+  labs(title = "Coverage of social safety net programs - circa 2017", 
+       subtitle = "in quintile (% of population)",
+       caption = str_wrap(footnote, width = 200)
+  ) +
+  theme(
+    plot.caption = element_text(hjust = 0),
+    plot.caption.position =  "plot",
+    plot.title.position = "plot"
+  ) +
+  xlab("")
 
 #### Target 10.4 - Social Protection: compare incidence in the lowest quintile ####
 
