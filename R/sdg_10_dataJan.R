@@ -29,7 +29,9 @@ source("R/utils.R")
 #   hundred people
 #----------------------------------------------------------
 source("R/SDG_10_hundred_people.R")
+
 cf <- cf[, .(welfare, population = weight, countrycode)]
+
 
 write_csv(cf,
           path = "data/SDG10_daily_income.csv",
@@ -41,6 +43,17 @@ df <- df[, .(countrycode, percentile = pc, headcount,
 
 write_csv(df,
           path = "data/SDG10_share_income.csv",
+          col_names = TRUE,
+          na = "")
+
+pe <- pe[, .(percentile = hcf,
+             headcount = CSy,
+             welfare,
+             cumm_income = qc,
+             share_income = Sy)]
+
+write_csv(pe,
+          path = "data/SDG10_perfect_equality.csv",
           col_names = TRUE,
           na = "")
 
