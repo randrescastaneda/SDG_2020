@@ -101,18 +101,10 @@ plot(SPinc)
 ```
 ]
 ---
-{
-  float: left;
-  width: 47%;
-}
-.pull-right {
-  float: right;
-  width: 47%;
-}
 .left-column[
 Despite the advancement, there is plenty of room for social protection policies
 
-The Country Policy and Institutional Assessment (CPIA) intends to capture the quality of a country’s policies and institutional arrangements, focusing on central elements under the country’s control, and rates the countries between 1 (low) and 6 (high). 
+<!-- The Country Policy and Institutional Assessment (CPIA) intends to capture the quality of a country’s policies and institutional arrangements, focusing on central elements under the country’s control, and rates the countries between 1 (low) and 6 (high).  -->
 
 The development of assessments on social protection shows a great improvement in countries as Zimbabwe, Vanuatu and Togo. However, in a lapse of ten years, the rating is unchanged for many counties, with some of the most vulnerable territories as Haiti and Congo experiencing a rating downgrade. 
 ]
@@ -127,7 +119,11 @@ class: middle, center
 ### Remittances
 ---
 .left-column[
-Let's start with an economy in which everybody has the same amount of money, i.e., perfect equality. To make it simple, let's plot the income level of 100 people of this economy, from the poorest to the richest. Since all the people have the same amount of money, The size of the bars have the same legth for everybody.
+During 2017, an estimate of 585.93 billion dollars was sent as remittances across the globe. From the total of remittances 51.55% were sent to low income and lower-middle-income countries; being the lower-income countries the top recipients.
+
+Furthermore, the cost of remittances is high. For 2017 the cost of sending 200 USD was on average 7.96% of the sent value. 
+
+Workers abroad from low-income countries as Angola, Botswana and Mozambique are the ones facing the higher cost of to send money back to their families.
 ]
 .right-column[
 ```{r, fig.width = 12, fig.asp=0.7}
@@ -136,7 +132,7 @@ plot(premit)
 ]
 ---
 .left-column[
-Let's start with an economy in which everybody has the same amount of money, i.e., perfect equality. To make it simple, let's plot the income level of 100 people of this economy, from the poorest to the richest. Since all the people have the same amount of money, The size of the bars have the same legth for everybody.
+The 7.96% cost in 2017 was achieved by an annual reduction of 3.93% of the charge from a mean cost of 9.66% of the sent value in 2011.
 ]
 .right-column[
 ```{r, fig.width = 12, fig.asp=0.7}
