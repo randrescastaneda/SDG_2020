@@ -29,7 +29,7 @@ panel_WDI <- function(indicator, start=2000, end = 2015, maxdist=5, cb = TRUE, l
   
   # Download WBG data
   WDI <- wb(indicator = indicator)
-
+  
   # =============
   # Clean data
   # =============
