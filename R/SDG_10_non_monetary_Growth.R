@@ -1,6 +1,4 @@
-# Growth Incidence Curve social programs 
-
-setwd("C:/Users/wb562350/OneDrive - WBG/Documents/Git/Research/SDG_2020")
+# setwd("C:/Users/wb562350/OneDrive - WBG/Documents/Git/Research/SDG_2020")
 
 library(wbstats)
 library(tidyverse)
@@ -52,7 +50,7 @@ WDI <- WDI %>%
   arrange(indicatorID, countrycode, Year) %>% 
   group_by(indicatorID, countrycode) %>% 
   mutate( growth = (((value[2] / value[1])^(1/(usedey-usedsy)))-1) * 100 )  # Annualized growth
-  # mutate( growth = ((value[2] - value[1])/value[1])*100 )              # Overall growth
+# mutate( growth = ((value[2] - value[1])/value[1])*100 )              # Overall growth
 
 # load region data
 # -- Add Region ID
@@ -65,10 +63,10 @@ cr <- read_rds("data/cty_regs_names.rds") %>%
 
 # Minor Cleanup
 coverind <- c("per_sa_allsa.cov_q1_tot",
-             "per_sa_allsa.cov_q2_tot",
-             "per_sa_allsa.cov_q3_tot",
-             "per_sa_allsa.cov_q4_tot",
-             "per_sa_allsa.cov_q5_tot")
+              "per_sa_allsa.cov_q2_tot",
+              "per_sa_allsa.cov_q3_tot",
+              "per_sa_allsa.cov_q4_tot",
+              "per_sa_allsa.cov_q5_tot")
 
 coverd <-  WDI %>%
   filter(indicatorID %in% coverind) %>% 
@@ -88,7 +86,7 @@ footnote <-  str_remove_all("Coverage as Percentage of population per quintile p
   assistance programs (housing allowances, scholarships, fee waivers, health subsidies, 
   and other social assistance) and public works programs (cash for work and food for work).
   Estimates include both direct and indirect beneficiaries. Average compound annual growth rate.", "\n")
- 
+
 # plot
 # SPcover <- ggplot(coverd,aes(countrycode, quintile) ) +
 #   geom_tile(aes(fill= growth)) +
@@ -114,14 +112,14 @@ SPcover2 <- coverd[coverd$Year==2007,] %>%
   labs(title = "Coverage of social safety net programs - circa 2007", 
        subtitle = "in quintile (% of population)"
        # caption = str_wrap(footnote, width = 200)
-       ) +
+  ) +
   theme(
     plot.caption = element_text(hjust = 0),
     plot.caption.position =  "plot",
     plot.title.position = "plot"
   ) +
   xlab("")
-  
+
 SPcover3 <- coverd[coverd$Year==2017,] %>% 
   mutate( name = fct_reorder(countrycode,val)) %>% 
   ggplot(aes(name, quintile) ) +
@@ -198,10 +196,17 @@ footnote <- str_remove_all("Social protection and labor assess government polici
 CPIss <- WDI %>% 
   filter(indicatorID == "IQ.CPA.PROT.XQ") %>% 
   drop_na() %>% 
-  ungroup() 
-  # mutate(Year=paste0("v", Year)) %>% 
-  # spread("Year", "value") %>% 
-  # mutate(change = v2017 - v2007)
+  ungroup() %>% 
+  group_by(countrycode) %>%
+  arrange(countrycode, Year) %>%
+  mutate(change = value[2]-value[1],
+         v2007 = value[1],
+         win = if_else(change>0, change, 0),
+         loss = if_else(change<0,abs(change),0),
+         initial = if_else(change<0, (v2007-loss), v2007))
+# mutate(Year=paste0("v", Year)) %>% 
+# spread("Year", "value") %>% 
+# mutate(change = v2017 - v2007)
 
 # SPcpi <- CPIss %>%
 #   group_by(countrycode) %>% 
@@ -226,13 +231,6 @@ CPIss <- WDI %>%
 #   )
 
 SPcpi <- CPIss %>%
-  group_by(countrycode) %>%
-  arrange(countrycode, Year) %>%
-  mutate(change = value[2]-value[1],
-         v2007 = value[1],
-         win = if_else(change>0, change, 0),
-         loss = if_else(change<0,abs(change),0),
-         initial = if_else(change<0, (v2007-loss), v2007)) %>% 
   gather(condition, rate, win:initial) %>% 
   filter(Year==2017) %>% 
   ungroup() %>% 
@@ -279,8 +277,8 @@ remit <- left_join(remit, cr2, by = "countrycode")
 
 remit <- remit %>% 
   mutate(incomegroup = if_else(countrycode %in% c("ARE","BHR","KWT","NZL","OMN","SAU","SGP","QAT"),"High income",incomegroup),
-          incomegroup = if_else(countrycode %in% c("KHM"),"Lower middle income",incomegroup),
-          incomegroup = if_else(countrycode %in% c("AFG","CUB","ERI","SOM"),"Low income",incomegroup))
+         incomegroup = if_else(countrycode %in% c("KHM"),"Lower middle income",incomegroup),
+         incomegroup = if_else(countrycode %in% c("AFG","CUB","ERI","SOM"),"Low income",incomegroup))
 
 # keep description
 seriesdes <- remit %>% 
@@ -324,14 +322,14 @@ prf <-  remit_from %>%
   ungroup() %>% 
   mutate(countryname = fct_reorder(countryname, value)) %>% 
   ggplot(aes(x=countryname, y = value, fill = incomegroup)) +
-     geom_bar(stat = "identity", alpha = 0.8 ) +
-     geom_tile() +
-     coord_flip() +
-     xlab("") +
-     ylab("% of percentage of the amount sent") +
-     labs(title = "Cost of sending remittances from", 
-          subtitle = "Cost as percentage of the amount sent for sending USD 200")+
-     scale_y_continuous(expand = c(0,0), breaks = scales::pretty_breaks(n = 10)) + theme_tufte() +
+  geom_bar(stat = "identity", alpha = 0.8 ) +
+  geom_tile() +
+  coord_flip() +
+  xlab("") +
+  ylab("% of percentage of the amount sent") +
+  labs(title = "Cost of sending remittances from", 
+       subtitle = "Cost as percentage of the amount sent for sending USD 200")+
+  scale_y_continuous(expand = c(0,0), breaks = scales::pretty_breaks(n = 10)) + theme_tufte() +
   theme(
     axis.text = element_text(size = 8),
     legend.position = "none"
@@ -339,31 +337,31 @@ prf <-  remit_from %>%
   geom_hline(yintercept = 3)
 
 
-   
+
 
 # to 
- 
+
 max <- max(remit_to$value)
- 
+
 prt <-  remit_to %>%
   group_by(countrycode) %>% 
   filter(row_number()==n()) %>% 
   ungroup() %>% 
   mutate(countryname = fct_reorder(countryname, value)) %>% 
   ggplot(aes(x=countryname, y = value, fill = incomegroup)) +
-      geom_bar(stat = "identity", alpha = 0.8) +
-      geom_tile() +
-      coord_flip() +
-      xlab("") +
-      ylab("% of percentage of the amount sent") +
-      labs(title = "Cost of sending remittances to", 
-           subtitle = "Cost as percentage of the amount sent for sending USD 200",
-           fill = "Income Group")+
-      scale_y_continuous(expand = c(0,0), breaks = scales::pretty_breaks(n = 10)) +
-      theme_tufte() +
-      theme(
-        axis.text = element_text(size = 6)
-      )
+  geom_bar(stat = "identity", alpha = 0.8) +
+  geom_tile() +
+  coord_flip() +
+  xlab("") +
+  ylab("% of percentage of the amount sent") +
+  labs(title = "Cost of sending remittances to", 
+       subtitle = "Cost as percentage of the amount sent for sending USD 200",
+       fill = "Income Group")+
+  scale_y_continuous(expand = c(0,0), breaks = scales::pretty_breaks(n = 10)) +
+  theme_tufte() +
+  theme(
+    axis.text = element_text(size = 6)
+  )
 
 
 premit <- ggarrange(prf, prt, ncol = 2, nrow = 1)
@@ -378,14 +376,14 @@ prfg <-  remit_from %>%
   ungroup() %>% 
   mutate(countryname = fct_reorder(countryname, growth)) %>% 
   ggplot(aes(x=countryname, y = growth, fill=incomegroup)) +
-      geom_bar(stat = "identity", alpha = 0.8) +
-      geom_tile() +
-      coord_flip() +
-      xlab("") +
-      ylab("% Annual Cost Growth") +
-      labs(title = "Compound annual cost growth of sending remittances from", 
-           subtitle = "Cost as percentage of the amount sent for sending USD 200")+
-      scale_y_continuous(expand = c(0,0), breaks = scales::pretty_breaks(n = 10)) + theme_tufte() +
+  geom_bar(stat = "identity", alpha = 0.8) +
+  geom_tile() +
+  coord_flip() +
+  xlab("") +
+  ylab("% Annual Cost Growth") +
+  labs(title = "Compound annual cost growth of sending remittances from", 
+       subtitle = "Cost as percentage of the amount sent for sending USD 200")+
+  scale_y_continuous(expand = c(0,0), breaks = scales::pretty_breaks(n = 10)) + theme_tufte() +
   theme(
     axis.text = element_text(size = 8),
     legend.position = "none"
@@ -397,18 +395,18 @@ prtg <-  remit_to %>%
   ungroup() %>% 
   mutate(countryname = fct_reorder(countryname, growth)) %>% 
   ggplot(aes(x=countryname, y = growth, fill=incomegroup)) +
-      geom_bar(stat = "identity", alpha = 0.8) +
-      geom_tile() +
-      coord_flip() +
-      xlab("") +
-      ylab("% Annual Cost Growth") +
-      labs(title = "Compound annual cost growth of sending remittances to", 
-           subtitle = "Cost as percentage of the amount sent for sending USD 200",
-           fill="Income Group")+
-      scale_y_continuous(expand = c(0,0), breaks = scales::pretty_breaks(n = 10)) + theme_tufte() +
+  geom_bar(stat = "identity", alpha = 0.8) +
+  geom_tile() +
+  coord_flip() +
+  xlab("") +
+  ylab("% Annual Cost Growth") +
+  labs(title = "Compound annual cost growth of sending remittances to", 
+       subtitle = "Cost as percentage of the amount sent for sending USD 200",
+       fill="Income Group")+
+  scale_y_continuous(expand = c(0,0), breaks = scales::pretty_breaks(n = 10)) + theme_tufte() +
   theme(
-        axis.text = element_text(size = 6)
-      )
+    axis.text = element_text(size = 6)
+  )
 
 
 premitc <- ggarrange(prfg, prtg, ncol = 2, nrow = 1)
@@ -436,12 +434,19 @@ footnote <- str_remove_all("The policies for social inclusion and equity cluster
 CPIinc <- WDI %>% 
   filter(indicatorID == "IQ.CPA.SOCI.XQ") %>% 
   drop_na() %>% 
-  ungroup()
-  # group_by(countrycode) %>%
-  # arrange(countrycode, Year) %>%
-  # mutate(Year=paste0("v", Year)) %>% 
-  # spread("Year", "value") %>% 
-  # mutate(change = v2017 - v2007)
+  ungroup() %>% 
+  group_by(countrycode) %>%
+  arrange(countrycode, Year) %>%
+  mutate(change = value[2]-value[1],
+         v2007 = value[1],
+         win = if_else(change>0, change, 0),
+         loss = if_else(change<0,abs(change),0),
+         initial = if_else(change<0, (v2007-loss), v2007))
+# group_by(countrycode) %>%
+# arrange(countrycode, Year) %>%
+# mutate(Year=paste0("v", Year)) %>% 
+# spread("Year", "value") %>% 
+# mutate(change = v2017 - v2007)
 
 # pincCPI <- CPIinc %>%
 #   group_by(countrycode) %>% 
@@ -467,13 +472,6 @@ CPIinc <- WDI %>%
 #   )
 
 pincCPI <- CPIinc %>%
-  group_by(countrycode) %>%
-  arrange(countrycode, Year) %>%
-  mutate(change = value[2]-value[1],
-         v2007 = value[1],
-         win = if_else(change>0, change, 0),
-         loss = if_else(change<0,abs(change),0),
-         initial = if_else(change<0, (v2007-loss), v2007)) %>% 
   gather(condition, rate, win:initial) %>% 
   filter(Year==2017) %>% 
   ungroup() %>% 

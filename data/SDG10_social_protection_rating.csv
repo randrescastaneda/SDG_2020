@@ -1,0 +1,131 @@
+Year,countrycode,countryname,region,incomegroup,value,value2007,growth,win,loss,initial
+2007,BDI,Burundi,SSA,Low income,3,3,0,0,0,3
+2017,BDI,Burundi,SSA,Low income,3,3,0,0,0,3
+2007,BEN,Benin,SSA,Low income,3,3,0,0,0,3
+2017,BEN,Benin,SSA,Low income,3,3,0,0,0,3
+2007,BFA,Burkina Faso,SSA,Low income,3.5,3.5,-1.5296863975959973,0,0.5,3
+2017,BFA,Burkina Faso,SSA,Low income,3,3.5,-1.5296863975959973,0,0.5,3
+2007,BGD,Bangladesh,SAS,Lower middle income,3.5,3.5,0,0,0,3.5
+2017,BGD,Bangladesh,SAS,Lower middle income,3.5,3.5,0,0,0,3.5
+2007,BOL,Bolivia,LAC,Lower middle income,3.5,3.5,0,0,0,3.5
+2017,BOL,Bolivia,LAC,Lower middle income,3.5,3.5,0,0,0,3.5
+2007,BTN,Bhutan,SAS,Lower middle income,3.5,3.5,-1.5296863975959973,0,0.5,3
+2017,BTN,Bhutan,SAS,Lower middle income,3,3.5,-1.5296863975959973,0,0.5,3
+2007,CAF,Central African Republic,SSA,Low income,2,2,0,0,0,2
+2017,CAF,Central African Republic,SSA,Low income,2,2,0,0,0,2
+2007,CIV,Cote d'Ivoire,SSA,Lower middle income,2.5,2.5,1.839937614702425,0.5,0,2.5
+2017,CIV,Cote d'Ivoire,SSA,Lower middle income,3,2.5,1.839937614702425,0.5,0,2.5
+2007,CMR,Cameroon,SSA,Lower middle income,3,3,0,0,0,3
+2017,CMR,Cameroon,SSA,Lower middle income,3,3,0,0,0,3
+2007,COD,Congo Dem,SSA,Low income,3,3,-1.806695543808734,0,0.5,2.5
+2017,COD,Congo Dem,SSA,Low income,2.5,3,-1.806695543808734,0,0.5,2.5
+2007,COG,Congo,SSA,Lower middle income,2.5,2.5,0,0,0,2.5
+2017,COG,Congo,SSA,Lower middle income,2.5,2.5,0,0,0,2.5
+2007,COM,Comoros,SSA,Low income,2.5,2.5,-2.2067231457071457,0,0.5,2
+2017,COM,Comoros,SSA,Low income,2,2.5,-2.2067231457071457,0,0.5,2
+2007,CPV,Cabo Verde,SSA,Lower middle income,4.5,4.5,-1.1709210879118914,0,0.5,4
+2017,CPV,Cabo Verde,SSA,Lower middle income,4,4.5,-1.1709210879118914,0,0.5,4
+2007,DJI,Djibouti,MNA,Lower middle income,3,3,0,0,0,3
+2017,DJI,Djibouti,MNA,Lower middle income,3,3,0,0,0,3
+2007,ETH,Ethiopia,SSA,Low income,3.5,3.5,0,0,0,3.5
+2017,ETH,Ethiopia,SSA,Low income,3.5,3.5,0,0,0,3.5
+2007,GHA,Ghana,SSA,Lower middle income,3.5,3.5,1.3442690579665628,0.5,0,3.5
+2017,GHA,Ghana,SSA,Lower middle income,4,3.5,1.3442690579665628,0.5,0,3.5
+2007,GIN,Guinea,SSA,Low income,3,3,0,0,0,3
+2017,GIN,Guinea,SSA,Low income,3,3,0,0,0,3
+2007,GMB,Gambia,SSA,Low income,2.5,2.5,0,0,0,2.5
+2017,GMB,Gambia,SSA,Low income,2.5,2.5,0,0,0,2.5
+2007,GNB,Guinea-Bissau,SSA,Low income,2.5,2.5,0,0,0,2.5
+2017,GNB,Guinea-Bissau,SSA,Low income,2.5,2.5,0,0,0,2.5
+2007,GUY,Guyana,LAC,Upper middle income,3,3,0,0,0,3
+2017,GUY,Guyana,LAC,Upper middle income,3,3,0,0,0,3
+2007,HND,Honduras,LAC,Lower middle income,3.5,3.5,0,0,0,3.5
+2017,HND,Honduras,LAC,Lower middle income,3.5,3.5,0,0,0,3.5
+2007,HTI,Haiti,LAC,Low income,2.5,2.5,-2.2067231457071457,0,0.5,2
+2017,HTI,Haiti,LAC,Low income,2,2.5,-2.2067231457071457,0,0.5,2
+2007,KEN,Kenya,SSA,Lower middle income,3,3,1.5534493002352434,0.5,0,3
+2017,KEN,Kenya,SSA,Lower middle income,3.5,3,1.5534493002352434,0.5,0,3
+2007,KGZ,Kyrgyz Republic,ECA,Lower middle income,3.5,3.5,0,0,0,3.5
+2017,KGZ,Kyrgyz Republic,ECA,Lower middle income,3.5,3.5,0,0,0,3.5
+2007,KIR,Kiribati,EAP,Lower middle income,3,3,1.5534493002352434,0.5,0,3
+2017,KIR,Kiribati,EAP,Lower middle income,3.5,3,1.5534493002352434,0.5,0,3
+2007,LAO,Lao People's Democratic Republic,EAP,Lower middle income,2.5,2.5,0,0,0,2.5
+2017,LAO,Lao People's Democratic Republic,EAP,Lower middle income,2.5,2.5,0,0,0,2.5
+2007,LBR,Liberia,SSA,Low income,2.5,2.5,0,0,0,2.5
+2017,LBR,Liberia,SSA,Low income,2.5,2.5,0,0,0,2.5
+2007,LCA,St. Lucia,LAC,Upper middle income,4,4,-1.326438160205845,0,0.5,3.5
+2017,LCA,St. Lucia,LAC,Upper middle income,3.5,4,-1.326438160205845,0,0.5,3.5
+2007,LKA,Sri Lanka,SAS,Lower middle income,3.5,3.5,0,0,0,3.5
+2017,LKA,Sri Lanka,SAS,Lower middle income,3.5,3.5,0,0,0,3.5
+2007,LSO,Lesotho,SSA,Lower middle income,3,3,0,0,0,3
+2017,LSO,Lesotho,SSA,Lower middle income,3,3,0,0,0,3
+2007,MDA,Moldova,ECA,Lower middle income,3.5,3.5,0,0,0,3.5
+2017,MDA,Moldova,ECA,Lower middle income,3.5,3.5,0,0,0,3.5
+2007,MDG,Madagascar,SSA,Low income,3.5,3.5,-1.5296863975959973,0,0.5,3
+2017,MDG,Madagascar,SSA,Low income,3,3.5,-1.5296863975959973,0,0.5,3
+2007,MDV,Maldives,SAS,Upper middle income,3.5,3.5,0,0,0,3.5
+2017,MDV,Maldives,SAS,Upper middle income,3.5,3.5,0,0,0,3.5
+2007,MLI,Mali,SSA,Low income,3.5,3.5,-1.5296863975959973,0,0.5,3
+2017,MLI,Mali,SSA,Low income,3,3.5,-1.5296863975959973,0,0.5,3
+2007,MNG,Mongolia,EAP,Lower middle income,3.5,3.5,0,0,0,3.5
+2017,MNG,Mongolia,EAP,Lower middle income,3.5,3.5,0,0,0,3.5
+2007,MOZ,Mozambique,SSA,Low income,3,3,0,0,0,3
+2017,MOZ,Mozambique,SSA,Low income,3,3,0,0,0,3
+2007,MRT,Mauritania,SSA,Lower middle income,3,3,0,0,0,3
+2017,MRT,Mauritania,SSA,Lower middle income,3,3,0,0,0,3
+2007,MWI,Malawi,SSA,Low income,3.5,3.5,0,0,0,3.5
+2017,MWI,Malawi,SSA,Low income,3.5,3.5,0,0,0,3.5
+2007,NER,Niger,SSA,Low income,3,3,0,0,0,3
+2017,NER,Niger,SSA,Low income,3,3,0,0,0,3
+2007,NGA,Nigeria,SSA,Lower middle income,3.5,3.5,1.3442690579665628,0.5,0,3.5
+2017,NGA,Nigeria,SSA,Lower middle income,4,3.5,1.3442690579665628,0.5,0,3.5
+2007,NIC,Nicaragua,LAC,Lower middle income,3.5,3.5,0,0,0,3.5
+2017,NIC,Nicaragua,LAC,Lower middle income,3.5,3.5,0,0,0,3.5
+2007,NPL,Nepal,SAS,Low income,3,3,0,0,0,3
+2017,NPL,Nepal,SAS,Low income,3,3,0,0,0,3
+2007,PAK,Pakistan,SAS,Lower middle income,3,3,1.5534493002352434,0.5,0,3
+2017,PAK,Pakistan,SAS,Lower middle income,3.5,3,1.5534493002352434,0.5,0,3
+2007,PNG,Papua New Guinea,EAP,Lower middle income,3,3,-1.806695543808734,0,0.5,2.5
+2017,PNG,Papua New Guinea,EAP,Lower middle income,2.5,3,-1.806695543808734,0,0.5,2.5
+2007,RWA,Rwanda,SSA,Low income,3.5,3.5,1.3442690579665628,0.5,0,3.5
+2017,RWA,Rwanda,SSA,Low income,4,3.5,1.3442690579665628,0.5,0,3.5
+2007,SDN,Sudan,SSA,Lower middle income,2.5,2.5,0,0,0,2.5
+2017,SDN,Sudan,SSA,Lower middle income,2.5,2.5,0,0,0,2.5
+2007,SEN,Senegal,SSA,Low income,3,3,0,0,0,3
+2017,SEN,Senegal,SSA,Low income,3,3,0,0,0,3
+2007,SLB,Solomon Islands,EAP,Lower middle income,2.5,2.5,0,0,0,2.5
+2017,SLB,Solomon Islands,EAP,Lower middle income,2.5,2.5,0,0,0,2.5
+2007,SLE,Sierra Leone,SSA,Low income,3,3,1.5534493002352434,0.5,0,3
+2017,SLE,Sierra Leone,SSA,Low income,3.5,3,1.5534493002352434,0.5,0,3
+2007,STP,Sao Tome and Principe,SSA,Lower middle income,2.5,2.5,0,0,0,2.5
+2017,STP,Sao Tome and Principe,SSA,Lower middle income,2.5,2.5,0,0,0,2.5
+2007,TCD,Chad,SSA,Low income,2.5,2.5,1.839937614702425,0.5,0,2.5
+2017,TCD,Chad,SSA,Low income,3,2.5,1.839937614702425,0.5,0,2.5
+2007,TGO,Togo,SSA,Low income,2.5,2.5,1.839937614702425,0.5,0,2.5
+2017,TGO,Togo,SSA,Low income,3,2.5,1.839937614702425,0.5,0,2.5
+2007,TJK,Tajikistan,ECA,Low income,3.5,3.5,-1.5296863975959973,0,0.5,3
+2017,TJK,Tajikistan,ECA,Low income,3,3.5,-1.5296863975959973,0,0.5,3
+2007,TLS,Timor-Leste,EAP,Lower middle income,2,2,2.256518256357287,0.5,0,2
+2017,TLS,Timor-Leste,EAP,Lower middle income,2.5,2,2.256518256357287,0.5,0,2
+2007,TON,Tonga,EAP,Upper middle income,3,3,-1.806695543808734,0,0.5,2.5
+2017,TON,Tonga,EAP,Upper middle income,2.5,3,-1.806695543808734,0,0.5,2.5
+2007,TZA,Tanzania,SSA,Low income,3.5,3.5,1.3442690579665628,0.5,0,3.5
+2017,TZA,Tanzania,SSA,Low income,4,3.5,1.3442690579665628,0.5,0,3.5
+2007,UGA,Uganda,SSA,Low income,3.5,3.5,0,0,0,3.5
+2017,UGA,Uganda,SSA,Low income,3.5,3.5,0,0,0,3.5
+2007,UZB,Uzbekistan,ECA,Lower middle income,3.5,3.5,0,0,0,3.5
+2017,UZB,Uzbekistan,ECA,Lower middle income,3.5,3.5,0,0,0,3.5
+2007,VNM,Vietnam,EAP,Lower middle income,3.5,3.5,0,0,0,3.5
+2017,VNM,Vietnam,EAP,Lower middle income,3.5,3.5,0,0,0,3.5
+2007,VUT,Vanuatu,EAP,Lower middle income,2,2,2.256518256357287,0.5,0,2
+2017,VUT,Vanuatu,EAP,Lower middle income,2.5,2,2.256518256357287,0.5,0,2
+2007,WSM,Samoa,EAP,Upper middle income,3.5,3.5,0,0,0,3.5
+2017,WSM,Samoa,EAP,Upper middle income,3.5,3.5,0,0,0,3.5
+2007,XKX,Kosovo,ECA,Lower middle income,3.5,3.5,0,0,0,3.5
+2017,XKX,Kosovo,ECA,Lower middle income,3.5,3.5,0,0,0,3.5
+2007,YEM,Yemen,MNA,Low income,3.5,3.5,-1.5296863975959973,0,0.5,3
+2017,YEM,Yemen,MNA,Low income,3,3.5,-1.5296863975959973,0,0.5,3
+2007,ZMB,Zambia,SSA,Lower middle income,3,3,0,0,0,3
+2017,ZMB,Zambia,SSA,Lower middle income,3,3,0,0,0,3
+2007,ZWE,Zimbabwe,SSA,Low income,1,1,9.595822638521723,1.5,0,1
+2017,ZWE,Zimbabwe,SSA,Low income,2.5,1,9.595822638521723,1.5,0,1
