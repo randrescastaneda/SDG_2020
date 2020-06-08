@@ -73,7 +73,7 @@ The poorest are not attaining coverage much faster than the wealthy. For the poo
 plot(SPcover2)
 ```
 
-```{r cover2017, fig.width = 15, fig.asp=0.33}
+```{r cover2017, fig.width = 15, fig.asp=0.35}
 plot(SPcover3)
 ```
 
