@@ -127,3 +127,74 @@ write_csv(dfq,
           col_names = TRUE,
           na = "")
 
+#----------------------------------------------------------
+# Non-monetary measures
+#----------------------------------------------------------
+
+source("R/SDG_10_non_monetary_Growth.R")
+
+# Social protection coverage
+coverd <- coverd %>%
+  select(Year, countrycode, countryname, region, incomegroup, quintile, value, growth, val) %>%
+  rename(mean2007=val) #This mean is used for sorting in the graph
+
+write_csv(coverd,
+          path = "data/SDG10_social_protection_cover.csv",
+          col_names = TRUE,
+          na = "")
+
+# Social Protection: CPI social protection rating
+CPIss <- CPIss %>%
+  select(Year, countrycode, countryname, region, incomegroup, value, v2007, growth, win, loss, initial) %>%
+  rename(value2007=v2007)  #for sorting
+
+write_csv(CPIss,
+          path = "data/SDG10_social_protection_rating.csv",
+          col_names = TRUE,
+          na = "")
+
+# Remittances
+remit_from <- remit_from %>%
+  select(year, countrycode, countryname, region, incomegroup, value, growth, span) %>%
+  rename(time_span=span) # For graphs of growth I keep those w/ an span greater than 5 years
+
+write_csv(remit_from,
+          path = "data/SDG10_remittances_origin.csv",
+          col_names = TRUE,
+          na = "")
+
+remit_to <- remit_to %>%
+  select(year, countrycode, countryname, region, incomegroup, value, growth, span) %>%
+  rename(time_span=span) # For graphs of growth I keep those w/ an span greater than 5 years
+
+write_csv(remit_to,
+          path = "data/SDG10_remittances_desstination.csv",
+          col_names = TRUE,
+          na = "")
+
+# policies for social inclusion/equity
+CPIinc <- CPIinc %>%
+  select(Year, countrycode, countryname, region, incomegroup, value, v2007, growth, win, loss, initial) %>%
+  rename(value2007=v2007)  #for sorting
+
+
+write_csv(CPIinc,
+          path = "data/SDG10_social_inclusion_rating.csv",
+          col_names = TRUE,
+          na = "")
+
+# AID
+AID <- AID %>%
+  filter(incomegroup != "High income") %>%
+  group_by(countrycode) %>%
+  filter(row_number()==n()) %>%
+  select(countrycode, countryname, region, incomegroup, v2007, v2017, change, growth) %>%
+  rename(value2007=v2007,
+         value2017=v2017)
+
+write_csv(AID,
+          path = "data/SDG10_aid.csv",
+          col_names = TRUE,
+          na = "")
+
+
