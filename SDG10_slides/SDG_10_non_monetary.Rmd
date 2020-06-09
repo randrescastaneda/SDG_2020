@@ -154,5 +154,3 @@ Low-income countries observed the most rapid increase with a mean annual increas
 plot(pAID)
 ```
 ]
----
-
