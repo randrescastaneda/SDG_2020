@@ -2,3 +2,5 @@
 
 ## [Bottom 40 story](https://randrescastaneda.github.io/SDG_2020/SDG10_slides/SDG_10_b40.html)
 
+## [Non-monetary inequality](https://randrescastaneda.github.io/SDG_2020/SDG10_slides/SDG_10_non_monetary.html)
+
