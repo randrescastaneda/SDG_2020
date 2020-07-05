@@ -1,7 +1,8 @@
 library("tidyverse")
 library("povcalnetR")
+library("here")
 
-source("R/povcalnet_iterate.R")
+source(here("R", "povcalnet_iterate.R"))
 rcv_dist <- function(country,
                      year,
                      coverage,

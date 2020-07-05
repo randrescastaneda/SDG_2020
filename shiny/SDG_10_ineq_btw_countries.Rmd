@@ -1,0 +1,182 @@
+---
+title: "Inequality between countries"
+output: flexdashboard::flex_dashboard
+runtime: shiny
+---
+
+```{r global, include=FALSE}
+# load data in 'global' chunk so it can be shared by all users of the dashboard
+library("here")
+library("data.table")
+library("ggplot2")
+
+#----------------------------------------------------------
+#   subfunctions
+#----------------------------------------------------------
+# source(here("R", "utils.R"))
+
+
+qtile <- function(x) {
+  nq  <- 10
+  N   <-  length(x)
+  csw <-  1:N
+  qp  <-   floor(csw/((N+1)/nq)) + 1
+  return(qp)
+}
+
+
+#----------------------------------------------------------
+#   Aux data
+#----------------------------------------------------------
+cr  <- readr::read_rds(here("data", "cty_regs_names.rds"))
+dfc <- readr::read_rds(here("data", "dfc.rds"))
+
+
+#----------------------------------------------------------
+#   Calculate Quantiles
+#----------------------------------------------------------
+
+# set data.table
+
+DT <- as.data.table(dfc)
+DT <- DT[status == "OK"]
+setnames(DT, "threshold", "pv")
+
+
+# Sort
+setorder(DT, year, goal, pv)
+
+# convert 99.99 to 100 for simplicity
+DT[
+  goal == 99.99,
+  goal := 100
+  ]
+
+# Create deciles in each percentile
+DT[
+  ,
+  qp := qtile(pv),
+  by = .(year, goal)
+  ]
+
+
+DR <-
+  DT[
+  ,
+  .(
+    min  = min(pv, na.rm = TRUE),
+    mean = mean(pv, na.rm = TRUE),
+    max  = max(pv, na.rm = TRUE),
+    sum  = sum(pv, na.rm = TRUE)
+  ),
+  by = .(year, goal, qp)
+  ]
+
+
+
+# convert to wide
+DW <- dcast(DR,
+            year + goal ~ qp,
+            value.var = c("mean", "sum", "min", "max"))
+
+
+```
+
+Column {.sidebar}
+-----------------------------------------------------------------------
+
+```{r}
+sliderInput("pc", 
+            label = "Percentile",
+            min = 10, max = 100, value = 50, step = 10)
+
+selectInput("ms", 
+            label = "Measure:",
+            choices = c("mean", "min", "max"),
+            selected = "mean")
+
+sliderInput("nm", 
+            label = "Decile within percentile (Numerator):",
+            min = 1, max = 10, value = 8, step = 1)
+
+sliderInput("dn", 
+            label = "Decile within percentile (Denominator):",
+            min = 1, max = 10, value = 2, step = 1)
+
+
+```
+
+Column {data-width=350}
+-----------------------------------------------------------------------
+
+### Density over time of percentile 
+
+```{r}
+
+DG <- reactive({
+  DT[goal == input$pc & !is.na(pv)]
+})
+
+
+renderPlot({
+  
+  ggplot(DG(),
+       aes(x = pv,
+           fill  = factor(year)
+       )
+    ) +
+    geom_density(alpha = .2)+
+    theme_minimal() +
+    labs(x = "Distribution of medians over time") +
+    theme(
+      legend.title = element_blank(),
+      legend.position = c(.8, .5),
+      legend.direction = "horizontal"
+    )
+  
+   
+})
+
+```
+
+### Evolution of ratio 
+
+```{r}
+
+DF <- reactive({
+  
+  var1 <- paste0(input$ms, "_", input$nm)
+  var2 <- paste0(input$ms, "_", input$dn)
+  
+  DW[
+    goal == input$pc,
+    .(
+      year = year,
+      ratio = get(var1)/get(var2)
+      )
+    ]
+})
+
+
+renderPlot({
+  ggplot(DF(),
+         aes(
+           x = year,
+           y = ratio)
+         )+
+    geom_point() +
+    geom_line() +
+    theme_minimal() +
+    labs(y = "Evolution of ratio") +
+    theme(
+      legend.title = element_blank()
+    )
+
+})
+
+
+
+
+
+```
+
