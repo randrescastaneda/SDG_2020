@@ -48,7 +48,6 @@ dfc <- read_rds("data/dfc.rds")
 
 # set data.tabl
 DT <- dfc %>%
-  filter(status == "OK") %>%
   rename(pv = threshold) %>%
   as.data.table()
 

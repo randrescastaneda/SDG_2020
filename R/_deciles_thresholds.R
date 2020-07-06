@@ -1,5 +1,5 @@
 # ==================================================
-# project:       iterate through povcalnet_interate
+# project:       recover distribution using popshare
 # Author:        Andres Castaneda
 # Dependencies:  The World Bank
 # ----------------------------------------------------

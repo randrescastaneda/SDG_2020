@@ -39,7 +39,6 @@ dfc <- readr::read_rds(here("data", "dfc.rds"))
 # set data.table
 
 DT <- as.data.table(dfc)
-DT <- DT[status == "OK"]
 setnames(DT, "threshold", "pv")
 
 
