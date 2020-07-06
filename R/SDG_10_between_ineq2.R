@@ -92,20 +92,61 @@ DW <- dcast(DR,
 
 pc <- 10       # percentile
 ms <- "mean"   # measure
-nm <- 9        # numerator
-dn <- 1        # denominator
+nm <- c(9, 10)      # numerator
+dn <- c(1, 4)       # denominator
 
 
-var1 <- paste0(ms, "_", nm)
-var2 <- paste0(ms, "_", dn)
+# calculation
 
-DF <- DW[
-  goal == pc,
-  .(
-    year = year,
-    ratio = get(var1)/get(var2)
-    )
+calc <- paste0(".(", ms, "  = ", ms, "(pv, na.rm = TRUE))")
+calc <- parse(text = calc)
+
+
+DW <- DT[
+  # Filter selected percentile
+  goal == pc
+
+  ][
+  # classify numerator and denominator
+  ,
+  gr := ifelse(qp %between% nm, "nm",
+               ifelse(qp %between% dn, "dn", NA_character_ )
+               )
+
+  ][
+  # remove not necessary data
+  !is.na(gr)
+  ][
+    , # Make requested calculation
+    eval(calc),
+    by = .(year, goal, gr)
   ]
+
+# Reshape to wide
+DW <- dcast(DF,
+            year ~ gr,
+            value.var = ms)
+
+# Ratio
+DW[
+  ,
+  ratio := nm/dn
+  ]
+
+#
+# var1 <- paste0(ms, "_", nm)
+# var2 <- paste0(ms, "_", dn)
+#
+# DF <- DW[
+#   goal == pc,
+#   .(
+#     year = year,
+#     ratio = get(var1)/get(var2)
+#     )
+#   ]
+#
+
+
 
 
 ggplot(DF,

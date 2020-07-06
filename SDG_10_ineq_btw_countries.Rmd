@@ -59,27 +59,6 @@ DT[
   by = .(year, goal)
   ]
 
-
-DR <-
-  DT[
-  ,
-  .(
-    min  = min(pv, na.rm = TRUE),
-    mean = mean(pv, na.rm = TRUE),
-    max  = max(pv, na.rm = TRUE),
-    sum  = sum(pv, na.rm = TRUE)
-  ),
-  by = .(year, goal, qp)
-  ]
-
-
-
-# convert to wide
-DW <- dcast(DR,
-            year + goal ~ qp,
-            value.var = c("mean", "sum", "min", "max"))
-
-
 ```
 
 Column {.sidebar}
@@ -92,16 +71,16 @@ sliderInput("pc",
 
 selectInput("ms", 
             label = "Measure:",
-            choices = c("mean", "min", "max"),
-            selected = "mean")
+            choices = c("sum", "mean", "min", "max"),
+            selected = "sum")
 
 sliderInput("nm", 
             label = "Decile within percentile (Numerator):",
-            min = 1, max = 10, value = 8, step = 1)
+            min = 1, max = 10, value = c(9,10), step = 1)
 
 sliderInput("dn", 
             label = "Decile within percentile (Denominator):",
-            min = 1, max = 10, value = 2, step = 1)
+            min = 1, max = 10, value = c(1,4), step = 1)
 
 
 ```
@@ -145,16 +124,43 @@ renderPlot({
 
 DF <- reactive({
   
-  var1 <- paste0(input$ms, "_", input$nm)
-  var2 <- paste0(input$ms, "_", input$dn)
+  # calculation
   
-  DW[
-    goal == input$pc,
-    .(
-      year = year,
-      ratio = get(var1)/get(var2)
-      )
+  calc <- paste0(".(", input$ms, "  = ", input$ms, "(pv, na.rm = TRUE))")
+  calc <- parse(text = calc)
+  
+  
+  DW <- DT[
+    # Filter selected percentile
+    goal == input$pc
+  
+    ][
+    # classify numerator and denominator
+    ,
+    gr := ifelse(qp %between% input$nm, "nm",
+                 ifelse(qp %between% input$dn, "dn", NA_character_ )
+                 )
+  
+    ][
+    # remove not necessary data
+    !is.na(gr)
+    ][
+      , # Make requested calculation
+      eval(calc),
+      by = .(year, goal, gr)
     ]
+  
+  # Reshape to wide
+  DW <- dcast.data.table(DW,
+              year ~ gr,
+              value.var = input$ms)
+  
+  # Ratio
+  DW[
+    ,
+    ratio := nm/dn
+    ]
+
 })
 
 
