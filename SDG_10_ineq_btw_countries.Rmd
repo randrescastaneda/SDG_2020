@@ -45,28 +45,38 @@ setnames(DT, "threshold", "pv")
 # Sort
 setorder(DT, year, goal, pv)
 
-# convert 99.99 to 100 for simplicity
-DT[
-  goal == 99.99,
-  goal := 100
-  ]
-
-# Create deciles in each percentile
-DT[
-  ,
+DT <- DT[
+  # remove old years
+  year >= 1990
+  ][,
+  # multiply by 100
+  goal := 100*goal
+  
+  ][
+  ,# Create deciles in each percentile
   qp := qtile(pv),
   by = .(year, goal)
+  
   ]
+
+yrs <- DT[, unique(year)]
 
 ```
 
-Column {.sidebar}
+Column {.sidebar data-width=350}
 -----------------------------------------------------------------------
 
 ```{r}
 sliderInput("pc", 
             label = "Percentile",
             min = 10, max = 100, value = 50, step = 10)
+
+selectInput("yr", 
+            label    = "Years",
+            choices  = yrs, 
+            selected = c(1993, 2002, 2010, 2015, 2017), 
+            multiple = TRUE)
+
 
 selectInput("ms", 
             label = "Measure:",
@@ -75,7 +85,7 @@ selectInput("ms",
 
 sliderInput("nm", 
             label = "Decile within percentile (Numerator):",
-            min = 1, max = 10, value = c(9,10), step = 1)
+            min = 1, max = 10, value = c(8,9), step = 1)
 
 sliderInput("dn", 
             label = "Decile within percentile (Denominator):",
@@ -92,7 +102,10 @@ Column {data-width=350}
 ```{r}
 
 DG <- reactive({
-  DT[goal == input$pc & !is.na(pv)]
+  DT[goal == input$pc 
+     & !is.na(pv) 
+     & year  %in% input$yr
+     & qp != 10]
 })
 
 
@@ -131,7 +144,7 @@ DF <- reactive({
   
   DW <- DT[
     # Filter selected percentile
-    goal == input$pc
+    goal == input$pc & !is.na(pv) & year  %in% input$yr
   
     ][
     # classify numerator and denominator
@@ -184,4 +197,7 @@ renderPlot({
 
 
 ```
+
+Column {data-width=170}
+-----------------------------------------------------------------------
 
