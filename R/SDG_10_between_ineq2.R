@@ -46,26 +46,77 @@ dfc <- read_rds("data/dfc.rds")
 #   Calculate Quantiles
 #----------------------------------------------------------
 
-# set data.tabl
-DT <- dfc %>%
-  rename(pv = threshold) %>%
-  as.data.table()
+# set data.table
+
+DT <- as.data.table(dfc)
+setnames(DT, "threshold", "pv")
+
 
 # Sort
 setorder(DT, year, goal, pv)
 
-# convert 99.99 to 100 for simplicity
-DT[
-  goal == 99.99,
-  goal := 100
+DT <- DT[
+  # remove old years
+  year >= 1990
+  ][
+    # filter negative values (which we should not have)
+    pv > 0 & !is.na(pv)
+  ][,
+    # multiply by 100
+    goal := 100*goal
+
+  ][
+    ,# Create deciles in each percentile
+    qp := qtile(pv),
+    by = .(year, goal)
+
   ]
 
-# Create deciles in each percentile
-DT[
+#--------- max and min countries ---------
+
+DA <- DT[
+
+      # select b10 and t10
+      qp  %in% c(1, 10)
+    ][
+      , # Get the median by groups
+      med := median(pv, na.rm = TRUE),
+      by = .(year, goal, qp)
+
+    ][
+      , # min abs diff between median and pv by groupw
+      dfmed := min(abs(pv - med)),
+      by = .(year, goal, qp)
+
+    ][
+      # Filter those of min diff
+      dfmed == abs(pv - med)
+
+    ][
+      , # select the min pv in case of tie in medians (when even No. of obs.)
+      .SD[which.min(pv)],
+      by = .(year, goal, qp)
+    ]
+
+DA <- dcast.data.table(DA,
+                       year + goal  ~ qp,
+                       value.var = c("countrycode", "pv"))
+
+DA[
   ,
-  qp := qtile(pv),
-  by = .(year, goal)
+  ratio := pv_10/pv_1
   ]
+
+
+ggplot(filter(DA, goal == 50),
+       aes(
+         x = year,
+         y = ratio
+       )) +
+  geom_line() +
+  geom_point()
+
+
 
 
 DR <-
