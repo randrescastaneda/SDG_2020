@@ -127,6 +127,60 @@ write_csv(dfq,
           col_names = TRUE,
           na = "")
 
+
+#----------------------------------------------------------
+#   All percentiles
+#----------------------------------------------------------
+
+dfc <- read_rds("data/dfc.rds")
+
+qtile <- function(x) {
+  nq  <- 10
+  N   <-  length(x)
+  csw <-  1:N
+  qp  <-   floor(csw/((N+1)/nq)) + 1
+  return(qp)
+}
+
+# set data.table
+
+DT <- as.data.table(dfc)
+
+oldn <- c("threshold", "goal")
+newn <- c("percentile_value", "percentile")
+
+setnames(DT, oldn, newn, skip_absent=TRUE)
+
+setorder(DT, year, percentile, percentile_value)
+
+# Sort
+
+DT <- DT[
+  # remove old years
+  year >= 1990
+][
+  # filter negative values (which we should not have)
+  percentile_value > 0 & !is.na(percentile_value)
+][,
+  # multiply by 100
+  percentile := 100*percentile
+
+][
+  ,# Create deciles in each percentile
+  decile_within_percentile := qtile(percentile_value),
+  by = .(year, percentile)
+
+][
+  ,
+  headcount := NULL
+]
+
+
+write_csv(DT,
+          path = "data/SDG10_percentiles_overTime.csv",
+          col_names = TRUE,
+          na = "")
+
 #----------------------------------------------------------
 # Non-monetary measures
 #----------------------------------------------------------
