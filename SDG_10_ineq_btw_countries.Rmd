@@ -1,6 +1,12 @@
 ---
 title: "Inequality between countries"
-output: flexdashboard::flex_dashboard
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    social: menu
+    theme: paper
+    source_code: embed
+    vertical_layout: fill
 runtime: shiny
 ---
 
@@ -9,6 +15,7 @@ runtime: shiny
 library("here")
 library("data.table")
 library("ggplot2")
+library("plotly")
 
 #----------------------------------------------------------
 #   subfunctions
@@ -57,19 +64,30 @@ DT <- DT[
   qp := qtile(pv),
   by = .(year, goal)
   
+  ][
+    ,
+    headcount := NULL
   ]
 
 yrs <- DT[, unique(year)]
 
 ```
 
-Column {.sidebar data-width=350}
+Sidebar {.sidebar data-width=350}
 -----------------------------------------------------------------------
 
 ```{r}
 sliderInput("pc", 
             label = "Percentile",
             min = 10, max = 100, value = 50, step = 10)
+
+sliderInput("qps", 
+            label = "Decile within percentiles",
+            min = 1, max = 10, value = 1, step = 1)
+
+sliderInput("mrt", 
+            label = "Max decile",
+            min = 1, max = 10, value = 9, step = 1)
 
 selectInput("yr", 
             label    = "Years",
@@ -92,26 +110,68 @@ sliderInput("dn",
             min = 1, max = 10, value = c(1,4), step = 1)
 
 
+
+
+
 ```
 
-Column {data-width=350}
+Row {.tabset .tabset-fade}
 -----------------------------------------------------------------------
 
-### Density over time of percentile 
+### Normalized Deciles
 
 ```{r}
+
+DTF <- reactive({
+  DT[
+    qp == input$qps
+    ][
+      ,
+      .SD[which.max(pv)],
+      by = .(year, goal)
+    ]
+})
+  
 
 DG <- reactive({
   DT[goal == input$pc 
      & !is.na(pv) 
      & year  %in% input$yr
-     & qp != 10]
+     & qp <= input$mrt
+     ][
+      DTF(),
+      on = .(year, goal),
+      pvd := i.pv
+      ][
+        ,
+        ratio := pv/pvd
+      ]
 })
+```
 
-
-renderPlot({
+```{r}
+renderPlotly({
+  pn <- ggplot(DG(),
+       aes(
+         x = pv,
+         y = ratio,
+         color = factor(year)
+       )
+       ) +
+  geom_line() +
+  geom_point() +
+  theme_minimal()
   
-  ggplot(DG(),
+  ggplotly(pn)
+})
+```
+
+
+### Density over time of percentile 
+```{r}
+renderPlotly({
+  
+  pd <- ggplot(DG(),
        aes(x = pv,
            fill  = factor(year)
        )
@@ -125,10 +185,17 @@ renderPlot({
       legend.direction = "horizontal"
     )
   
+  ggplotly(pd)
    
 })
 
 ```
+
+
+
+
+Row
+-----------------------------------------------------------------------
 
 ### Evolution of ratio 
 
@@ -176,8 +243,8 @@ DF <- reactive({
 })
 
 
-renderPlot({
-  ggplot(DF(),
+renderPlotly({
+ pr <- ggplot(DF(),
          aes(
            x = year,
            y = ratio)
@@ -189,6 +256,8 @@ renderPlot({
     theme(
       legend.title = element_blank()
     )
+  
+  ggplotly(pr)
 
 })
 
@@ -198,6 +267,4 @@ renderPlot({
 
 ```
 
-Column {data-width=170}
------------------------------------------------------------------------
 

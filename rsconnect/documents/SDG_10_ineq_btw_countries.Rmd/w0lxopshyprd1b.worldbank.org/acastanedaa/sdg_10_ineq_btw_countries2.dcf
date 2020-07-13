@@ -1,0 +1,13 @@
+name: sdg_10_ineq_btw_countries2
+title: SDG_10_ineq_btw_countries
+username: acastanedaa
+account: acastanedaa
+server: w0lxopshyprd1b.worldbank.org
+hostUrl: http://w0lxopshyprd1b.worldbank.org:3939/__api__
+appId: 575
+bundleId: 8881
+url: http://w0lxopshyprd1b.worldbank.org:3939/content/575/
+when: 1594659581.97805
+asMultiple: FALSE
+asStatic: FALSE
+additionalFiles: data/cty_regs_names.rds|data/dfc.rds
