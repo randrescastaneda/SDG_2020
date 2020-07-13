@@ -70,9 +70,14 @@ DT <- DT[
     qp := qtile(pv),
     by = .(year, goal)
 
+  ][
+    ,
+    headcount := NULL
   ]
 
-#--------- max and min countries ---------
+#----------------------------------------------------------
+#   Typical country in each decile
+#----------------------------------------------------------
 
 DA <- DT[
 
@@ -115,6 +120,112 @@ ggplot(filter(DA, goal == 50),
        )) +
   geom_line() +
   geom_point()
+
+
+
+#----------------------------------------------------------
+#   relative ratio to percentile
+#----------------------------------------------------------
+
+qps <- 1
+
+DTF <- DT[
+  qp == qps
+  ][
+    ,
+    .SD[which.max(pv)],
+    by = .(year, goal)
+  ]
+
+
+DT[
+  DTF,
+  on = .(year, goal),
+  pvd := i.pv
+  ][
+    ,
+    ratio := pv/pvd
+  ]
+
+pc <-  50
+
+
+ggplot(DT[goal == pc & pv < 75],
+       aes(
+         x = pv,
+         y = ratio,
+         color = factor(year)
+       )
+       ) +
+  geom_line() +
+  geom_point() +
+  theme_minimal()
+
+#
+# mx <- DT[goal == pc & (year == min(year) | year == max(year))
+#          ][
+#            pv == max(pv)
+#            ][
+#              ,
+#              pv
+#            ]
+# mn <- DT[
+#   goal == pc & (year == min(year) | year == max(year))
+#   ][
+#     pv == min(pv)
+#   ][
+#     ,
+#     pv
+#   ]
+#
+#
+# DD <- DT[goal == pc & (year == min(year) | year == max(year))
+#          ][
+#            ,
+#            `:=`(
+#              maxr = max(ratio)
+#            ),
+#            by = .(year, qp)
+#          ][
+#            maxr == ratio
+#          ][
+#            ,
+#            yr := ifelse(year == min(year), "y1", "y2")
+#          ]
+# DD <- dcast.data.table(DD,
+#                       qp ~ yr,
+#                        value.var = c("ratio"))
+#
+#
+# DD[
+#   ,
+#   pv := seq(..mn,..mx, length.out = 10)
+# ]
+#
+#
+#
+# ggplot(DT[goal == pc]
+#        ) +
+#   geom_line(aes(
+#     x = pv,
+#     y = ratio,
+#     color = factor(year)
+#   )) +
+#   geom_point(aes(
+#     x = pv,
+#     y = ratio,
+#     color = factor(year)
+#   )) +
+#   geom_ribbon(data = DD,
+#               aes(
+#                 ymin = y2,
+#                 ymax = y1,
+#                 x = pv
+#               )
+#               ) +
+#   theme_minimal()
+#
+
 
 
 
