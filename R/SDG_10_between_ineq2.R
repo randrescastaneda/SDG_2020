@@ -46,27 +46,228 @@ dfc <- read_rds("data/dfc.rds")
 #   Calculate Quantiles
 #----------------------------------------------------------
 
-# set data.tabl
-DT <- dfc %>%
-  filter(status == "OK") %>%
-  rename(pv = threshold) %>%
-  as.data.table()
+# set data.table
+
+DT <- as.data.table(dfc)
+cr <- as.data.table(cr)
+setnames(DT, "threshold", "pv")
+
 
 # Sort
 setorder(DT, year, goal, pv)
 
-# convert 99.99 to 100 for simplicity
-DT[
-  goal == 99.99,
-  goal := 100
+DT <- DT[
+  # remove old years
+  year >= 1990
+  ][
+    # filter negative values (which we should not have)
+    pv > 0 & !is.na(pv)
+  ][,
+    # multiply by 100
+    goal := 100*goal
+
+  ][
+    ,# Create deciles in each percentile
+    qp := qtile(pv),
+    by = .(year, goal)
+
+  ][
+    ,
+    headcount := NULL
+  ][
+    # Merge country names and regions
+    cr,
+    on = .(countrycode)
+    ]
+
+
+
+#----------------------------------------------------------
+#   Typical country in each decile
+#----------------------------------------------------------
+
+DA <- DT[
+
+      # select b10 and t10
+      qp  %in% c(1, 10)
+    ][
+      , # Get the median by groups
+      med := median(pv, na.rm = TRUE),
+      by = .(year, goal, qp)
+
+    ][
+      , # min abs diff between median and pv by groupw
+      dfmed := min(abs(pv - med)),
+      by = .(year, goal, qp)
+
+    ][
+      # Filter those of min diff
+      dfmed == abs(pv - med)
+
+    ][
+      , # select the min pv in case of tie in medians (when even No. of obs.)
+      .SD[which.min(pv)],
+      by = .(year, goal, qp)
+    ]
+
+DA <- dcast.data.table(DA,
+                       year + goal  ~ qp,
+                       value.var = c("countrycode", "pv"))
+
+DA[
+  ,
+  ratio := pv_10/pv_1
   ]
 
-# Create deciles in each percentile
-DT[
-  ,
-  qp := qtile(pv),
-  by = .(year, goal)
+
+ggplot(filter(DA, goal == 50),
+       aes(
+         x = year,
+         y = ratio
+       )) +
+  geom_line() +
+  geom_point()
+
+
+
+#----------------------------------------------------------
+#   relative ratio to percentile
+#----------------------------------------------------------
+
+qps <- 1
+
+DTF <- DT[
+  qp == qps
+  ][
+    ,
+    .SD[which.max(pv)],
+    by = .(year, goal)
   ]
+
+DT[
+  DTF,
+  on = .(year, goal),
+  pvd := i.pv
+  ][
+    ,
+    ratio := pv/pvd
+  ][
+    , # Create Text variable
+    text := paste0("Country: ", countryname, "\n",
+                   "Year: ", year, "\n",
+                   "Ratio:", ratio, "\n")
+  ]
+
+
+
+
+pc <-  50
+
+
+ggplot(DT[goal == pc & pv < 75],
+       aes(
+         x = pv,
+         y = ratio,
+         color = factor(year)
+       )
+       ) +
+  geom_line() +
+  geom_point() +
+  theme_minimal()
+
+
+
+
+
+ggplot(DT[goal == pc & year == 2017],
+       aes(
+         x = pv,
+         y = ratio
+       )
+       ) +
+  geom_point() +
+  geom_smooth() +
+  theme_minimal()
+
+
+
+
+
+
+
+
+
+
+
+
+
+#
+# mx <- DT[goal == pc & (year == min(year) | year == max(year))
+#          ][
+#            pv == max(pv)
+#            ][
+#              ,
+#              pv
+#            ]
+# mn <- DT[
+#   goal == pc & (year == min(year) | year == max(year))
+#   ][
+#     pv == min(pv)
+#   ][
+#     ,
+#     pv
+#   ]
+#
+#
+# DD <- DT[goal == pc & (year == min(year) | year == max(year))
+#          ][
+#            ,
+#            `:=`(
+#              maxr = max(ratio)
+#            ),
+#            by = .(year, qp)
+#          ][
+#            maxr == ratio
+#          ][
+#            ,
+#            yr := ifelse(year == min(year), "y1", "y2")
+#          ]
+# DD <- dcast.data.table(DD,
+#                       qp ~ yr,
+#                        value.var = c("ratio"))
+#
+#
+# DD[
+#   ,
+#   pv := seq(..mn,..mx, length.out = 10)
+# ]
+#
+#
+#
+# ggplot(DT[goal == pc]
+#        ) +
+#   geom_line(aes(
+#     x = pv,
+#     y = ratio,
+#     color = factor(year)
+#   )) +
+#   geom_point(aes(
+#     x = pv,
+#     y = ratio,
+#     color = factor(year)
+#   )) +
+#   geom_ribbon(data = DD,
+#               aes(
+#                 ymin = y2,
+#                 ymax = y1,
+#                 x = pv
+#               )
+#               ) +
+#   theme_minimal()
+#
+
+
+
 
 
 DR <-

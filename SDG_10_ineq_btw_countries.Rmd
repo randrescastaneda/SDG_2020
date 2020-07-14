@@ -1,6 +1,12 @@
 ---
 title: "Inequality between countries"
-output: flexdashboard::flex_dashboard
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    social: menu
+    theme: paper
+    source_code: embed
+    vertical_layout: fill
 runtime: shiny
 ---
 
@@ -9,6 +15,7 @@ runtime: shiny
 library("here")
 library("data.table")
 library("ggplot2")
+library("plotly")
 
 #----------------------------------------------------------
 #   subfunctions
@@ -39,35 +46,61 @@ dfc <- readr::read_rds(here("data", "dfc.rds"))
 # set data.table
 
 DT <- as.data.table(dfc)
-DT <- DT[status == "OK"]
+cr <- as.data.table(cr)
 setnames(DT, "threshold", "pv")
 
 
 # Sort
 setorder(DT, year, goal, pv)
 
-# convert 99.99 to 100 for simplicity
-DT[
-  goal == 99.99,
-  goal := 100
-  ]
-
-# Create deciles in each percentile
-DT[
-  ,
+DT <- DT[
+  # remove old years
+  year >= 1990
+  ][,
+  # multiply by 100
+  goal := 100*goal
+  
+  ][
+  ,# Create deciles in each percentile
   qp := qtile(pv),
   by = .(year, goal)
-  ]
+  
+  ][
+    ,
+    headcount := NULL
+  ][
+    # Merge country names and regions
+    cr, 
+    on = .(countrycode)
+    ]
+
+
+yrs <- DT[, unique(year)]
 
 ```
 
-Column {.sidebar}
+Sidebar {.sidebar data-width=350}
 -----------------------------------------------------------------------
 
 ```{r}
 sliderInput("pc", 
             label = "Percentile",
             min = 10, max = 100, value = 50, step = 10)
+
+sliderInput("qps", 
+            label = "Decile within percentiles",
+            min = 1, max = 10, value = 1, step = 1)
+
+sliderInput("mrt", 
+            label = "Max decile",
+            min = 1, max = 10, value = 9, step = 1)
+
+selectInput("yr", 
+            label    = "Years",
+            choices  = yrs, 
+            selected = c(1993, 2002, 2010, 2015, 2017), 
+            multiple = TRUE)
+
 
 selectInput("ms", 
             label = "Measure:",
@@ -76,30 +109,82 @@ selectInput("ms",
 
 sliderInput("nm", 
             label = "Decile within percentile (Numerator):",
-            min = 1, max = 10, value = c(9,10), step = 1)
+            min = 1, max = 10, value = c(8,9), step = 1)
 
 sliderInput("dn", 
             label = "Decile within percentile (Denominator):",
             min = 1, max = 10, value = c(1,4), step = 1)
 
 
+
+
+
 ```
 
-Column {data-width=350}
+Row {.tabset .tabset-fade}
 -----------------------------------------------------------------------
 
-### Density over time of percentile 
+### Normalized Deciles
 
 ```{r}
 
-DG <- reactive({
-  DT[goal == input$pc & !is.na(pv)]
+DTF <- reactive({
+  DT[
+    qp == input$qps
+    ][
+      ,
+      .SD[which.max(pv)],
+      by = .(year, goal)
+    ]
 })
-
-
-renderPlot({
   
-  ggplot(DG(),
+
+DG <- reactive({
+  DT[goal == input$pc 
+     & !is.na(pv) 
+     & year  %in% input$yr
+     & qp <= input$mrt
+     ][
+      DTF(),
+      on = .(year, goal),
+      pvd := i.pv
+      ][
+        ,
+        ratio := pv/pvd
+      ][
+        , # Create Text variable
+        text := paste0("Country: ", countryname, "\n",
+                       "Year: ", year, "\n",
+                       "Ratio:", round(ratio, digits = 2), "\n")
+      ]
+
+})
+```
+
+```{r}
+renderPlotly({
+  pn <- ggplot(DG(),
+       aes(
+         x = pv,
+         y = ratio,
+         color = factor(year)
+       )
+       ) +
+  geom_line() +
+  geom_point(aes( 
+         text = text)) +
+  theme_minimal()
+  
+  ggplotly(pn, tooltip = "text")
+})
+```
+
+
+### Density over time of percentile 
+```{r}
+renderPlotly({
+  
+  pd <- ggplot(DG(),
        aes(x = pv,
            fill  = factor(year)
        )
@@ -113,10 +198,17 @@ renderPlot({
       legend.direction = "horizontal"
     )
   
+  ggplotly(pd)
    
 })
 
 ```
+
+
+
+
+Row
+-----------------------------------------------------------------------
 
 ### Evolution of ratio 
 
@@ -132,7 +224,7 @@ DF <- reactive({
   
   DW <- DT[
     # Filter selected percentile
-    goal == input$pc
+    goal == input$pc & !is.na(pv) & year  %in% input$yr
   
     ][
     # classify numerator and denominator
@@ -158,14 +250,14 @@ DF <- reactive({
   # Ratio
   DW[
     ,
-    ratio := nm/dn
+    ratio := round(nm/dn, digits = 2)
     ]
 
 })
 
 
-renderPlot({
-  ggplot(DF(),
+renderPlotly({
+ pr <- ggplot(DF(),
          aes(
            x = year,
            y = ratio)
@@ -177,6 +269,8 @@ renderPlot({
     theme(
       legend.title = element_blank()
     )
+  
+  ggplotly(pr)
 
 })
 
@@ -185,4 +279,5 @@ renderPlot({
 
 
 ```
+
 
