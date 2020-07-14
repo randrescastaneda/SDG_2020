@@ -49,6 +49,7 @@ dfc <- read_rds("data/dfc.rds")
 # set data.table
 
 DT <- as.data.table(dfc)
+cr <- as.data.table(cr)
 setnames(DT, "threshold", "pv")
 
 
@@ -73,7 +74,13 @@ DT <- DT[
   ][
     ,
     headcount := NULL
-  ]
+  ][
+    # Merge country names and regions
+    cr,
+    on = .(countrycode)
+    ]
+
+
 
 #----------------------------------------------------------
 #   Typical country in each decile
@@ -137,7 +144,6 @@ DTF <- DT[
     by = .(year, goal)
   ]
 
-
 DT[
   DTF,
   on = .(year, goal),
@@ -145,7 +151,15 @@ DT[
   ][
     ,
     ratio := pv/pvd
+  ][
+    , # Create Text variable
+    text := paste0("Country: ", countryname, "\n",
+                   "Year: ", year, "\n",
+                   "Ratio:", ratio, "\n")
   ]
+
+
+
 
 pc <-  50
 
@@ -160,6 +174,32 @@ ggplot(DT[goal == pc & pv < 75],
   geom_line() +
   geom_point() +
   theme_minimal()
+
+
+
+
+
+ggplot(DT[goal == pc & year == 2017],
+       aes(
+         x = pv,
+         y = ratio
+       )
+       ) +
+  geom_point() +
+  geom_smooth() +
+  theme_minimal()
+
+
+
+
+
+
+
+
+
+
+
+
 
 #
 # mx <- DT[goal == pc & (year == min(year) | year == max(year))

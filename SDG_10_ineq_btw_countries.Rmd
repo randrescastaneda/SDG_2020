@@ -46,6 +46,7 @@ dfc <- readr::read_rds(here("data", "dfc.rds"))
 # set data.table
 
 DT <- as.data.table(dfc)
+cr <- as.data.table(cr)
 setnames(DT, "threshold", "pv")
 
 
@@ -67,7 +68,12 @@ DT <- DT[
   ][
     ,
     headcount := NULL
-  ]
+  ][
+    # Merge country names and regions
+    cr, 
+    on = .(countrycode)
+    ]
+
 
 yrs <- DT[, unique(year)]
 
@@ -145,7 +151,13 @@ DG <- reactive({
       ][
         ,
         ratio := pv/pvd
+      ][
+        , # Create Text variable
+        text := paste0("Country: ", countryname, "\n",
+                       "Year: ", year, "\n",
+                       "Ratio:", round(ratio, digits = 2), "\n")
       ]
+
 })
 ```
 
@@ -159,10 +171,11 @@ renderPlotly({
        )
        ) +
   geom_line() +
-  geom_point() +
+  geom_point(aes( 
+         text = text)) +
   theme_minimal()
   
-  ggplotly(pn)
+  ggplotly(pn, tooltip = "text")
 })
 ```
 
@@ -237,7 +250,7 @@ DF <- reactive({
   # Ratio
   DW[
     ,
-    ratio := nm/dn
+    ratio := round(nm/dn, digits = 2)
     ]
 
 })
