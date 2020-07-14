@@ -27,6 +27,15 @@ library("povcalnet")
 #----------------------------------------------------------
 source("R/utils.R")
 
+ann_growth <- function(x,y) {
+  x0 <- shift(x)
+  y0 <- shift(y)
+
+  z <- ((x/x0)^(1/(y-y0))) - 1
+}
+
+
+
 #----------------------------------------------------------
 #   Aux data
 #----------------------------------------------------------
@@ -84,14 +93,73 @@ DF <- DT[,
 
 DF <- as.list(DF)
 
-df <- pmap_dfr(DF, povcalnet,
-           fill_gaps = TRUE,
-           server = "AR")
+# dm <- pmap_dfr(DF, povcalnet,
+#            fill_gaps = TRUE,
+#            server = "AR")
 
+#--------- Save data ---------
+# write_rds(dm, here("data", "SDG_10_50percent_median.rds"))
 
 #----------------------------------------------------------
-#
+# compare to international poverty
 #----------------------------------------------------------
+
+# load headcount of 50 percent the median
+
+pcnvars <- c("countrycode", "year", "coveragetype", "datatype", "headcount")
+srtvars <- c("countrycode", "year", "coveragetype", "datatype")
+
+dm <- read_rds(here("data", "SDG_10_50percent_median.rds"))
+dm <- as.data.table(dm)
+dm <- dm[
+        year  %in% yrs
+        ][
+          ,
+          ..pcnvars
+        ]
+
+setnames(dm, "headcount", "med_2")
+setkeyv(dm, srtvars)
+
+# Headcount at international lines
+df <- povcalnet(fill_gaps = TRUE,
+                server    = "AR")
+df <- as.data.table(df)
+
+df <- df[year  %in% yrs
+   ][
+     ,
+     ..pcnvars
+   ]
+
+setnames(df, "headcount", "pov")
+setkeyv(df, srtvars)
+
+#--------- merge datasets ---------
+df <- df[dm] # no need of on because we are using key
+
+
+#--------- prepare data ---------
+df[
+  ,
+  `:=`(
+    pov_g = ann_growth(pov, year),
+    med_g = ann_growth(med_2, year)
+  ),
+  by = .(countrycode, coveragetype)
+  ]
+
+
+
+ggplot(df,
+       aes(
+        x = pov_g,
+        y = med_g
+       )
+       ) +
+  geom_point()
+
+
 
 #----------------------------------------------------------
 #
