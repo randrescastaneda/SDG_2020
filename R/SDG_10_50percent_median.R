@@ -122,9 +122,9 @@ setnames(dm, "headcount", "med_2")
 setkeyv(dm, srtvars)
 
 # Headcount at international lines
-df <- povcalnet(fill_gaps = TRUE,
+de <- povcalnet(fill_gaps = TRUE,
                 server    = "AR")
-df <- as.data.table(df)
+df <- as.data.table(de)
 
 df <- df[year  %in% yrs
    ][
@@ -136,29 +136,42 @@ setnames(df, "headcount", "pov")
 setkeyv(df, srtvars)
 
 #--------- merge datasets ---------
-df <- df[dm] # no need of on because we are using key
+df <- df[dm] # no need `on` because we are using key
 
 
 #--------- prepare data ---------
-df[
+df <- df[
+  # Exclude poverty == 0
+  pov > 0
+  ][
   ,
-  `:=`(
-    pov_g = ann_growth(pov, year),
+  c("pov_g", "med_g", "text") := {
+
+    pov_g = ann_growth(pov, year)
     med_g = ann_growth(med_2, year)
-  ),
+    text = paste0("Country: ", countrycode, "\n",
+                  "Abs pov: ", round(pov_g, digits = 2), "\n",
+                  "Rel pov: ", round(med_g, digit = 2), "\n",
+                  "Year 2: " , year, "\n")
+    list(pov_g, med_g, text)
+    },
   by = .(countrycode, coveragetype)
+  ][
+    pov_g > 0 & med_g > 0
   ]
 
 
 
-ggplot(df,
+pt <- ggplot(df[pov_g < max(pov_g, na.rm = TRUE)],
        aes(
         x = pov_g,
-        y = med_g
+        y = med_g,
+        text = text
        )
        ) +
   geom_point()
 
+plotly::ggplotly(pt, tooltip = "text")
 
 
 #----------------------------------------------------------
