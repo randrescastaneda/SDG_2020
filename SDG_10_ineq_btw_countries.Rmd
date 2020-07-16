@@ -129,32 +129,40 @@ Row {.tabset .tabset-fade}
 ```{r}
 
 DTF <- reactive({
-  DT[
-    qp == input$qps
+  DTF <- 
+    DT[
+    qp == input$qps 
+    & goal == input$pc
+    & year  %in% input$yr
     ][
       ,
       .SD[which.max(pv)],
-      by = .(year, goal)
+      by = .(year)
     ]
+  setorder(DTF, year, pv)
 })
   
 
 DG <- reactive({
-  DT[goal == input$pc 
+  DG <- 
+    DT[
+     goal == input$pc 
      & !is.na(pv) 
      & year  %in% input$yr
      & qp <= input$mrt
      ][
       DTF(),
-      on = .(year, goal),
+      on = .(year),
       pvd := i.pv
       ][
         ,
         ratio := pv/pvd
       ][
         , # Create Text variable
-        text := paste0("Country: ", countryname, "\n",
+        text := paste0("Country: ", countryname,"-",coverage, "\n",
+                       "Data type: ", datatype, "\n",
                        "Year: ", year, "\n",
+                       "Decile: ", qp, "\n",
                        "Ratio:", round(ratio, digits = 2), "\n")
       ]
 
