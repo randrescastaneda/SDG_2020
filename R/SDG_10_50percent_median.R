@@ -83,20 +83,29 @@ oldn <- c("countrycode", "pv")
 newn <- c("country", "povline")
 setnames(DT, oldn, newn, skip_absent = TRUE)
 
+DT2 <- copy(DT)
 
-DF <- DT[,
-   c("country", "povline", "year")
-  ][
+DF <-
+  DT2[
     ,
-    povline := povline/2
-  ]
+    coverage := ifelse(coverage == "U", "urban",
+                       ifelse(coverage == "R", "rural", "national")
+                       )
+  ][,
+     c("country", "povline", "year", "coverage")
+    ][
+      ,
+      povline := povline/2
+    ]
+
+rm(DT2)
 
 DF <- as.list(DF)
 
-# dm <- pmap_dfr(DF, povcalnet,
+# dm <- pmap_df(DF, povcalnet,
 #            fill_gaps = TRUE,
 #            server = "AR")
-
+#
 #--------- Save data ---------
 # write_rds(dm, here("data", "SDG_10_50percent_median.rds"))
 
@@ -162,23 +171,32 @@ df <- df[
     list(pov_g, med_g, text)
     },
   by = .(countrycode, coveragetype)
-  ][
-    pov_g > 0 & med_g > 0
   ]
 
 
-
-pt <- ggplot(df[pov_g < max(pov_g, na.rm = TRUE)],
+pt <- ggplot(df[pov_g < max(pov_g, na.rm = TRUE)
+                & pov_g < 0],
        aes(
         x = pov_g,
-        y = med_g,
-        text = text
+        y = med_g
        )
        ) +
-  geom_point()
+  geom_point(
+    aes(
+      text = text
+    )
+    ) +
+  geom_smooth() +
+  labs(
+    title = "Relative Vs Absolute poverty",
+    x = "Annualized growth of Absolute poverty",
+    y = "Annualized growth of Relative poverty (50% of P50)"
+  ) +
+  theme_minimal()
 
-plotly::ggplotly(pt, tooltip = "text")
+ptp <- plotly::ggplotly(pt, tooltip = "text")
 
+plotly::api_create(ptp)
 
 #----------------------------------------------------------
 #
