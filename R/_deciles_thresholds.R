@@ -27,22 +27,24 @@ library("povcalnetR")
 wran_povcal <- function(popshare, wb = FALSE, ...) {
 
   if(wb == FALSE) {
-    df <- povcalnet(popshare = popshare, ...)
-    ctr <- "countrycode"
+    df <- povcalnet(popshare = popshare, ...) %>%
+      mutate(
+        goal = popshare
+      ) %>%
+      select(countrycode, year,
+             threshold = povertyline,
+             coverage = coveragetype,
+             goal, headcount,  datatype)
+
   } else {
-    df <- povcalnet_wb(popshare = popshare, ...)
-    ctr <- "regioncode"
+    df <- povcalnet_wb(popshare = popshare, ...) %>%
+      mutate(
+        goal = popshare
+      ) %>%
+      select(regioncode, year,
+             threshold = povertyline,
+             goal, headcount)
   }
-
-
-  df <- df %>%
-    mutate(
-      goal = popshare
-    ) %>%
-    select(!!ctr, year,
-           threshold = povertyline,
-           goal, headcount)
-
 
   return(df)
 }

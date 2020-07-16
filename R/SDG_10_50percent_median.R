@@ -111,6 +111,8 @@ srtvars <- c("countrycode", "year", "coveragetype", "datatype")
 
 dm <- read_rds(here("data", "SDG_10_50percent_median.rds"))
 dm <- as.data.table(dm)
+setkeyv(dm, srtvars)
+
 dm <- dm[
         year  %in% yrs
         ][
@@ -119,12 +121,15 @@ dm <- dm[
         ]
 
 setnames(dm, "headcount", "med_2")
-setkeyv(dm, srtvars)
+
+dm <- unique(dm)
 
 # Headcount at international lines
 de <- povcalnet(fill_gaps = TRUE,
                 server    = "AR")
+
 df <- as.data.table(de)
+setkeyv(df, srtvars)
 
 df <- df[year  %in% yrs
    ][
@@ -133,7 +138,8 @@ df <- df[year  %in% yrs
    ]
 
 setnames(df, "headcount", "pov")
-setkeyv(df, srtvars)
+df <- unique(df)
+
 
 #--------- merge datasets ---------
 df <- df[dm] # no need `on` because we are using key

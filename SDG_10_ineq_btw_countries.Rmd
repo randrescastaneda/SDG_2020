@@ -93,14 +93,17 @@ sliderInput("qps",
 
 sliderInput("mrt", 
             label = "Max decile",
-            min = 1, max = 10, value = 9, step = 1)
+            min = 1, max = 10, value = 10, step = 1)
+
+checkboxInput("log2", 
+              label = "show x-axis in log2",  
+              value = FALSE)
 
 selectInput("yr", 
             label    = "Years",
             choices  = yrs, 
             selected = c(1993, 2002, 2010, 2015, 2017), 
             multiple = TRUE)
-
 
 selectInput("ms", 
             label = "Measure:",
@@ -182,6 +185,11 @@ renderPlotly({
   geom_point(aes( 
          text = text)) +
   theme_minimal()
+  
+  if (input$log2 == TRUE) {
+    pn <- pn + 
+      scale_x_continuous(trans = 'log2')
+  }
   
   ggplotly(pn, tooltip = "text")
 })

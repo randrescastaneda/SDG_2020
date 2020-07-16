@@ -117,8 +117,6 @@ DT <-
   ]
 
 
-
-
 pt <- ggplot(DT[goal == pc & pv < 75],
        aes(
          x = pv,
@@ -129,7 +127,9 @@ pt <- ggplot(DT[goal == pc & pv < 75],
        ) +
   geom_line() +
   geom_point() +
-  theme_minimal()
+  theme_minimal() +
+  scale_x_continuous(trans = 'log2')
+
 
 plotly::ggplotly(pt, tooltip = "text")
 
