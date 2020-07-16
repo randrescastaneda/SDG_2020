@@ -47,11 +47,11 @@ dfc <- read_rds("data/dfc.rds")
 #----------------------------------------------------------
 
 # set data.table
+yrs <- c(1993, 2002, 2010, 2015, 2017)
 
 DT <- as.data.table(dfc)
 cr <- as.data.table(cr)
 setnames(DT, "threshold", "pv")
-
 
 # Sort
 setorder(DT, year, goal, pv)
@@ -78,56 +78,9 @@ DT <- DT[
     # Merge country names and regions
     cr,
     on = .(countrycode)
+    ][
+      year  %in% yrs
     ]
-
-
-
-#----------------------------------------------------------
-#   Typical country in each decile
-#----------------------------------------------------------
-
-DA <- DT[
-
-      # select b10 and t10
-      qp  %in% c(1, 10)
-    ][
-      , # Get the median by groups
-      med := median(pv, na.rm = TRUE),
-      by = .(year, goal, qp)
-
-    ][
-      , # min abs diff between median and pv by groupw
-      dfmed := min(abs(pv - med)),
-      by = .(year, goal, qp)
-
-    ][
-      # Filter those of min diff
-      dfmed == abs(pv - med)
-
-    ][
-      , # select the min pv in case of tie in medians (when even No. of obs.)
-      .SD[which.min(pv)],
-      by = .(year, goal, qp)
-    ]
-
-DA <- dcast.data.table(DA,
-                       year + goal  ~ qp,
-                       value.var = c("countrycode", "pv"))
-
-DA[
-  ,
-  ratio := pv_10/pv_1
-  ]
-
-
-ggplot(filter(DA, goal == 50),
-       aes(
-         x = year,
-         y = ratio
-       )) +
-  geom_line() +
-  geom_point()
-
 
 
 #----------------------------------------------------------
@@ -135,18 +88,23 @@ ggplot(filter(DA, goal == 50),
 #----------------------------------------------------------
 
 qps <- 1
+pc  <- 50
 
 DTF <- DT[
-  qp == qps
+  qp == qps & goal == pc
   ][
     ,
     .SD[which.max(pv)],
-    by = .(year, goal)
+    by = .(year)
   ]
 
-DT[
+setorder(DTF, year, pv)
+
+
+DT <-
+  DT[
   DTF,
-  on = .(year, goal),
+  on = .(year),
   pvd := i.pv
   ][
     ,
@@ -161,21 +119,19 @@ DT[
 
 
 
-pc <-  50
-
-
-ggplot(DT[goal == pc & pv < 75],
+pt <- ggplot(DT[goal == pc & pv < 75],
        aes(
          x = pv,
          y = ratio,
-         color = factor(year)
+         color = factor(year),
+         text = text
        )
        ) +
   geom_line() +
   geom_point() +
   theme_minimal()
 
-
+plotly::ggplotly(pt, tooltip = "text")
 
 
 
@@ -191,6 +147,53 @@ ggplot(DT[goal == pc & year == 2017],
 
 
 
+
+
+#----------------------------------------------------------
+#   Typical country in each decile
+#----------------------------------------------------------
+
+DA <- DT[
+
+  # select b10 and t10
+  qp  %in% c(1, 10)
+][
+  , # Get the median by groups
+  med := median(pv, na.rm = TRUE),
+  by = .(year, goal, qp)
+
+][
+  , # min abs diff between median and pv by groupw
+  dfmed := min(abs(pv - med)),
+  by = .(year, goal, qp)
+
+][
+  # Filter those of min diff
+  dfmed == abs(pv - med)
+
+][
+  , # select the min pv in case of tie in medians (when even No. of obs.)
+  .SD[which.min(pv)],
+  by = .(year, goal, qp)
+]
+
+DA <- dcast.data.table(DA,
+                       year + goal  ~ qp,
+                       value.var = c("countrycode", "pv"))
+
+DA[
+  ,
+  ratio := pv_10/pv_1
+]
+
+
+ggplot(filter(DA, goal == 50),
+       aes(
+         x = year,
+         y = ratio
+       )) +
+  geom_line() +
+  geom_point()
 
 
 
