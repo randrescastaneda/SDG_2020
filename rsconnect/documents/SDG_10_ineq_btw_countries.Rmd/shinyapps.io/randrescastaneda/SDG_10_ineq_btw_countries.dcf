@@ -5,8 +5,9 @@ account: randrescastaneda
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 2569687
-bundleId: 3390581
+bundleId: 3400112
 url: https://randrescastaneda.shinyapps.io/SDG_10_ineq_btw_countries/
-when: 1594730929.85652
+when: 1594910650.4573
 asMultiple: FALSE
 asStatic: FALSE
+additionalFiles: data/dfc.rds|data/cty_regs_names.rds
