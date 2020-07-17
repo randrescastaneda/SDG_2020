@@ -159,33 +159,40 @@ df <- df[
   # Exclude poverty == 0
   pov > 0
   ][
-  ,
-  c("pov_g", "med_g", "text") := {
-
-    pov_g = ann_growth(pov, year)
-    med_g = ann_growth(med_2, year)
-    text = paste0("Country: ", countrycode, "\n",
-                  "Abs pov: ", round(pov_g, digits = 2), "\n",
-                  "Rel pov: ", round(med_g, digit = 2), "\n",
-                  "Year 2: " , year, "\n")
-    list(pov_g, med_g, text)
+    ,
+    c("pov_g", "med_g", "text", "group") := {
+      pov_g <- ann_growth(pov, year)
+      med_g <- ann_growth(med_2, year)
+      text  <- paste0(
+        "Country: ", countrycode, "\n",
+        "Abs pov: ", round(pov_g, digits = 2), "\n",
+        "Rel pov: ", round(med_g, digit = 2), "\n",
+        "Period: ", shift(year),"-", year, "\n"
+      )
+      group <- ifelse(pov_g > 0 & med_g > 0, 1,
+                      ifelse(pov_g < 0 & med_g > 0, 2,
+                             ifelse(pov_g < 0 & med_g < 0, 3,4)
+                             )
+                      )
+      list(pov_g, med_g, text, group)
     },
-  by = .(countrycode, coveragetype)
+    by = .(countrycode, coveragetype)
   ]
 
 
-pt <- ggplot(df[pov_g < max(pov_g, na.rm = TRUE)
-                & pov_g < 0],
-       aes(
-        x = pov_g,
-        y = med_g
-       )
-       ) +
+pt <- ggplot(
+  df[pov_g < max(pov_g, na.rm = TRUE)],
+  aes(
+    x = pov_g,
+    y = med_g
+  )
+) +
   geom_point(
     aes(
-      text = text
+      text = text,
+      color = factor(group)
     )
-    ) +
+  ) +
   geom_smooth() +
   labs(
     title = "Relative Vs Absolute poverty",
@@ -195,6 +202,7 @@ pt <- ggplot(df[pov_g < max(pov_g, na.rm = TRUE)
   theme_minimal()
 
 ptp <- plotly::ggplotly(pt, tooltip = "text")
+ptp
 
 plotly::api_create(ptp)
 
