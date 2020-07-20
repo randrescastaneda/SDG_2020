@@ -32,7 +32,7 @@ qtile <- function(x) {
   return(qp)
 }
 
-# calculation
+# calculation of ratios
 ratio_calc <- function(DT,
                        nm, 
                        dn, 
@@ -43,6 +43,11 @@ ratio_calc <- function(DT,
   
   calc <- paste0(".(", ms, "  = ", ms, "(pv, na.rm = TRUE))")
   calc <- parse(text = calc)
+  
+  
+  nmp <- ord_nums( unique(nm) ) 
+  dnp <- ord_nums( unique(dn) ) 
+
   
   
   DW <- DT[
@@ -66,7 +71,7 @@ ratio_calc <- function(DT,
       by = .(year, goal, gr)
     ][
       ,
-      label := paste0(paste(nm, collapse = "-"), "/", paste(dn, collapse = "-"))
+      label := paste0(paste(nmp, collapse = "-"), "/", paste(dnp, collapse = "-"))
     ]
   
   # Reshape to wide
@@ -82,6 +87,26 @@ ratio_calc <- function(DT,
   
   return(DW)
 
+}
+
+
+
+# Ordinal numbers
+ord_nums <- function(n){
+  
+  ord <- ifelse(n %in% c(11,12,13),  "th",
+                ifelse(
+                  n %% 10 == 1, 'st',
+                  ifelse(
+                    n %% 10 == 2, 'nd',
+                    ifelse(
+                      n %% 10 == 3 , 'rd',  "th"
+                    )
+                  )
+                )
+          )
+  
+  return(paste0(n, ord))
 }
 
 
@@ -439,11 +464,11 @@ sliderInput("dn3",
 
 sliderInput("nm4", 
             label = "Numerator4:",
-            min = 1, max = 10, value = c(9,10), step = 1)
+            min = 1, max = 10, value = c(6,6), step = 1)
 
 sliderInput("dn4", 
             label = "Denominator4:",
-            min = 1, max = 10, value = c(1,4), step = 1)
+            min = 1, max = 10, value = c(4,4), step = 1)
 
 ```
 
