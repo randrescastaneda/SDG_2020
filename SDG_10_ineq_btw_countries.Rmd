@@ -16,6 +16,7 @@ library("here")
 library("data.table")
 library("ggplot2")
 library("plotly")
+library("purrr")
 
 #----------------------------------------------------------
 #   subfunctions
@@ -29,6 +30,58 @@ qtile <- function(x) {
   csw <-  1:N
   qp  <-   floor(csw/((N+1)/nq)) + 1
   return(qp)
+}
+
+# calculation
+ratio_calc <- function(DT,
+                       nm, 
+                       dn, 
+                       pc   = 50, 
+                       ms   = mean,
+                       yrs  = c(1993, 2017)
+                       ) {
+  
+  calc <- paste0(".(", ms, "  = ", ms, "(pv, na.rm = TRUE))")
+  calc <- parse(text = calc)
+  
+  
+  DW <- DT[
+    # Filter selected percentile
+    goal == pc
+    & year  %in% yrs
+    
+    ][
+      # classify numerator and denominator
+      ,
+      gr := ifelse(qp %between% nm, "nm",
+                   ifelse(qp %between% dn, "dn", NA_character_ )
+      )
+      
+    ][
+      # remove not necessary data
+      !is.na(gr)
+    ][
+      , # Make requested calculation
+      eval(calc),
+      by = .(year, goal, gr)
+    ][
+      ,
+      label := paste0(paste(nm, collapse = "-"), "/", paste(dn, collapse = "-"))
+    ]
+  
+  # Reshape to wide
+  DW <- dcast.data.table(DW,
+              year + label ~ gr,
+              value.var = ms)
+  
+  # Ratio
+  DW[
+    ,
+      ratio := round(nm/dn, digits = 2)
+    ]
+  
+  return(DW)
+
 }
 
 
@@ -79,6 +132,10 @@ yrs <- DT[, unique(year)]
 
 ```
 
+Ratios to selected deciles and Densities
+===========================================================
+
+
 Sidebar {.sidebar data-width=350}
 -----------------------------------------------------------------------
 
@@ -95,8 +152,12 @@ sliderInput("mrt",
             label = "Max decile",
             min = 1, max = 10, value = 10, step = 1)
 
-checkboxInput("log2", 
-              label = "show x-axis in log2",  
+checkboxInput("log2_x", 
+              label = "show X-axis in log2",  
+              value = FALSE)
+
+checkboxInput("log2_y", 
+              label = "show Y-axis in log2",  
               value = FALSE)
 
 selectInput("yr", 
@@ -160,13 +221,26 @@ DG <- reactive({
       ][
         ,
         ratio := pv/pvd
-      ][
+      ][,
+        N := .N,
+        by = .(year)
+      ]
+    
+  setorder(DG, year, pv)
+  
+  DG[
+    ,
+    i := rowid(year)
+    ][
+      ,
+      rpos := i/N
+    ][
         , # Create Text variable
-        text := paste0("Country: ", countryname,"-",coverage, "\n",
-                       "Data type: ", datatype, "\n",
-                       "Year: ", year, "\n",
-                       "Decile: ", qp, "\n",
-                       "Ratio:", round(ratio, digits = 2), "\n")
+        text := paste0("Country: ",    countryname,"-",coverage, "\n",
+                       "Data type: ",  datatype, "\n",
+                       "Year: ",       year, "\n",
+                       "Percentile: ", round(rpos*100, digits = 2), "\n",
+                       "Ratio:",       round(ratio, digits = 2), "\n")
       ]
 
 })
@@ -176,7 +250,7 @@ DG <- reactive({
 renderPlotly({
   pn <- ggplot(DG(),
        aes(
-         x = pv,
+         x = rpos,
          y = ratio,
          color = factor(year)
        )
@@ -184,11 +258,22 @@ renderPlotly({
   geom_line() +
   geom_point(aes( 
          text = text)) +
-  theme_minimal()
+  theme_minimal() + 
+    labs(
+      title = "Evolution of inequality across countries ",
+      x     = "Relative position of country (percentile)",
+      y     = "Ratio percentile/selected decile", 
+      color = "Year"
+    )
   
-  if (input$log2 == TRUE) {
+  if (input$log2_x == TRUE) {
     pn <- pn + 
       scale_x_continuous(trans = 'log2')
+  }
+  
+  if (input$log2_y == TRUE) {
+    pn <- pn + 
+      scale_y_continuous(trans = 'log2')
   }
   
   ggplotly(pn, tooltip = "text")
@@ -240,7 +325,9 @@ DF <- reactive({
   
   DW <- DT[
     # Filter selected percentile
-    goal == input$pc & !is.na(pv) & year  %in% input$yr
+    goal == input$pc 
+    & !is.na(pv) 
+    & year  %in% input$yr
   
     ][
     # classify numerator and denominator
@@ -295,5 +382,135 @@ renderPlotly({
 
 
 ```
+
+
+Evolution of defined ratios
+===========================================================
+
+
+Sidebar {.sidebar data-width=350}
+-----------------------------------------------------------------------
+
+```{r}
+
+sliderInput("pc", 
+            label = "Percentile",
+            min = 10, max = 100, value = 50, step = 10)
+
+selectInput("yrs", 
+            label    = "Years",
+            choices  = yrs, 
+            selected = c(1993, 2017), 
+            multiple = TRUE)
+
+selectInput("ms", 
+            label = "Measure:",
+            choices = c("sum", "mean", "min", "max"),
+            selected = "sum")
+```
+
+*Please select the corresponding numerators and denominator of the ratios*
+
+```{r}
+
+sliderInput("nm1", 
+            label = "Numerator1:",
+            min = 1, max = 10, value = c(9,9), step = 1)
+
+sliderInput("dn1", 
+            label = "Denominator2:",
+            min = 1, max = 10, value = c(1,1), step = 1)
+
+sliderInput("nm2", 
+            label = "Numerator2:",
+            min = 1, max = 10, value = c(8,8), step = 1)
+
+sliderInput("dn2", 
+            label = "Denominator2:",
+            min = 1, max = 10, value = c(2,2), step = 1)
+
+sliderInput("nm3", 
+            label = "Numerator3:",
+            min = 1, max = 10, value = c(7,7), step = 1)
+
+sliderInput("dn3", 
+            label = "Denominator3:",
+            min = 1, max = 10, value = c(3,3), step = 1)
+
+sliderInput("nm4", 
+            label = "Numerator4:",
+            min = 1, max = 10, value = c(9,10), step = 1)
+
+sliderInput("dn4", 
+            label = "Denominator4:",
+            min = 1, max = 10, value = c(1,4), step = 1)
+
+```
+
+
+Row {.tabset .tabset-fade}
+-----------------------------------------------------------------------
+
+### Inequality Ratios
+
+```{r}
+LF <- reactive({
+
+rc_args <-
+        list(
+          nm = list(
+            input$nm1,
+            input$nm2,
+            input$nm3,
+            input$nm4
+            ),
+          dn = list(
+            input$dn1,
+            input$dn2,
+            input$dn3,
+            input$dn4
+          )
+        )
+
+  LF <-  pmap_df(rc_args, ratio_calc, 
+          pc  = input$pc, 
+          ms  = input$ms, 
+          yrs = input$yrs, 
+          DT = DT)
+  
+  return(LF)
+})
+
+```
+
+```{r}
+renderPlotly({
+  prt <- ggplot(LF(), 
+          aes(
+            x     = factor(label), 
+            y     = ratio,
+            color = factor(year), 
+            group = factor(year)
+            )
+          ) +
+          geom_line() +
+          geom_point() +
+          theme_minimal() +
+    labs(
+      title = "Inequality Ratios", 
+      x     = "Numerators/Denominators",
+      y     = "Ratio",
+      color = "Year"
+    )
+        
+
+  
+  ggplotly(prt)
+})
+```
+
+
+
+
 
 

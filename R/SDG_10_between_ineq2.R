@@ -91,7 +91,8 @@ qps <- 1
 pc  <- 50
 
 DTF <- DT[
-  qp == qps & goal == pc
+  qp == qps
+  & goal == pc
   ][
     ,
     .SD[which.max(pv)],
@@ -114,7 +115,43 @@ DT <-
     text := paste0("Country: ", countryname, "\n",
                    "Year: ", year, "\n",
                    "Ratio:", ratio, "\n")
+  ][,
+    N := .N,
+    by = .(year, goal)
   ]
+
+setorder(DT, year, goal, pv)
+
+DT[
+  ,
+  i := rowid(year, goal)
+  ][
+    ,
+    rpos := i/N
+  ]
+
+
+pq <- ggplot(DT[goal == pc],
+             aes(
+               x = rpos,
+               y = ratio,
+               color = factor(year)
+             )
+) +
+  geom_line() +
+  geom_point(
+    aes(text = text)
+  ) +
+  theme_minimal() +
+  labs(
+    title = "Evolution of inequality across countries ",
+    x = "Relative position of country (percentile)",
+    y = "Ratio percentile/selected decile"
+  )
+
+
+plotly::ggplotly(pq, tooltip = "text")
+
 
 
 pt <- ggplot(DT[goal == pc & pv < 75],
@@ -524,5 +561,8 @@ ggplot(filter(DT, goal == 90 & !is.na(pv)),
     legend.position = c(.8, .5),
     legend.direction = "horizontal"
   )
+
+
+
 
 
