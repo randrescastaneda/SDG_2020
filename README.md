@@ -7,8 +7,14 @@
 
 ## [Non-monetary inequality](https://randrescastaneda.github.io/SDG_2020/SDG10_slides/SDG_10_non_monetary.html)
 
-## [Inequality between countries](https://randrescastaneda.shinyapps.io/SDG_10_ineq_btw_countries/)
+## Between-Country inequality
+
+### [Evolution of Ratios](https://randrescastaneda.shinyapps.io/SDG_10_ineq_btw_countries/)
+
+### [Ranking of Medians over time](https://datanalytics.worldbank.org/content/581/)
+
+### [Growth Incidence Curve of Medians](https://datanalytics.worldbank.org/content/578/)
 
 # Poverty 
 
-## [Poverty Story](https://randrescastaneda.github.io/SDG_2020/SDG01_slides/SDG_01.html#1)
+### [Poverty Story](https://randrescastaneda.github.io/SDG_2020/SDG01_slides/SDG_01.html#1)
