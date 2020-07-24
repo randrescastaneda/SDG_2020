@@ -92,7 +92,8 @@ input <- list(
   pc  = 50,
   hc  = 10,
   yrs = c(1993, 2002, 2010, 2015, 2017),
-  ctr = c("Norway", "Finland")
+  ctr = c("Norway", "Finland"),
+  ctrset = "fyr"
 )
 
 
@@ -157,12 +158,37 @@ DQ <-
 
 #--------- Higher and lower countries ---------
 
-CC <- DQ[
-  qp  %in% input$hc
-  & year  %in% input$yrs
+yrs <- as.numeric(input$yrs)
+
+if (input$ctrset == "ayr") { # Any Year
+
+  CC <- DQ[
+    qp  %in% hc
   ][,
     unique(countrycode)
-    ]
+  ]
+
+} else if (input$ctrset == "fyr") { # First year
+
+  CC <- DQ[
+    qp  %in% hc
+    & year == yrs[1]
+  ][,
+    unique(countrycode)
+  ]
+
+} else { # last year
+
+  CC <- DQ[
+    qp  %in% hc
+    & year == yrs[length(yrs)]
+  ][,
+    unique(countrycode)
+  ]
+}
+
+
+
 
 DQ <- DQ[
   countrycode  %chin%  CC

@@ -2,7 +2,7 @@
 title: "Ranking change in Medians"
 output: 
   flexdashboard::flex_dashboard:
-    orientation: rows
+    orientation: columns
     social: menu
     theme: paper
     source_code: embed
@@ -16,7 +16,6 @@ library("here")
 library("data.table")
 library("ggplot2")
 library("plotly")
-library("shiny")
 library("flexdashboard")
 
 #----------------------------------------------------------
@@ -150,10 +149,18 @@ selectInput(
         multiple = TRUE
       )
 
+ radioButtons("ctrset", 
+              label = "Set of countries to include:",
+              choices = 
+                c("Any year"   = "ayr",
+                  "First year" = "fyr",
+                  "Last year"  = "lyr"),
+              selected = "ayr"
+              )
 
 ```
 
-Row {.tabset .tabset-fade}
+Column {data-width=900 .tabset .tabset-fade}
 -----------------------------------------------------------------------
 
 ### Change Ranking of Medians
@@ -187,24 +194,71 @@ DQ <- reactive({
 
 CC <- reactive({
   hc   <- as.numeric(input$hc)
+  yrs  <- as.numeric(input$yrs) 
   
-  CC <- DQ()[
-    qp  %in% hc
-    ][,
-      unique(countrycode)
-      ]
+  if (input$ctrset == "ayr") { # Any Year
+    
+    CC <- DQ()[
+      qp  %in% hc
+      ][,
+        unique(countrycode)
+        ]
+    
+  } else if (input$ctrset == "fyr") { # First year
+    
+    CC <- DQ()[
+      qp  %in% hc
+      & year == yrs[1]
+      ][,
+        unique(countrycode)
+        ]
+    
+  } else { # last year
+    
+    CC <- DQ()[
+      qp  %in% hc
+      & year == yrs[length(yrs)]
+      ][,
+        unique(countrycode)
+        ]
+  }
+  
+  
   return(CC)
 })
 
 
  observeEvent(input$hc, {
    hc   <- as.numeric(input$hc)
+   yrs  <- as.numeric(input$yrs) 
 
-  CC <- DQ()[
-    qp  %in% hc
-    ][,
-      unique(countryname)
-      ]
+  if (input$ctrset == "ayr") { # Any Year
+    
+    CC <- DQ()[
+      qp  %in% hc
+      ][,
+        unique(countryname)
+        ]
+    
+  } else if (input$ctrset == "fyr") { # First year
+    
+    CC <- DQ()[
+      qp  %in% hc
+      & year == yrs[1]
+      ][,
+        unique(countryname)
+        ]
+    
+  } else { # last year
+    
+    CC <- DQ()[
+      qp  %in% hc
+      & year == yrs[length(yrs)]
+      ][,
+        unique(countryname)
+        ]
+  }
+  
 
     updateSelectInput(
       session,
@@ -220,7 +274,7 @@ DW <- reactive({
   #--------- Higher and lower countries ---------
   
   ctr <- as.character(input$ctr)
-  DW <- DQ()[
+  DW  <- DQ()[
     countrycode  %chin%  CC()
     ][
     ,
@@ -300,3 +354,12 @@ renderPlotly({
 
 })
 ```
+
+Column {.tabset .tabset-fade}
+-----------------------------------------------------------------------
+### Explanation of the chart
+
+This should be some text
+
+> this is some text
+
