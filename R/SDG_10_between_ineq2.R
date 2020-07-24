@@ -566,3 +566,199 @@ ggplot(filter(DT, goal == 90 & !is.na(pv)),
 
 
 
+
+
+#----------------------------------------------------------
+#   Aux data
+#----------------------------------------------------------
+cr <- read_rds("data/cty_regs_names.rds")
+dfc <- read_rds("data/dfc.rds")
+
+
+#----------------------------------------------------------
+#   Calculate Quantiles
+#----------------------------------------------------------
+
+# set data.table
+yrs <- c(1993, 2002, 2010, 2015, 2017)
+
+DT <- as.data.table(dfc)
+cr <- as.data.table(cr)
+setnames(DT, "threshold", "pv")
+
+# Sort
+setorder(DT, year, goal, pv)
+
+DT <- DT[
+  # remove old years
+  year >= 1990
+][
+  # filter negative values (which we should not have)
+  pv > 0 & !is.na(pv)
+][,
+  # multiply by 100
+  goal := 100*goal
+
+][
+  ,# Create deciles in each percentile
+  qp := qtile(pv),
+  by = .(year, goal)
+
+][
+  ,
+  headcount := NULL
+][
+  # Merge country names and regions
+  cr,
+  on = .(countrycode)
+][
+  year  %in% yrs
+]
+
+
+
+#--------- parameters ---------
+
+# calculation
+ratio_calc <- function(DT,
+                       nm,
+                       dn,
+                       pc   = 50,
+                       ms   = mean,
+                       yrs  = c(1993, 2017)
+) {
+
+  calc <- paste0(".(", ms, "  = ", ms, "(pv, na.rm = TRUE))")
+  calc <- parse(text = calc)
+
+
+  DW <- DT[
+    # Filter selected percentile
+    goal == pc
+    & year  %in% yrs
+
+  ][
+    # classify numerator and denominator
+    ,
+    gr := ifelse(qp %between% nm, "nm",
+                 ifelse(qp %between% dn, "dn", NA_character_ )
+    )
+
+  ][
+    # remove not necessary data
+    !is.na(gr)
+  ][
+    , # Make requested calculation
+    eval(calc),
+    by = .(year, goal, gr)
+  ][
+    ,
+    label := paste0(paste(nm, collapse = "-"), "/", paste(dn, collapse = "-"))
+  ]
+
+  # Reshape to wide
+  DW <- dcast.data.table(DW,
+                         year + label ~ gr,
+                         value.var = ms)
+
+  # Ratio
+  DW[
+    ,
+    ratio := round(nm/dn, digits = 2)
+  ]
+
+  return(DW)
+
+}
+
+#
+
+pc <- 50       # percentile
+ms <- "mean"   # measure
+nm <- c(9, 10)      # numerator
+dn <- c(1, 4)       # denominator
+
+yrs <- c(1993, 2017)
+
+
+df <- ratio_calc(DT = DT,
+                 nm = nm,
+                 dn = dn,
+                 ms = ms,
+                 pc = pc,
+                 yrs = yrs)
+
+rc_args <-
+  list(
+
+    nm = list(
+      c(9,9),
+      c(8,8),
+      c(7,7),
+      c(9,10)
+    ),
+    dn = list(
+      c(1,1),
+      c(2,2),
+      c(3,3),
+      c(1,4)
+    )
+  )
+
+
+
+
+lf <- pmap_df(rc_args, ratio_calc,
+              pc = pc,
+              ms = ms,
+              yrs = yrs,
+              DT = DT)
+
+
+ggplot(lf,
+       aes(
+         x     = factor(label),
+         y     = ratio,
+         color = factor(year),
+         group = factor(year)
+       )
+) +
+  geom_line() +
+  geom_point() +
+  theme_minimal()
+
+
+
+
+
+
+
+nm <- c(8,8)
+dn <- c(1,2)
+
+nmp <- ord_nums( unique(nm) )
+dnp <- ord_nums( unique(dn) )
+
+paste0(paste(nmp, collapse = "-"), "/", paste(dnp, collapse = "-"))
+
+
+
+
+ord_nums <- function(n){
+
+  ord <- ifelse(n %in% c(11,12,13),  "th",
+                ifelse(
+                  n %% 10 == 1, 'st',
+                  ifelse(
+                    n %% 10 == 2, 'nd',
+                    ifelse(
+                      n %% 10 == 3 , 'rd',  "th"
+                    )
+                  )
+                )
+  )
+
+  return(paste0(n, ord))
+}
+
+ord_nums(nm)

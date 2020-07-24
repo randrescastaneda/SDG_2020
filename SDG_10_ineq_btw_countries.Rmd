@@ -418,17 +418,17 @@ Sidebar {.sidebar data-width=350}
 
 ```{r}
 
-sliderInput("pc", 
+sliderInput("pc2", 
             label = "Percentile",
             min = 10, max = 100, value = 50, step = 10)
 
-selectInput("yrs", 
+selectInput("yrs2", 
             label    = "Years",
             choices  = yrs, 
             selected = c(1993, 2017), 
             multiple = TRUE)
 
-selectInput("ms", 
+selectInput("ms2", 
             label = "Measure:",
             choices = c("sum", "mean", "min", "max"),
             selected = "sum")
@@ -443,7 +443,7 @@ sliderInput("nm1",
             min = 1, max = 10, value = c(9,9), step = 1)
 
 sliderInput("dn1", 
-            label = "Denominator2:",
+            label = "Denominator1:",
             min = 1, max = 10, value = c(1,1), step = 1)
 
 sliderInput("nm2", 
@@ -498,9 +498,9 @@ rc_args <-
         )
 
   LF <-  pmap_df(rc_args, ratio_calc, 
-          pc  = input$pc, 
-          ms  = input$ms, 
-          yrs = input$yrs, 
+          pc  = input$pc2, 
+          ms  = input$ms2, 
+          yrs = input$yrs2, 
           DT = DT)
   
   return(LF)
