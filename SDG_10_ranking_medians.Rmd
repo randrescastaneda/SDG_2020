@@ -187,7 +187,11 @@ DQ <- reactive({
     ][
     order(year, -pv),
     ranking := rowid(year)
+  ][
+    ,
+    countrycov := paste0(countrycode, "-", coverage)
   ]
+  
   return(DQ)
   
 })
@@ -201,7 +205,7 @@ CC <- reactive({
     CC <- DQ()[
       qp  %in% hc
       ][,
-        unique(countrycode)
+        unique(countrycov)
         ]
     
   } else if (input$ctrset == "fyr") { # First year
@@ -210,7 +214,7 @@ CC <- reactive({
       qp  %in% hc
       & year == yrs[1]
       ][,
-        unique(countrycode)
+        unique(countrycov)
         ]
     
   } else { # last year
@@ -219,7 +223,7 @@ CC <- reactive({
       qp  %in% hc
       & year == yrs[length(yrs)]
       ][,
-        unique(countrycode)
+        unique(countrycov)
         ]
   }
   
@@ -275,7 +279,7 @@ DW <- reactive({
   
   ctr <- as.character(input$ctr)
   DW  <- DQ()[
-    countrycode  %chin%  CC()
+    countrycov  %chin%  CC()
     ][
     ,
     text := paste0("Country: ", countryname, "-", coverage, "\n",
@@ -283,9 +287,6 @@ DW <- reactive({
                    "Rank: ", ranking, "\n",
                    "Decile: ", qp, "\n"
                    )
-  ][
-    ,
-    countrycov := paste0(countrycode, "-", coverage)
   ]
   
   if (any(ctr != "")) {
@@ -344,9 +345,20 @@ renderPlotly({
 
   if (any(ctr != "")) {
     lctr <- length(ctr)
+    
+    # make usre that countries with more than one coverage are 
+    # highlighted correctly
+    
+    ctrcov <- 
+      DW()[
+        countryname %in% ctr
+      ][
+        ,
+        unique(countrycov)
+      ]
 
     pr <- pr +
-      scale_color_manual(values = c(palette[1:length(ctr)], "grey"))
+      scale_color_manual(values = c(palette[1:length(ctrcov)], "grey"))
   }
 
 
@@ -359,7 +371,27 @@ Column {.tabset .tabset-fade}
 -----------------------------------------------------------------------
 ### Explanation of the chart
 
-This should be some text
+```{r}
+h3("Changes in the ranking of medians")
+
+p("By default it shows all the countries that belonged to the ", 
+  span("selected decile", style = "color:blue"), 
+  "at least once in  any of the ", 
+  span("years selected", style = "color:blue"),  
+  "in the second menu. As you can see, there is little variation in the top of the distribution of medias. In other deciles of the distribution, some countries move a lot but in general, countries do not move that much from one decile to another. ")
+
+strong("the colors of the dots of the line represent the decile to which the country belongs.")
+
+h3("Main Findings")
+
+p("1.	In the top deciles (9th and 10th), most of the countries that belonged to a particular decile at the beginning of the 90s remain in the same decile during the next 25 years. Yes, there are some  remarkable cases of improvement (e.g., Lithuania) but in general movement between deciles is not the norm. I would summarize this as high within-decile movement and low between-decile movement (which is precisely what we need)")
+
+p("2.	Countries in the bottom deciles (1st and 2nd) are also relatively stable. There are unfortunate cases like Yemen or successful stories like Myanmar, but in general, very stable. ")
+
+p("3.	Countries in the middle deciles have higher between-decile mobility than the rest of the distribution. I think this is the case for two reasons. First, it could be true that these countries present higher mobility because their economies have got better or worse. However, I think the main reason why we see all this mobility is because by default we are seeing the algorithm to select all the countries that belonged to the selected decile at least once in any of the years selected in the second menu. When we change the set of countries selected, the movitily is less dramatic in the middle deciles.")
+
+
+```
 
 > this is some text
 
