@@ -1,0 +1,13 @@
+name: sdg_10_ranking_medians
+title: SDG_10_ranking_medians
+username: acastanedaa
+account: acastanedaa
+server: w0lxopshyprd1b.worldbank.org
+hostUrl: http://w0lxopshyprd1b.worldbank.org:3939/__api__
+appId: 581
+bundleId: 9692
+url: http://w0lxopshyprd1b.worldbank.org:3939/content/581/
+when: 1595620397.13541
+asMultiple: FALSE
+asStatic: FALSE
+additionalFiles: data/dfc.rds|data/cty_regs_names.rds

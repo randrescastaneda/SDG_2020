@@ -1,0 +1,13 @@
+name: gic_of_medians
+title: GIC_of_medians
+username: acastanedaa
+account: acastanedaa
+server: w0lxopshyprd1b.worldbank.org
+hostUrl: http://w0lxopshyprd1b.worldbank.org:3939/__api__
+appId: 578
+bundleId: 9468
+url: http://w0lxopshyprd1b.worldbank.org:3939/content/578/
+when: 1595370907.03719
+asMultiple: FALSE
+asStatic: FALSE
+additionalFiles: data/dfc.rds
