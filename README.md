@@ -1,5 +1,5 @@
 
-# Inequality 
+# Inequality slides
 
 ## [Welfare inequality story](https://randrescastaneda.github.io/SDG_2020/SDG10_slides/SDG_10_story.html)
 
@@ -7,18 +7,17 @@
 
 ## [Non-monetary inequality](https://randrescastaneda.github.io/SDG_2020/SDG10_slides/SDG_10_non_monetary.html)
 
-## Between-Country inequality
+# Between-Country inequality dashboards
 
-### [Evolution of Ratios](https://randrescastaneda.shinyapps.io/SDG_10_ineq_btw_countries/)
+## [Evolution of Ratios](https://randrescastaneda.shinyapps.io/SDG_10_ineq_btw_countries/)
 
-### [Ranking of Medians over time](https://datanalytics.worldbank.org/content/581/)
+## [Ranking of Medians over time](https://datanalytics.worldbank.org/content/581/)
 
-### [Growth Incidence Curve of Medians](https://datanalytics.worldbank.org/content/578/)
+## [Growth Incidence Curve of Medians](https://datanalytics.worldbank.org/content/578/)
 
-# Poverty 
+# Poverty slides
 
-### [Poverty Story](https://randrescastaneda.github.io/SDG_2020/SDG01_slides/SDG_01.html#1)
-
+## [Poverty Story](https://randrescastaneda.github.io/SDG_2020/SDG01_slides/SDG_01.html#1)
 
 # Deployed Versions
 
