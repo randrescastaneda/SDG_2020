@@ -22,6 +22,6 @@
 
 # Deployed Versions
 
-### [SDG 01](https://sdga2020.github.io/sdg01-no-poverty/)
+## [SDG 01](https://sdga2020.github.io/sdg01-no-poverty/)
 
-### [SDG 10](https://sdga2020.github.io/sdg10-inequality/)
+## [SDG 10](https://sdga2020.github.io/sdg10-inequality/)
