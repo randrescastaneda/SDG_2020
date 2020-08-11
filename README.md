@@ -18,3 +18,10 @@
 # Poverty 
 
 ### [Poverty Story](https://randrescastaneda.github.io/SDG_2020/SDG01_slides/SDG_01.html#1)
+
+
+# Deployed Versions
+
+### [SDG 01](https://sdga2020.github.io/sdg01-no-poverty/)
+
+### [SDG 10](https://sdga2020.github.io/sdg10-inequality/)
