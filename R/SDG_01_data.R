@@ -69,7 +69,7 @@ cr <- read_rds("data/cty_regs_names.rds")
 st_year <- 1990
 
 # Global poverty
-wld <- povcalnet_wb() %>%
+wld <- povcalnet_wb(server = "int") %>%
   filter(year > st_year, regioncode == "WLD") %>%
   mutate(
     poor_pop = round(headcount * population, 0),
@@ -77,7 +77,8 @@ wld <- povcalnet_wb() %>%
   )
 
 # Data at country level
-cty <- povcalnet(fill_gaps = TRUE) %>%
+cty <- povcalnet(server = "int",
+                 fill_gaps = TRUE) %>%
   filter(year > st_year) %>%
   group_by(countrycode, year) %>%
   mutate(n  = n()) %>%

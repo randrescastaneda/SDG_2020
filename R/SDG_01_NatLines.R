@@ -6,23 +6,21 @@
 
 library("tidyverse")
 library("data.table")
+library("wbstats")
 
 #===== Get data an minor clean up =====
 
-data <- readr::read_csv("data/dataNatPovCountryLevel.csv")
-
-# I'll Stick to comparable data
-# clean year
-dta <- data %>%
-  filter(Series == "SI.POV.NAHC") %>%
-  rename(Value = Data,
-         countrycode = Country) %>%
-  mutate(
-    Year = str_extract(Time,"([0-9]+)")
+dta <- wb_data(indicator = "SI.POV.NAHC") %>%
+  select(
+    countrycode = iso3c,
+    Year        = date,
+    Value       = SI.POV.NAHC
   ) %>%
-  mutate_at( c("Year", "Value"), as.numeric) %>%
-  select(-Time) %>%
+  arrange(countrycode, Year) %>%
   setDT()
+
+dta <- dta[!is.na(Value)]
+
 
 # -- Add Region ID
 cr <- read_rds("data/cty_regs_names.rds") %>%
@@ -46,7 +44,7 @@ dta <- dta %>%
 
 clist <- length(unique(dta$countrycode))
 
-#====== Proyection ======
+#====== Projection ======
 
 #------  Using yearly growth
 
