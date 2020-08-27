@@ -1,0 +1,238 @@
+---
+title: "SDG 01: Poverty Projections"
+output:
+  xaringan::moon_reader:
+    seal: false
+    css: ["css/sfah.css", "css/fonts.css", "default"]
+    self_contained: false
+    lib_dir: libs
+    mathjax: "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_HTMLorMML"
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: "16:9"
+      titleSlideClass: ["left", "middle", "inverse"]
+---
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+library(knitr)
+library(scales)
+library(ggpubr)
+library(here)
+library("hrbrthemes")
+
+knitr::opts_chunk$set(
+  warning    = FALSE,
+  collapse   = TRUE,
+  message    = FALSE,
+  echo       = FALSE,
+  fig.retina = 3,
+  fig.width  = 10
+)
+# knitr::opts_knit$set(
+#   root.dir = ".."
+# )
+# options(knitr.table.format = "html")
+library(fontawesome) # from github: https://github.com/rstudio/fontawesome
+xaringanExtra::use_xaringan_extra(c("tile_view", "animate_css", "tachyons"))
+```
+
+class: inverse, right, bottom
+## SDG Atlas 2020
+
+## Goal 01: Poverty Projections
+
+???
+Intcomments
+
+---
+
+class: middle, center, inverse
+
+### Taking COVID into account
+```{r distsim}
+source(here("R", "SDG_01_covid_projections.R"))
+
+pov_chart <-  function(x) {
+  
+  mpr <- x[, max(fgt, na.rm = TRUE)]
+  mny <- x[, min(year, na.rm = TRUE)]
+  mxy <- x[, max(year, na.rm = TRUE)]
+  
+  if (mxy >= 2019) {
+    
+    y <- x[year == 2019
+    ][
+      ,
+      growth := "actual"
+    ][,
+      .(
+        fgt   = mean(fgt, na.rm = TRUE),
+        npoor = mean(npoor, na.rm = TRUE)
+      ), 
+      by = .(year, growth, scenario, povline)
+    ]
+    
+    x <- rbindlist(list(x, y))
+  }
+  setorder(x, year, growth, scenario, povline)
+  
+  
+  pg <- ggplot(x, 
+         aes(
+           x     = year, 
+           y     = fgt, 
+           color = growth
+         )) +
+    geom_line() +
+    scale_y_continuous(
+      labels = scales::percent,
+      breaks = seq(0, mpr, round(mpr/10, digits = 3))
+    ) +
+    scale_x_continuous(
+      # n.breaks = 8
+      breaks = seq(mny, mxy, ceiling((mxy - mny + 1)/7))
+    ) +
+    labs(
+      y     = "Poverty rate",
+      x     = "",
+      color = "scanario"
+    ) +
+    theme_minimal() +
+    theme(
+      legend.position = "none"
+    )
+
+  return(pg)
+}
+  
+
+pl <- "1.9"
+yr <- 2015
+DC <- DC[povline == pl]
+
+```
+---
+.left-column[
+Past data 1993 to 2017, axis to 1993-2017
+]
+.right-column[
+```{r}
+pov_chart(DC[scenario == "D"
+             & year %between% c(1993, 2017) 
+              ]
+          )
+
+```
+]
+---
+.left-column[
+Zoom in to `r yr`-2021, draw on pre-covid to 2021
+]
+.right-column[
+```{r}
+pov_chart(DC[scenario == "D"
+             & year %between% c(yr, 2021) 
+             & growth %chin% c("actual", "precovid")
+              ]
+          )
+
+
+```
+]
+---
+.left-column[
+Draw on covid-baseline to 2021
+]
+.right-column[
+```{r}
+pov_chart(DC[scenario == "D"
+             & year %between% c(yr, 2021) 
+             & growth %chin% c("actual", "precovid", "baseline")
+              ]
+          )
+
+
+```
+]
+---
+.left-column[
+Draw on covid-downside to 2021
+]
+.right-column[
+```{r}
+pov_chart(DC[scenario == "D"
+             & year %between% c(yr, 2021) 
+              ]
+          )
+
+```
+]
+---
+.left-column[
+Extend all axis and all three series `r yr`-2030
+]
+.right-column[
+```{r}
+
+pov_chart(DC[scenario == "D"
+             & year >= yr 
+             ]
+          )
+
+```
+]
+---
+.left-column[
+Add fan (top and bottom and shading all at once) based on worst-downside and best-covid-baseline
+]
+.right-column[
+```{r}
+DD <- 
+  DC[
+    year    >= (yr)
+    ][
+      ,
+      `:=`(
+        wr = fgt == max(fgt, na.rm = TRUE),
+        bs = fgt == min(fgt, na.rm = TRUE)
+      ), 
+      by = .(year)
+    ][
+      wr == TRUE | bs == TRUE 
+    ]
+
+DD <- dcast(DD,
+            year +  povline ~ scenario,
+            value.var = c("fgt", "npoor"), 
+            fun.aggregate = mean
+    )
+
+
+
+ggplot(data = DD,
+       aes(
+         x = year
+       )) +
+  geom_ribbon(aes(ymin = fgt_G,
+                  ymax = fgt_B),
+              fill = "#69b3a2") +
+  geom_line(aes(y = fgt_D), color = "black") +
+  geom_line(aes(y = fgt_G), color = "black") +
+  geom_line(aes(y = fgt_B), color = "black") +
+  scale_y_continuous(
+    labels = scales::percent,
+    breaks = seq(0, max(DB$fgt_D, na.rm = TRUE), .05)
+  ) +
+  labs(
+    y     = "Poverty rate",
+    x     = "",
+    color = "scanario"
+  ) +
+  theme_ipsum_rc() +
+  theme(
+    legend.position = "none"
+  )
+```
+]
