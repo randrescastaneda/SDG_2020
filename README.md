@@ -1,3 +1,8 @@
+# Poverty 
+
+## [Poverty Story](https://randrescastaneda.github.io/SDG_2020/SDG01_slides/SDG_01.html#1)
+
+## [Poverty projections](https://datanalytics.worldbank.org/content/601/)
 
 # Inequality slides
 
@@ -14,10 +19,6 @@
 ## [Ranking of Medians over time](https://datanalytics.worldbank.org/content/581/)
 
 ## [Growth Incidence Curve of Medians](https://datanalytics.worldbank.org/content/578/)
-
-# Poverty slides
-
-## [Poverty Story](https://randrescastaneda.github.io/SDG_2020/SDG01_slides/SDG_01.html#1)
 
 # Deployed Versions
 
