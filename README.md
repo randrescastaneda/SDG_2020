@@ -4,6 +4,8 @@
 
 ## [Poverty projections](https://datanalytics.worldbank.org/content/601/)
 
+## [Poverty Projections Slides](https://randrescastaneda.github.io/SDG_2020/SDG01_slides/SDG_01_poverty_projections.html#1)
+
 # Inequality slides
 
 ## [Welfare inequality story](https://randrescastaneda.github.io/SDG_2020/SDG10_slides/SDG_10_story.html)
