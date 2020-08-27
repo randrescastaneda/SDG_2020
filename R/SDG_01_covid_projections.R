@@ -97,7 +97,7 @@ rm(DB)
 DA[
    ,
    `:=`(
-      growth = fifelse(growth == "", "baseline", growth),
+      growth = fifelse(growth == "", "actual", growth),
       alpha  = fifelse(is.na(alpha), 0, alpha)
    )
    ]
@@ -105,7 +105,7 @@ DA[
 # Keep best and worst scenario based on inequality projection
 DA <- DA[
    (alpha == 0 & year <= 2019)
-   | (alpha %in% c(-2,2) & year >= 2019)
+   | (alpha %in% c(-2, 0, 2) & year >= 2019)
    ][,
      scenario := fcase(
         alpha == -2, "G",

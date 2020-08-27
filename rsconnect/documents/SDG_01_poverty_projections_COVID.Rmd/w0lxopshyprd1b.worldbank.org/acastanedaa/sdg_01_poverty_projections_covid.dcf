@@ -1,0 +1,12 @@
+name: sdg_01_poverty_projections_covid
+title: SDG_01_poverty_projections_COVID
+username: acastanedaa
+account: acastanedaa
+server: w0lxopshyprd1b.worldbank.org
+hostUrl: http://w0lxopshyprd1b.worldbank.org:3939/__api__
+appId: 601
+bundleId: 11877
+url: http://w0lxopshyprd1b.worldbank.org:3939/content/601/
+when: 1598538672.34308
+asMultiple: FALSE
+asStatic: FALSE
