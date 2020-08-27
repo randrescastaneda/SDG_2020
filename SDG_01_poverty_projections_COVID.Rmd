@@ -1,0 +1,155 @@
+---
+title: "Poverty projections considering COVID"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    social: menu
+    theme: paper
+    source_code: embed
+    vertical_layout: fill
+runtime: shiny
+---
+
+```{r global, include=FALSE}
+# load data in 'global' chunk so it can be shared by all users of the dashboard
+library("here")
+library("ggplot2")
+library("plotly")
+library("flexdashboard")
+library("hrbrthemes")
+
+
+
+
+#----------------------------------------------------------
+#   DAta
+#----------------------------------------------------------
+source(here("R", "SDG_01_covid_projections.R"))
+
+# Parameters
+yrs <- DB[, unique(year)]
+gsc <- DB[, unique(growth)]
+pls <- DB[, unique(povline)]
+
+```
+
+
+Sidebar {.sidebar data-width=350}
+-----------------------------------------------------------------------
+
+```{r}
+selectInput("yr", 
+            label    = "Minimum Year",
+            choices  = yrs, 
+            selected = 2000)
+
+selectInput("myr", 
+            label    = "Maximum Year",
+            choices  = yrs, 
+            selected = 2030)
+
+selectInput("gr", 
+            label    = "Growth Scenario",
+            choices  = gsc, 
+            selected = "baseline")
+
+selectInput("pl", 
+            label    = "Poverty Line",
+            choices  = pls, 
+            selected = "1.9")
+
+selectInput("ms", 
+            label    = "Measure",
+            choices  = c("Poverty Rate", "Number of poor") , 
+            selected = "Poverty Rate")
+
+
+```
+
+Column {data-width=900 .tabset .tabset-fade}
+-----------------------------------------------------------------------
+
+### Change Ranking of Medians
+
+```{r}
+
+DQ <- reactive({
+  
+  yr  <- as.numeric(input$yr) 
+  
+  DQ <-
+    DB[growth    == (input$gr)
+       & year    %between% c(input$yr, input$myr)
+       & povline == (input$pl)]
+  
+  return(DQ)
+  
+})
+
+```
+
+```{r}
+renderPlotly({
+  
+  mpr <- DQ()[, max(fgt_D, na.rm = TRUE)]
+  
+  pr <- 
+    ggplot(data = DQ(), 
+           aes(
+             x = year
+           )) +
+      geom_line(aes(y = fgt_D)) +
+      geom_line(aes(y = fgt_G)) +
+      geom_line(aes(y = fgt_B)) +
+      geom_ribbon(aes(ymin = fgt_G, 
+                      ymax = fgt_B),
+                  fill = "#69b3a2") +
+      scale_y_continuous(
+        labels = scales::percent, 
+        breaks = seq(0, mpr, .05)
+      ) +
+      labs(
+        y     = "Poverty rate",
+        x     = "",
+        color = "scanario"
+      ) +
+      theme_ipsum_rc() +
+      theme(
+        legend.position = "none"
+        )
+    
+
+  ggplotly(pr, tooltip =  "text")
+  # ggplotly(pr, tooltip =  "text")
+
+})
+```
+
+Column {.tabset .tabset-fade}
+-----------------------------------------------------------------------
+### Explanation of the chart
+
+```{r}
+h3("Changes in the ranking of medians")
+
+p("By default it shows all the countries that belonged to the ", 
+  span("selected decile", style = "color:blue"), 
+  "at least once in  any of the ", 
+  span("years selected", style = "color:blue"),  
+  "in the second menu. As you can see, there is little variation in the top of the distribution of medias. In other deciles of the distribution, some countries move a lot but in general, countries do not move that much from one decile to another. ")
+
+strong("the colors of the dots of the line represent the decile to which the country belongs.")
+
+h3("Main Findings")
+
+p("1.	In the top deciles (9th and 10th), most of the countries that belonged to a particular decile at the beginning of the 90s remain in the same decile during the next 25 years. Yes, there are some  remarkable cases of improvement (e.g., Lithuania) but in general movement between deciles is not the norm. I would summarize this as high within-decile movement and low between-decile movement (which is precisely what we need)")
+
+p("2.	Countries in the bottom deciles (1st and 2nd) are also relatively stable. There are unfortunate cases like Yemen or successful stories like Myanmar, but in general, very stable. ")
+
+p("3.	Countries in the middle deciles have higher between-decile mobility than the rest of the distribution. I think this is the case for two reasons. First, it could be true that these countries present higher mobility because their economies have got better or worse. However, I think the main reason why we see all this mobility is because by default we are seeing the algorithm to select all the countries that belonged to the selected decile at least once in any of the years selected in the second menu. When we change the set of countries selected, the movitily is less dramatic in the middle deciles.")
+
+
+```
+
+> this is some text
+

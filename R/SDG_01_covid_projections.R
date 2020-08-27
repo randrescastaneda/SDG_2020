@@ -21,15 +21,10 @@ library("data.table")
 library("here")
 
 #----------------------------------------------------------
-#   subfunctions
-#----------------------------------------------------------
-
-
-#----------------------------------------------------------
 #   load and clean data
 #----------------------------------------------------------
 # load data
-DT <- haven::read_dta(here("data", "Projections_constant2019.dta"))
+DT <- haven::read_dta(here("data", "Projections_constant2019_int.dta"))
 setDT(DT)
 
 # clean data
@@ -98,8 +93,48 @@ DA[DB,
    ]
 rm(DB)
 
+# replace missing values
+DA[
+   ,
+   `:=`(
+      growth = fifelse(growth == "", "baseline", growth),
+      alpha  = fifelse(is.na(alpha), 0, alpha)
+   )
+   ]
 
+# Keep best and worst scenario based on inequality projection
+DA <- DA[
+   (alpha == 0 & year <= 2019)
+   | (alpha %in% c(-2,2) & year >= 2019)
+   ][,
+     scenario := fcase(
+        alpha == -2, "G",
+        alpha ==  2, "B",
+        default = "D")
+   ][,
+     alpha := NULL
+     ]
 
-#----------------------------------------------------------
-#
-#----------------------------------------------------------
+# reshape to long poverty line
+DC <- melt(DA,
+           id              = c("year", "growth", "scenario"),
+           measure.vars    = patterns(fgt   = "FGT0_",
+                                      npoor = "poor"),
+           variable.name   = "povline",
+           variable.factor = FALSE
+           )
+
+DC[,
+   povline := fcase(
+                povline == "1", "1.9",
+                povline == "2", "3.2",
+                povline == "3", "5.5"
+         )
+   ]
+
+# Reshape wide on scanario for plotting area
+DB <- dcast(DC,
+            year + growth + povline ~ scenario,
+            value.var = c("fgt", "npoor")
+            )
+
