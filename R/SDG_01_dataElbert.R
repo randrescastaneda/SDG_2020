@@ -3,18 +3,30 @@
 #----------------------------------------------------------
 
 library(here)
-source(here("R", "SDG_01_data.R"))
-source(here("R", "SDG_01_NatLines.R"))
+library(data.table)
+library("writexl")
 
-
+# Initialize data
+l <- vector("list", 7)
 #--------- Country data
 
 
+source(here("R", "SDG_01_data.R"))
 cty_df <- cty %>%
   mutate(
     poor_pop = round(headcount * population, 2)
   ) %>%
-  select(-c(regionf, text))
+  select(code    = countrycode,
+         country = countryname,
+         year,
+         rate    = headcount,
+         poor_pop,
+         pop     = population,
+         region)
+
+# Add to list
+l[[1]]       <- cty_df
+names(l)[1]  <- "countries"
 
 write_csv(x         = cty_df,
           path      = "data/SDG01_Country_data.csv",
@@ -22,25 +34,25 @@ write_csv(x         = cty_df,
           na        ="")
 
 #--------- World data
+source(here("R","SDG_01_covid_projections.R"))
+DQ <-
+  DB[
+    povline == "1.9"
+    ][,
+      c("year", "growth", "fgt_D")
+      ]
 
+DQ <- dcast(DQ,
+            year ~ growth,
+            value.var = fgt_D
+            )
 
-wld_df <- pr_wld %>%
-  mutate(case =
-           case_when(
-             (alpha == -2 & extragrowth == 2)    ~ "Best",
-             (alpha == 2  & extragrowth == -2)   ~ "Worst",
-             (alpha == 0  & extragrowth == 0)    ~ "Most likely",
-             (is.na(alpha) & is.na(extragrowth)) ~ "Actual",
-             TRUE ~ ""
-           )) %>%
-  filter(case != "") %>%
-  select(-c(alpha, extragrowth)) %>%
-  left_join(select(wld, poor_pop, year))
+DQ[,
+   actual := fifelse(year == 2019, baseline, actual)
+   ]
 
-write_csv(x         = wld_df,
-          path      = "data/SDG01_global_data.csv",
-          col_names = TRUE,
-          na        = "")
+l[[2]]       <- DQ
+names(l)[2]  <- "projections"
 
 
 # Global poverty trend and goal
@@ -92,7 +104,7 @@ write_csv(x         = cty_rp,
 
 
 #--- National data
-
+source(here("R", "SDG_01_NatLines.R"))
 nt_df <- overall %>%
   select(
     countrycode,
