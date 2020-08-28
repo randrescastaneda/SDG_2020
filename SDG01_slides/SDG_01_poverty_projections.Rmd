@@ -187,6 +187,7 @@ pov_chart(DC[scenario == "D"
 DD <- 
   DC[
     year    >= (yr)
+    & povline == (pl)
     ][
       ,
       `:=`(
