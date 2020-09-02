@@ -77,9 +77,22 @@ DQ <- dcast(DQ,
 
 DQ[,
    actual := fifelse(year == 2019, baseline, actual)
-]
+  ][,
+    # Create nowcasted series
+    nowcasted := fifelse(year  %in% c(2017, 2018, 2019), actual, NA_real_)
+  ][,
+    # Remove actual estimates from nowcasted years
+    actual := fifelse(year  %in% c(2018, 2019), NA_real_, actual)
+  ]
+
+
+setnames(DQ,
+         old =  c("baseline", "downside"),
+         new =  c("optimistic", "pesimistic")
+)
 
 l[["projections"]]  <- DQ
+
 
 
 # fan
@@ -87,6 +100,7 @@ DD <-
   DC[
     year      >= (2015)
     & povline == "1.9"
+    & growth  != "precovid"
   ][
     ,
     `:=`(
@@ -95,19 +109,33 @@ DD <-
     ),
     by = .(year)
   ][
-    wr == TRUE | bs == TRUE
+    wr == TRUE | bs == TRUE | scenario == "D"
   ]
 
 DD <- dcast(DD,
-            year ~ scenario,
+            year ~ scenario + growth,
             value.var = c("fgt"),
             fun.aggregate = mean
 )
 
+DD[,
+   c("B_baseline", "G_downside") := NULL
+   ][,
+     D_actual := fifelse(year == 2019, D_baseline, D_actual)
+     ]
+
 setnames(DD,
-         old =  c("B", "D", "G"),
-         new =  c("worst", "actual", "best")
+         old =  c("B_downside", "D_actual", "D_baseline", "D_downside", "G_baseline"),
+         new =  c("worst", "actual", "optimistic", "pesimistic", "best")
          )
+
+DD[,
+   # Create nowcasted series
+   nowcasted := fifelse(year  %in% c(2017, 2018, 2019), actual, NA_real_)
+    ][,
+      # Remove actual estimates from nowcasted years
+      actual := fifelse(year  %in% c(2018, 2019), NA_real_, actual)
+    ]
 
 l[["fan_projections"]]  <- DD
 
@@ -162,6 +190,7 @@ write_csv(x         = bad_ctrs2,
 #----------------------------------------------------------
 
 warea <- wld %>%
+  filter(!is.na(headcount)) %>%
   mutate(
     world_pop  = population*1e6,
     poor_pop   = headcount*world_pop,
@@ -170,9 +199,12 @@ warea <- wld %>%
   select(year, world_pop, poor_pop, `else`) %>%
   arrange(year)
 
+wyears <- unique(warea$year)
+
 carea <- cty %>%
   filter(
-    countrycode  %in% c("CHN", "IND", "NGA")
+    countrycode  %in% c("CHN", "IND", "NGA"),
+    year         %in% wyears
   ) %>%
   mutate(
     poor = population*1e6*headcount
@@ -186,7 +218,8 @@ carea <- cty %>%
 
 ssa <- povcalnetR::povcalnet_wb(server = "int") %>%
   filter(
-    regioncode == "SSA"
+    regioncode == "SSA",
+    year      %in% wyears
   ) %>%
   mutate(
     poor = population*1e6*headcount
