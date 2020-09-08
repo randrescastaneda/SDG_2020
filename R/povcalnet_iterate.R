@@ -19,12 +19,6 @@
 #' povcalnet_iterate(region= "WLD")
 #' povcalnet_iterate(region= "WLD", goal = .4)
 
-
-#----------------------------------------------------------
-#   subfunctions
-#----------------------------------------------------------
-
-
 povcalnet_iterate <- function(country = NULL,
                               region = NULL,
                               goal = 0.5,
@@ -35,7 +29,8 @@ povcalnet_iterate <- function(country = NULL,
                               ni = 40,
                               delta = 3,
                               aggregate = FALSE,
-                              fill_gaps = TRUE) {
+                              fill_gaps = TRUE,
+                              server = NULL) {
   #----------------------------------------------------------
   #   initial conditions
   #----------------------------------------------------------
@@ -97,24 +92,25 @@ povcalnet_iterate <- function(country = NULL,
       if (wb == 1) {
         attempt <- povcalnet_wb(
           povline = pl,
-          year = year
+          year    = year,
+          server  = server
         ) %>%
           dplyr::filter(regioncode == region) %>%
           dplyr::select(headcount) %>%
           dplyr::pull()
       } else {
         attempt <- povcalnet(
-          country = country,
-          povline = pl,
-          year = year,
-          coverage = coverage,
+          country   = country,
+          povline   = pl,
+          year      = year,
+          coverage  = coverage,
           aggregate = aggregate,
-          fill_gaps = fill_gaps
+          fill_gaps = fill_gaps,
+          server    = server
         ) %>%
           dplyr::select(headcount) %>%
           dplyr::pull()
       }
-
 
       #--------- in case there is no data for requested year
 
@@ -155,19 +151,21 @@ povcalnet_iterate <- function(country = NULL,
         if (wb == 1) {
           attempt <- povcalnet_wb(
             povline = pl,
-            year = year
+            year    = year,
+            server  = server
           ) %>%
             dplyr::filter(regioncode == region) %>%
             dplyr::select(headcount) %>%
             dplyr::pull()
         } else {
           attempt <- povcalnet(
-            country = country,
-            povline = pl,
-            year = year,
-            coverage = coverage,
+            country   = country,
+            povline   = pl,
+            year      = year,
+            coverage  = coverage,
             aggregate = aggregate,
-            fill_gaps = fill_gaps
+            fill_gaps = fill_gaps,
+            server    = server
           ) %>%
             dplyr::select(headcount) %>%
             dplyr::pull()
