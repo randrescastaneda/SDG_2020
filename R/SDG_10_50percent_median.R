@@ -27,11 +27,15 @@ library("ggrepel")
 #----------------------------------------------------------
 #   Aux data
 #----------------------------------------------------------
+metadata_path <- "https://development-data-hub-s3-public.s3.amazonaws.com/ddhfiles/506801/povcalnet_comparability.csv"
+
+md  <- readr::read_csv(metadata_path)
 cr  <- readr::read_rds("data/cty_regs_names.rds")
 dfc <- readr::read_rds("data/dfc.rds")
 
-DT <- as.data.table(dfc)
-cr <- as.data.table(cr)
+DT  <- as.data.table(dfc)
+cr  <- as.data.table(cr)
+md  <- as.data.table(md)
 
 # load headcount of 50 percent the median
 
@@ -46,9 +50,52 @@ dm <- dm[,
           ..pcnvars
         ][,
           median := povertyline*2
+          ][cr,
+              on = "countrycode",
+              countryname := i.countryname
+          ][,
+            text := paste("Country: ",   countrycode, "\n",
+                          "year: ",      year, "\n",
+                          "Median: ",    median, "\n",
+                          "Headcount: ", headcount)
           ]
 
 dm <- unique(dm)
+
+
+# Fix comparability metadata
+cols <- c("coveragetype", "datatype")
+md[,
+   (cols) := lapply(.SD, as.character),
+   .SDcols = cols
+   ][,
+     coveragetype := fcase(coveragetype == "1", "R",
+                           coveragetype == "2", "U",
+                           coveragetype == "3", "N",
+                           coveragetype == "4", "A"
+                           )
+     ][,
+       datatype := fifelse(datatype == "1", "consumption", "income")
+       ]
+
+# Merge with comparability metadata
+dm[md,
+   on = .(countrycode, coveragetype, datatype, year),
+   compare := i.comparability
+   ]
+
+# add text variable
+dm <- dm[!is.na(compare)
+         ][,
+           mcomp := compare == max(compare),
+           by = .(countryname, datatype, coveragetype)
+           ][,
+               ggtext := fifelse(year == max(year) | year == min(year),
+                                 paste0(countryname, "\n", year), NA_character_
+               ),
+               by = .(countryname, datatype, coveragetype)
+             ]
+
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #---------   poverty rate and median value   ---------
@@ -57,21 +104,6 @@ dm <- unique(dm)
 cts_to_show <- c("RUS")
 cts_to_show <- c("GHA", "CHN", "BRA", "ARG", "GRC", "RUS", "BEL", "SWE")
 setorder(dm, countrycode, coveragetype, datatype, year)
-
-dm[cr,
-   on = "countrycode",
-   countryname := i.countryname
-   ][,
-     ggtext := fifelse(year == max(year) | year == min(year),
-                       paste0(countryname, "\n", year), NA_character_
-                       ),
-     by = .(countryname, datatype, coveragetype)
-   ][,
-     text := paste("Country: ", countrycode, "\n",
-                   "year: ", year, "\n",
-                   "Median: ", median, "\n",
-                   "Headcount: ", headcount)
-     ]
 
 dmf <- dm[countrycode %chin% cts_to_show
           & !(countrycode == "CHN" & coveragetype %chin% c("R", "U"))
@@ -86,15 +118,15 @@ hc_md <- ggplot(dmf, aes(x     = median,
                          label = ggtext,
                          group = countrycode)
   ) +
-  geom_point(aes(text  = text)) +
+  geom_point() +
   geom_path() +
-  theme_minimal() +
+  geom_text_repel(size = 3,
+                  min.segment.length = 0) +
   scale_x_continuous(trans  = "log2",
                      breaks = c(1, 2, 5, 10, 20, 50)
-  ) +
-  geom_text_repel(size = 3)
+                    ) +
+  theme_minimal() +
+  theme(
+    legend.position = "none"
+  )
 hc_md
-
-ggplotly(hc_md, tooltip = "text")
-
-

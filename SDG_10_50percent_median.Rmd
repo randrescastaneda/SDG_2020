@@ -1,0 +1,124 @@
+---
+title: "Share of population below 50% of median"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    social: menu
+    theme: paper
+    source_code: embed
+    vertical_layout: fill
+runtime: shiny
+---
+
+```{r global, include=FALSE}
+# load data in 'global' chunk so it can be shared by all users of the dashboard
+library("here")
+library("ggplot2")
+library("flexdashboard")
+library("data.table")
+library("ggrepel")
+
+
+
+#----------------------------------------------------------
+#   subfunction
+#----------------------------------------------------------
+
+
+#----------------------------------------------------------
+#   DAta
+#----------------------------------------------------------
+dm <- readr::read_rds(here("data", "SDG_10_50percent_median.rds"))
+dm <- as.data.table(dm)
+
+# get only comparable data
+dm <- dm[mcomp == TRUE
+         ][,
+           mcomp := NULL
+           ][,
+             id := paste0(countrycode, datatype, coveragetype, sep = "-")
+             ][,
+            ggtext := fifelse(year == max(year) | year == min(year),
+                              paste0(countryname, "-", coveragetype, 
+                                    "(",datatype,")", "\n", year), 
+                              NA_character_
+                              ),
+            by = .(countryname, datatype, coveragetype)
+          ]
+
+# Parameters
+cts <- dm[, unique(countrycode)]
+```
+
+
+Sidebar {.sidebar data-width=350}
+-----------------------------------------------------------------------
+
+```{r}
+selectInput("cts", 
+            label    = "Countries",
+            choices  = cts, 
+            selected = c("GHA", "CHN", "BRA", "ARG", "GRC", "RUS", "BLR", "SWE"), 
+            multiple = TRUE)
+
+```
+
+Column {data-width=1100 .tabset .tabset-fade}
+-----------------------------------------------------------------------
+
+### Poverty rate and number of poor projections
+
+```{r}
+
+# Reactive data base to be used in plots
+DQ <- reactive({
+  
+  
+  DQ <- dm[countrycode %chin% input$cts]
+  setorder(DQ, countrycode, coveragetype, datatype, year)
+  
+  anyDuplicated(DQ, by=c("countrycode", "year", "coveragetype", "datatype"))
+  return(DQ)
+  
+})
+
+```
+
+```{r}
+# render plot or plotly
+renderPlot({
+  ggplot(DQ(), aes(x     = median,
+                   y     = headcount,
+                   color = id,
+                   label = ggtext,
+                   group = id)
+  ) +
+  geom_point() +
+  geom_path() +
+  geom_text_repel(size = 3,
+                  min.segment.length = 0) +
+  scale_x_continuous(trans  = "log2",
+                     breaks = c(1, 2, 5, 10, 20, 50, 75)
+                    ) +
+  theme_minimal() +
+  theme(
+    legend.position = "none"
+  )
+
+})
+```
+
+Column {.tabset .tabset-fade}
+-----------------------------------------------------------------------
+### Explanation of the chart
+
+```{r}
+h3("Progress in median incomes and share living on less than half the median")
+
+p("Paragraph 1")
+
+p("Paragraph 2")
+
+```
+
+> this is some text
