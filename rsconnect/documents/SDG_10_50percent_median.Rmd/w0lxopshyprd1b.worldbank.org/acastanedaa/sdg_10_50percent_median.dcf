@@ -1,0 +1,13 @@
+name: sdg_10_50percent_median
+title: SDG_10_50percent_median
+username: acastanedaa
+account: acastanedaa
+server: w0lxopshyprd1b.worldbank.org
+hostUrl: http://w0lxopshyprd1b.worldbank.org:3939/__api__
+appId: 604
+bundleId: 12815
+url: http://w0lxopshyprd1b.worldbank.org:3939/content/604/
+when: 1599673736.90837
+asMultiple: FALSE
+asStatic: FALSE
+additionalFiles: data/popshare_50percent_regional_median.rds|data/SDG_10_50percent_median.rds

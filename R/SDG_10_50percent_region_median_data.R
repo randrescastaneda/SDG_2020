@@ -38,13 +38,26 @@ filter_wb <- function(region, povline, year, server) {
                          server  = server)
       df <- df %>%
         filter(regioncode == region) %>%
-        select(regioncode, year, povertyline, headcount) %>%
+        select(region = regioncode, year, povertyline, headcount) %>%
         mutate(status = "OK")
+
+      if (dim(df)[1] == 0) {
+
+        df  <- tibble::tibble(
+          region      = region,
+          year        = year,
+          povertyline = povline,
+          headcount   = NA,
+          status      = "No data"
+        )
+
+      }
+
     }, # end of expr section
 
     error = function(e) {
       df  <- tibble::tibble(
-        regioncode  = region,
+        region      = region,
         year        = year,
         povertyline = povline,
         headcount   = NA,
@@ -108,9 +121,21 @@ opts <- df %>%
 
 popshare <-  pmap_dfr(opts, filter_wb, server = "int")
 
-write_rds(popshare, "data/popshare_50percent_regional_median.rds")
+ps <- popshare %>%
+  left_join(
+    select(df, -povline),
+    by = c("region", "year")
+  ) %>%
+  filter(status == "OK") %>%
+  group_by(region) %>%
+  mutate(
+    ggtext = if_else(year == max(year) | year == min(year),
+                     paste0(region, "\n", year), NA_character_
+    )
+  ) %>%
+  arrange(region, year)
 
-
+write_rds(ps, "data/popshare_50percent_regional_median.rds")
 
 
 ## for testing

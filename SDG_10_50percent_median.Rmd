@@ -28,6 +28,9 @@ library("ggrepel")
 #----------------------------------------------------------
 #   DAta
 #----------------------------------------------------------
+
+#--------- Country Data ---------
+
 dm <- readr::read_rds(here("data", "SDG_10_50percent_median.rds"))
 dm <- as.data.table(dm)
 
@@ -48,6 +51,13 @@ dm <- dm[mcomp == TRUE
 
 # Parameters
 cts <- dm[, unique(countrycode)]
+
+
+#--------- Region data ---------
+ps <- readr::read_rds(here("data", "popshare_50percent_regional_median.rds"))
+ps <- as.data.table(ps)
+
+rgs <- ps[, unique(region)]
 ```
 
 
@@ -61,12 +71,19 @@ selectInput("cts",
             selected = c("GHA", "CHN", "BRA", "ARG", "GRC", "RUS", "BLR", "SWE"), 
             multiple = TRUE)
 
+selectInput("rgs", 
+            label    = "Regions",
+            choices  = rgs, 
+            selected = rgs, 
+            multiple = TRUE)
+
+
 ```
 
-Column {data-width=1100 .tabset .tabset-fade}
+Column {.tabset .tabset-fade}
 -----------------------------------------------------------------------
 
-### Poverty rate and number of poor projections
+### Country Level
 
 ```{r}
 
@@ -110,14 +127,40 @@ renderPlot({
 
 Column {.tabset .tabset-fade}
 -----------------------------------------------------------------------
-### Explanation of the chart
+### Regional and Global level
 
 ```{r}
-h3("Progress in median incomes and share living on less than half the median")
 
-p("Paragraph 1")
+PS <- reactive({
+  
+  PS <- ps[region %chin% input$rgs]
+  setorder(PS, region, year)
+  return(PS)
+  
+})
+```
 
-p("Paragraph 2")
+```{r}
+renderPlot({
+  ggplot(PS(), aes(x   = median,
+                 y     = headcount,
+                 color = region,
+                 label = ggtext,
+                 group = region)
+) +
+  geom_point() +
+  geom_path() +
+  geom_text_repel(size = 3,
+                  min.segment.length = 0) +
+  scale_x_continuous(trans  = "log2",
+                     breaks = c(1, 2, 5, 10, 20, 50, 75)
+  ) +
+  theme_minimal() +
+  theme(
+    legend.position = "none"
+  )
+
+})
 
 ```
 
