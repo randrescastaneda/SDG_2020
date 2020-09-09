@@ -14,6 +14,8 @@
 
 ## [Non-monetary inequality](https://randrescastaneda.github.io/SDG_2020/SDG10_slides/SDG_10_non_monetary.html)
 
+## [Share of population below 50% of median](https://datanalytics.worldbank.org/content/604/)
+
 # Between-Country inequality dashboards
 
 ## [Evolution of Ratios](https://randrescastaneda.shinyapps.io/SDG_10_ineq_btw_countries/)
