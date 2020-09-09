@@ -164,4 +164,3 @@ renderPlot({
 
 ```
 
-> this is some text
