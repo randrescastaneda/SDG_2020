@@ -5,9 +5,10 @@ account: acastanedaa
 server: w0lxopshyprd1b.worldbank.org
 hostUrl: http://w0lxopshyprd1b.worldbank.org:3939/__api__
 appId: 578
-bundleId: 9468
+bundleId: 15214
 url: http://w0lxopshyprd1b.worldbank.org:3939/content/578/
-when: 1595370907.03719
+when: 1602796842.07878
 asMultiple: FALSE
 asStatic: FALSE
-additionalFiles: data/dfc.rds
+additionalFiles: data/cty_regs_names.rds
+ignoredFiles: data/dfc.rds

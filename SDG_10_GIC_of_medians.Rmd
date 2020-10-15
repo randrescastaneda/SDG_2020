@@ -2,7 +2,7 @@
 title: "GIC of medians"
 output: 
   flexdashboard::flex_dashboard:
-    orientation: rows
+    orientation: columns
     social: menu
     theme: paper
     source_code: embed
@@ -13,10 +13,12 @@ runtime: shiny
 ```{r global, include=FALSE}
 # load data in 'global' chunk so it can be shared by all users of the dashboard
 library("here")
+library("tidyverse")
 library("data.table")
 library("ggplot2")
 library("plotly")
 library("pins")
+library("WDI")
 
 #----------------------------------------------------------
 #   subfunctions
@@ -36,8 +38,9 @@ qtile <- function(x, nq = 10) {
 #   Aux data
 #----------------------------------------------------------
 my_key    <- Sys.getenv("connect_key")
-my_server <- "http://w0lxopshyprd1b.worldbank.org:3939/"
-# my_server  <- "http://localhost:3939/"
+
+# my_server <- "http://w0lxopshyprd1b.worldbank.org:3939/"
+my_server  <- "http://localhost:3939/"
 
 board_register_rsconnect(server = my_server,
                          key    = my_key)
@@ -75,6 +78,39 @@ DT <- DT[
 
 
 yrs <- DT[, unique(year)]
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#---------   GDP percapita    ---------
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# WDIsearch('gdp.*capita.*constant')
+codes <- read_rds(here("data", "cty_regs_names.rds"))
+
+iso <- WDI_data$country %>%
+  as_tibble() %>%
+  select(countrycode = iso3c,iso2c) %>%
+  inner_join(codes, by = "countrycode")
+
+
+gdp <-  WDI(indicator = "NY.GDP.PCAP.KD",
+           start       = 1993,
+           end         = 2017) %>%
+  inner_join(iso, by = "iso2c") %>%
+  rename(gdp = NY.GDP.PCAP.KD)
+
+
+GDP <- as.data.table(gdp)
+
+GDP <- GDP[
+  # remove old years
+  year >= 1990
+][
+  # filter negative values (which we should not have)
+  gdp > 0 & !is.na(gdp)
+]
+
+
 
 ```
 
@@ -115,7 +151,7 @@ checkboxInput("an",
 Row {.tabset .tabset-fade}
 -----------------------------------------------------------------------
 
-### Growth Incidence Curve
+### Growth Incidence Curve of welfare from household surveys
 
 ```{r}
 
@@ -200,7 +236,7 @@ renderPlotly({
       theme_minimal() +
       scale_y_continuous(labels = scales::percent) +
       labs(
-        title = "Growth Incidence curve of selected percentile",
+        title = paste0("Growth Incidence curve of ",  input$pc,"th percentile"),
         x     = "Quantiles",
         y     = "Annualized growth"
       )
@@ -208,3 +244,106 @@ renderPlotly({
   ggplotly(pn)
 })
 ```
+
+
+Row {.tabset .tabset-fade}
+-----------------------------------------------------------------------
+
+### Growth Incidence Curve of GDP
+
+```{r}
+
+DG <- reactive({
+  
+  
+  calc <- paste0(".(", input$ms, "  = ", input$ms, "(gdp, na.rm = TRUE))")
+  calc <- parse(text = calc)
+  
+  
+  # Sort
+  
+
+  # Make sure the input are included correclty in data.table (not efficient but works)
+  iyr1  <- as.numeric(input$yr1)
+  iyr2  <- as.numeric(input$yr2)
+  yrdif <- iyr2 - iyr1
+  yrst  <- c(iyr1, iyr2)
+
+  DG <-
+    GDP[
+      year  %in% c(input$yr1, input$yr2)
+    ]
+  
+  setorder(DG, year, gdp)
+  
+
+  if (input$an == TRUE) {
+    
+    DG <-
+      DG[
+        , # Create deciles in each percentile
+        qp := qtile(gdp, input$nq),
+        by = .(year)
+      ]
+    
+  } else {
+    
+    QP <- DG[year == input$yr1
+            ][,
+              qp := qtile(gdp, input$nq)
+            ][,
+              c("countrycode",  "qp")
+            ]
+    
+    DG <- DG[QP,
+             on = .(countrycode)
+             ]
+    
+  }
+  
+  DG <- DG[
+    , # Make requested calculation
+    eval(calc),
+    by = .(year, qp)
+    ][
+      ,
+      yr := ifelse(year == iyr1, "yr1", "yr2")
+    ]
+    
+  
+  DG <- dcast(DG,
+              formula = qp ~ yr,
+              value.var = input$ms)
+  
+  DG <- DG[,
+           gic := ((yr2/yr1)^(1 / yrdif)) - 1
+           ]
+
+  return(DG)
+})
+```
+
+```{r}
+renderPlotly({
+  pn <- ggplot(DG(),
+       aes(
+         x = qp,
+         y = gic
+       )
+          ) +
+      geom_point() +
+      geom_line() +
+      geom_hline(yintercept = 0,
+                 color = "red") +
+      theme_minimal() +
+      scale_y_continuous(labels = scales::percent) +
+      labs(
+        title = paste0("Growth Incidence curve of GDP per capita"),
+        x     = "Quantiles",
+        y     = "Annualized growth"
+      )
+
+  ggplotly(pn)
+})
+```
+
