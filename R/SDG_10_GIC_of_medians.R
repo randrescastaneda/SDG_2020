@@ -16,13 +16,10 @@
 #   Load libraries
 #----------------------------------------------------------
 
-#----------------------------------------------------------
-#   Load libraries
-#----------------------------------------------------------
-
 library("tidyverse")
 library("data.table")
 library("janitor")
+library("pins")
 
 #----------------------------------------------------------
 #   subfunctions
@@ -41,8 +38,17 @@ qtile <- function(x, nq = 10) {
 #----------------------------------------------------------
 #   Aux data
 #----------------------------------------------------------
-dfc <- read_rds("data/dfc.rds")
+my_key    <- Sys.getenv("connect_key")
+my_server <- "http://w0lxopshyprd1b.worldbank.org:3939/"
+# my_server  <- "http://localhost:3939/"
 
+board_register_rsconnect(server = my_server,
+                         key    = my_key)
+
+dfc <- pin_get(name = "country_deciles",
+               board = "rsconnect")
+
+dfc <- readr::read_rds(here("data", "dfc.rds"))
 
 #----------------------------------------------------------
 #   Calculate Quantiles
@@ -51,11 +57,11 @@ dfc <- read_rds("data/dfc.rds")
 # set data.table
 input <- list(
 
-yr1 = 1993,
-yr2 = 2017,
-nq  = 100,
-pc  = 50,
-ms  = "max"
+  yr1 = 1993,
+  yr2 = 2017,
+  nq  = 10,
+  pc  = 50,
+  ms  = "max"
 )
 
 
@@ -88,7 +94,6 @@ calc <- parse(text = calc)
 
 # Sort
 
-
 DQ <-
   DT[
     year  %in% c(input$yr1, input$yr2)
@@ -96,8 +101,13 @@ DQ <-
     ]
 
 setorder(DQ, year, pv)
-DQ <-
-  DQ[
+
+DA <- copy(DQ)
+
+#--------- anonymous ---------
+
+DA <-
+  DA[
     ,# Create deciles in each percentile
     qp := qtile(pv, input$nq),
     by = .(year)
@@ -111,17 +121,70 @@ DQ <-
     ]
 
 
-DQ <- dcast(DQ,
+DA <- dcast(DA,
             formula = qp ~ yr,
             value.var = input$ms)
 
-DQ[
+DA[
   ,
   gic := ((yr2/yr1)^(1 / (input$yr2 - input$yr1))) - 1
   ]
 
 
-ggplot(DQ,
+#--------- Non-Anonymous ---------
+
+QP <- DQ[year == input$yr1
+         ][,
+           qp := qtile(pv, input$nq)
+           ][,
+             c("countrycode", "coverage", "qp")
+             ]
+
+DN <- DQ[QP,
+         on = .(countrycode, coverage)
+         ][
+           , # Make requested calculation
+           eval(calc),
+           by = .(year, qp)
+         ][
+           ,
+           yr := ifelse(year == input$yr1, "yr1", "yr2")
+         ]
+
+DN <- dcast(DN,
+            formula = qp ~ yr,
+            value.var = input$ms)
+
+DN[
+  ,
+  gic := ((yr2/yr1)^(1 / (input$yr2 - input$yr1))) - 1
+]
+
+
+
+
+ggplot(DA,
+       aes(
+         x = qp,
+         y = gic
+       )
+      ) +
+  geom_point() +
+  geom_line() +
+  geom_hline(yintercept = 0,
+             color = "red") +
+  theme_minimal() +
+  scale_y_continuous(labels = scales::percent) +
+  labs(
+    title = "Growth Incidence curve of selected percentile",
+    x     = "Quantiles",
+    y     = "Annualized growth"
+  )
+
+
+
+
+ggplot(DN,
        aes(
          x = qp,
          y = gic
