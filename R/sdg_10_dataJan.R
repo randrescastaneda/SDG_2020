@@ -38,19 +38,27 @@ write_csv(cf,
           col_names = TRUE,
           na = "")
 
-df <- df[, .(countrycode, percentile = pc, headcount,
-             share_income = Sy, welfare, cumm_income = qc )]
+df <- df[, .(
+  countrycode,
+  percentile = pc,
+  headcount,
+  share_income = Sy,
+  welfare,
+  cumm_income = qc
+)]
 
 write_csv(df,
           path = "data/SDG10_share_income.csv",
           col_names = TRUE,
           na = "")
 
-pe <- pe[, .(percentile = hcf,
-             headcount = CSy,
-             welfare,
-             cumm_income = qc,
-             share_income = Sy)]
+pe <- pe[, .(
+  percentile = hcf,
+  headcount = CSy,
+  welfare,
+  cumm_income = qc,
+  share_income = Sy
+)]
 
 write_csv(pe,
           path = "data/SDG10_perfect_equality.csv",
@@ -132,13 +140,15 @@ write_csv(dfq,
 #   All percentiles
 #----------------------------------------------------------
 
-dfc <- read_rds("data/dfc.rds")
+dfc   <- read_rds("data/dfc.rds")
+names <- read_rds("data/cty_regs_names.rds")
+setDT(names)
 
 qtile <- function(x) {
   nq  <- 10
   N   <-  length(x)
   csw <-  1:N
-  qp  <-   floor(csw/((N+1)/nq)) + 1
+  qp  <-   floor(csw / ((N + 1) / nq)) + 1
   return(qp)
 }
 
@@ -149,31 +159,36 @@ DT <- as.data.table(dfc)
 oldn <- c("threshold", "goal")
 newn <- c("percentile_value", "percentile")
 
-setnames(DT, oldn, newn, skip_absent=TRUE)
+setnames(DT, oldn, newn, skip_absent = TRUE)
 
 setorder(DT, year, percentile, percentile_value)
 
 # Sort
 
-DT <- DT[
-  # remove old years
+DT <- DT[# remove old years
   year >= 1990
-][
-  # filter negative values (which we should not have)
-  percentile_value > 0 & !is.na(percentile_value)
-][,
-  # multiply by 100
-  percentile := 100*percentile
+  ][# filter negative values (which we should not have)
+    percentile_value > 0 & !is.na(percentile_value)
 
-][
-  ,# Create deciles in each percentile
-  decile_within_percentile := qtile(percentile_value),
-  by = .(year, percentile)
+  ][, # multiply by 100
+    percentile := 100 * percentile
 
-][
-  ,
-  headcount := NULL
-]
+  ][, # Create deciles in each percentile
+    decile_within_percentile := qtile(percentile_value),
+    by = .(year, percentile)
+
+  ][,
+    headcount := NULL
+    ]
+
+# Add countryname and region
+DT[names,
+   on = .(countrycode),
+   `:=`(
+        countryname = i.countryname,
+        region      = i.region
+     )
+   ]
 
 
 write_csv(DT,
@@ -189,8 +204,16 @@ source("R/SDG_10_non_monetary_Growth.R")
 
 # Social protection coverage
 coverd <- coverd %>%
-  select(Year, countrycode, countryname, region, incomegroup, quintile, value, growth, val) %>%
-  rename(mean2007=val) #This mean is used for sorting in the graph
+  select(Year,
+         countrycode,
+         countryname,
+         region,
+         incomegroup,
+         quintile,
+         value,
+         growth,
+         val) %>%
+  rename(mean2007 = val) #This mean is used for sorting in the graph
 
 write_csv(coverd,
           path = "data/SDG10_social_protection_cover.csv",
@@ -199,8 +222,20 @@ write_csv(coverd,
 
 # Social Protection: CPI social protection rating
 CPIss <- CPIss %>%
-  select(Year, countrycode, countryname, region, incomegroup, value, v2007, growth, win, loss, initial) %>%
-  rename(value2007=v2007)  #for sorting
+  select(
+    Year,
+    countrycode,
+    countryname,
+    region,
+    incomegroup,
+    value,
+    v2007,
+    growth,
+    win,
+    loss,
+    initial
+  ) %>%
+  rename(value2007 = v2007)  #for sorting
 
 write_csv(CPIss,
           path = "data/SDG10_social_protection_rating.csv",
@@ -209,8 +244,15 @@ write_csv(CPIss,
 
 # Remittances
 remit_from <- remit_from %>%
-  select(year, countrycode, countryname, region, incomegroup, value, growth, span) %>%
-  rename(time_span=span) # For graphs of growth I keep those w/ an span greater than 5 years
+  select(year,
+         countrycode,
+         countryname,
+         region,
+         incomegroup,
+         value,
+         growth,
+         span) %>%
+  rename(time_span = span) # For graphs of growth I keep those w/ an span greater than 5 years
 
 write_csv(remit_from,
           path = "data/SDG10_remittances_origin.csv",
@@ -218,8 +260,15 @@ write_csv(remit_from,
           na = "")
 
 remit_to <- remit_to %>%
-  select(year, countrycode, countryname, region, incomegroup, value, growth, span) %>%
-  rename(time_span=span) # For graphs of growth I keep those w/ an span greater than 5 years
+  select(year,
+         countrycode,
+         countryname,
+         region,
+         incomegroup,
+         value,
+         growth,
+         span) %>%
+  rename(time_span = span) # For graphs of growth I keep those w/ an span greater than 5 years
 
 write_csv(remit_to,
           path = "data/SDG10_remittances_desstination.csv",
@@ -228,8 +277,20 @@ write_csv(remit_to,
 
 # policies for social inclusion/equity
 CPIinc <- CPIinc %>%
-  select(Year, countrycode, countryname, region, incomegroup, value, v2007, growth, win, loss, initial) %>%
-  rename(value2007=v2007)  #for sorting
+  select(
+    Year,
+    countrycode,
+    countryname,
+    region,
+    incomegroup,
+    value,
+    v2007,
+    growth,
+    win,
+    loss,
+    initial
+  ) %>%
+  rename(value2007 = v2007)  #for sorting
 
 
 write_csv(CPIinc,
@@ -241,14 +302,19 @@ write_csv(CPIinc,
 AID <- AID %>%
   filter(incomegroup != "High income") %>%
   group_by(countrycode) %>%
-  filter(row_number()==n()) %>%
-  select(countrycode, countryname, region, incomegroup, v2007, v2017, change, growth) %>%
-  rename(value2007=v2007,
-         value2017=v2017)
+  filter(row_number() == n()) %>%
+  select(countrycode,
+         countryname,
+         region,
+         incomegroup,
+         v2007,
+         v2017,
+         change,
+         growth) %>%
+  rename(value2007 = v2007,
+         value2017 = v2017)
 
 write_csv(AID,
           path = "data/SDG10_aid.csv",
           col_names = TRUE,
           na = "")
-
-
