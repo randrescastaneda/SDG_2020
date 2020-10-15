@@ -48,7 +48,24 @@ f_steps <- function(k, zero = TRUE) {
 # Prepare actual data
 #----------------------------------------------------------
 
-# countries and regions
+#--------- Comparability database ---------
+
+comparable_path <- "https://development-data-hub-s3-public.s3.amazonaws.com/ddhfiles/506801/povcalnet_comparability.csv"
+
+comparable <- read_csv(comparable_path) %>%
+  mutate(
+    datatype     = if_else(datatype == 1,"consumption",  "income"),
+    coveragetype = case_when(
+      coveragetype == 1 ~ "U",
+      coveragetype == 2 ~ "R",
+      coveragetype == 3 ~ "N",
+      coveragetype == 4 ~ "A",
+      TRUE              ~ ""
+    )
+  )
+
+#--------- countries and regions ---------
+
 regs <- c("EAP", "ECA", "LAC", "MNA", "SAS", "SSA", "OHI")
 reg <-  map(regs, get_countries)
 
@@ -79,17 +96,20 @@ wld <- povcalnet_wb(server = "int") %>%
 # Data at country level
 cty <- povcalnet(server = "int",
                  fill_gaps = TRUE) %>%
+  left_join(comparable,
+            by = c("countrycode", "year", "datatype", "coveragetype")
+  ) %>%
   filter(year > st_year) %>%
   group_by(countrycode, year) %>%
-  mutate(n  = n()) %>%
-  filter((n == 1) |
-           (n == 3 & (coveragetype  %in% c("N", "A"))) |
-           (n == 2 & datatype == "consumption")) %>%
-  mutate(
-    poor_pop = round(headcount * population, 0),
-    headcount = round(headcount, 5)
-  ) %>%
-  inner_join(cr) %>%
+  mutate(n  = n(),
+         poor_pop  = round(headcount * population, 0),
+         headcount = round(headcount, 5)
+         ) %>%
+  filter(  (n == 1)
+         | (n == 3 & (coveragetype  %in% c("N", "A")))
+         | (n == 2 & datatype == "consumption")
+         ) %>%
+  left_join(cr) %>%
   mutate(text = paste0("Country: ", countryname, "\n",
                        "Region: ", region, "\n",
                        "Headcount: ", round(headcount*100, digits = 1), "%\n",
@@ -104,7 +124,8 @@ cty <- povcalnet(server = "int",
          population,
          poor_pop,
          region, regionf,
-         text) %>%
+         text,
+         comparability) %>%
   arrange(countrycode, year) %>%
   ungroup()
 
@@ -155,7 +176,7 @@ pr_25 <- pr_wld %>%
 #--------- joind actual data and projected data
 
 pr_wld_act <- pr_wld %>%       # global projected
-  filter(year > 2015) %>%      # stay with years after overlapping year (2015)
+  filter(year > 2017) %>%      # stay with years after overlapping year (2015)
   bind_rows(pr_25) %>%         # append fake 2018 series
   bind_rows(wld) %>%           # append real data
   # Convert to factor and remove NA
@@ -170,13 +191,34 @@ pr_wld_act <- pr_wld %>%       # global projected
 rm(pr_temp, pr_25)    # remove unnecessary data
 
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#---------   Get comparable series   ---------
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+cty_comp <- cty %>%
+  mutate(
+    comp_orig = comparability
+  ) %>%
+  group_by(countrycode) %>%
+  add_count(comp_orig) %>%
+  fill(comparability) %>%
+  filter(comparability == max(comparability,
+                              na.rm = TRUE)
+         ) %>%
+  mutate(n2 = n(),
+         n  = if_else(is.na(comp_orig), NA_integer_, n)) %>%
+  filter(n2 != 1,
+         n  != 1) %>%
+  select(-c(n, n2))
+
+
+
 #----------------------------------------------------------
 #   Countries trends typology
 #----------------------------------------------------------
 
 y_pred <- tibble(year = c(1990:2250))
 
-cty_pred <- cty %>%
+cty_pred <- cty_comp %>%
   nest(data = -countrycode) %>%                        # Split in several dataframes
   mutate(fit       = map(data, ~lm(headcount ~year, data = .)),  # regression
          headcount = map(fit, predict, newdata = y_pred),        # predict in new data
@@ -223,7 +265,7 @@ cty_pred2 <- cty_p[sample(nrow(cty_p), 20),] %>%
   )
 
 
-povch <- cty %>%
+povch <- cty_comp %>%
   group_by(countrycode) %>%
   mutate(
     maxy = max(year),
@@ -269,12 +311,12 @@ cty_bad <- povch %>%
 #     countryname = gsub("(.*)(,.*)", "\\1", countryname) # remove part of the name after comma
 #   )
 
-setDT(cty)
+setDT(cty_comp)
 bad_ctrs <- cty_pred[
   beta > 0,
   .(countrycode = unique(countrycode))
   ][
-    cty,
+    cty_comp,
     on = "countrycode",
     nomatch = 0
     ][,
