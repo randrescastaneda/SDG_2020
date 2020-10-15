@@ -137,7 +137,7 @@ p2 <- ggplot(data = wld,
 ## eliminate poverty assuming linear projection
 # 3% percent goal
 # Global poverty trend and goal
-yv <- tibble( year = c(2016:2024))
+yv <- tibble( year = c(2016:2025))
 
 wld2 <- wld %>%
   select(year, headcount) %>%
@@ -171,6 +171,10 @@ p2_2 <- ggplot(data = wld2,
              size = 1.2) +
   labs(y = "Poverty rate (%)",
        x = "") + plain
+
+df_lm <- lm(headcount ~ year,
+            data = wld2)
+
 
 
 # Global poverty rescaled to the fit variability.
