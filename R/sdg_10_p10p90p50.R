@@ -42,16 +42,18 @@ dfr <- read_rds("data/dfr.rds")
 #   filtered dfc data
 #----------------------------------------------------------
 
-lyear <- 2015
+lyear <- 2017
 
 
 dfc_1 <- dfc %>%
-  filter(status == "OK") %>%
+  mutate(
+    goal = goal * 100
+  ) %>%
   pivot_wider(
     values_from = threshold,
     names_from = goal,
     names_prefix = "p",
-    id_cols = c(countrycode, year)
+    id_cols = c(countrycode, year, coverage)
   ) %>%
   filter(year == lyear,
          !is.na(p50),
@@ -60,8 +62,11 @@ dfc_1 <- dfc %>%
   # merge regions and country names
   left_join(cr, by = "countrycode") %>%
   arrange(p50) %>%
-  mutate(fcountrycode = factor(countrycode, countrycode),
-         r9010       = p90/p10)
+  mutate(
+    fcountrycode = paste0(countrycode, "-", coverage),
+    fcountrycode = factor(fcountrycode, fcountrycode),
+    r9010        = p90/p10
+    )
 
 #----------------------------------------------------------
 #   Gini data
@@ -389,8 +394,8 @@ p_r9010_j <- ggplot(data = dfc_1,
 
 
 dfc_2 <- dfc_1 %>%
-  arrange(-r9010) %>%
-  mutate(fcountrycode = factor(countrycode, countrycode))
+  arrange(-r9010) #%>%
+  # mutate(fcountrycode = factor(countrycode, countrycode))
 
 
 dfc_rep2 <- dfc_2[1,] %>%
