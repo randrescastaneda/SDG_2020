@@ -49,7 +49,7 @@ source("R/SDG_01_charts.R")
 # No. of poor
 npoor <- wld %>% 
   arrange(year) %>% 
-  filter(year  %in% c(1993, 2015)) %>% 
+  filter(year  %in% c(1993, 2017)) %>% 
   select(poor_pop) %>% 
   round(digits = 0) %>% 
   pull()
@@ -60,7 +60,7 @@ np <- (npoor[1] - npoor[2])/1000
 # Headcounts
 hc <- wld %>% 
   arrange(year) %>% 
-  filter(year  %in% c(1993, 2015)) %>% 
+  filter(year  %in% c(1993, 2017)) %>% 
   select(headcount) %>% 
   {round(.*100, digits = 1)} %>% 
   pull()
@@ -74,7 +74,7 @@ r <- povcalnet_wb()
 
 #--------- CHN and IND poor population
 np_ic <- cty2 %>% 
-  filter(year  %in% c(1993, 2015)) %>% 
+  filter(year  %in% c(1993, 2017)) %>% 
   group_by(year) %>% 
   summarise(pop = sum(poor_pop)) %>% 
   ungroup() %>% 
