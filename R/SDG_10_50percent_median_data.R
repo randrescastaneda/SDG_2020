@@ -109,9 +109,11 @@ rm(DT2)
 #
 DL <- as.list(DF)
 
+server = NULL
 dm <- pmap_df(DL, povcalnet,
            fill_gaps = TRUE,
-           server = "int")
+           server = server)
+
 dm <- as.data.table(dm)
 setkeyv(dm, srtvars)
 

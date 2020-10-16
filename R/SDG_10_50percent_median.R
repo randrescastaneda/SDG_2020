@@ -44,58 +44,6 @@ srtvars <- c("countrycode", "year", "coveragetype", "datatype")
 
 dm <- readr::read_rds(here("data", "SDG_10_50percent_median.rds"))
 dm <- as.data.table(dm)
-setkeyv(dm, srtvars)
-
-dm <- dm[,
-          ..pcnvars
-        ][,
-          median := povertyline*2
-          ][cr,
-              on = "countrycode",
-              countryname := i.countryname
-          ][,
-            text := paste("Country: ",   countrycode, "\n",
-                          "year: ",      year, "\n",
-                          "Median: ",    median, "\n",
-                          "Headcount: ", headcount)
-          ]
-
-dm <- unique(dm)
-
-
-# Fix comparability metadata
-cols <- c("coveragetype", "datatype")
-md[,
-   (cols) := lapply(.SD, as.character),
-   .SDcols = cols
-   ][,
-     coveragetype := fcase(coveragetype == "1", "R",
-                           coveragetype == "2", "U",
-                           coveragetype == "3", "N",
-                           coveragetype == "4", "A"
-                           )
-     ][,
-       datatype := fifelse(datatype == "1", "consumption", "income")
-       ]
-
-# Merge with comparability metadata
-dm[md,
-   on = .(countrycode, coveragetype, datatype, year),
-   compare := i.comparability
-   ]
-
-# add text variable
-dm <- dm[!is.na(compare)
-         ][,
-           mcomp := compare == max(compare),
-           by = .(countryname, datatype, coveragetype)
-           ][,
-               ggtext := fifelse(year == max(year) | year == min(year),
-                                 paste0(countryname, "\n", year), NA_character_
-               ),
-               by = .(countryname, datatype, coveragetype)
-             ]
-
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #---------   poverty rate and median value   ---------
