@@ -1,5 +1,5 @@
 ---
-title: "GIC of medians"
+title: "Growth Incidende Curve (GIC) of medians and GDP percapita"
 output: 
   flexdashboard::flex_dashboard:
     orientation: columns
@@ -93,11 +93,14 @@ iso <- WDI_data$country %>%
   inner_join(codes, by = "countrycode")
 
 
-gdp <-  WDI(indicator = "NY.GDP.PCAP.KD",
+
+# indicator = "NY.GDP.PCAP.KD"
+indicator = "NY.GDP.PCAP.PP.KD"
+gdp <-  WDI(indicator = indicator,
            start       = 1993,
            end         = 2017) %>%
   inner_join(iso, by = "iso2c") %>%
-  rename(gdp = NY.GDP.PCAP.KD)
+  mutate(gdp = get(indicator)/365)
 
 
 GDP <- as.data.table(gdp)
@@ -110,6 +113,7 @@ GDP <- GDP[
   gdp > 0 & !is.na(gdp)
 ]
 
+varlabel <- attributes(gdp[[indicator]])$label
 
 
 ```
@@ -140,18 +144,24 @@ selectInput("yr2",
 selectInput("ms", 
             label = "Measure:",
             choices = c("sum", "mean", "min", "max"),
-            selected = "max")
+            selected = "mean")
 
 checkboxInput("an", 
               "Anonymous?", 
               value = TRUE)
+
+checkboxInput("abs", 
+              "Absolute Change", 
+              value = FALSE)
+
+
 
 ```
 
 Row {.tabset .tabset-fade}
 -----------------------------------------------------------------------
 
-### Growth Incidence Curve of welfare from household surveys
+### GIC of welfare from household surveys
 
 ```{r}
 
@@ -213,8 +223,18 @@ DQ <- reactive({
               value.var = input$ms)
   
   DQ <- DQ[,
-           gic := ((yr2/yr1)^(1 / yrdif)) - 1
+           `:=`(
+               gic = ((yr2/yr1)^(1 / yrdif)) - 1,
+               abs = yr2 - yr1
+             )
            ]
+  
+  DQ[,
+     text := paste0("GIC: ", scales::percent(gic, accuracy = .01), "\n",
+                    "Absolute change: ", scales::dollar(abs), "\n",
+                    "value year 1: ", scales::dollar(yr1), "\n",
+                    "value year 2: ", scales::dollar(yr2), "\n"
+                    )]
 
   return(DQ)
 
@@ -223,25 +243,39 @@ DQ <- reactive({
 
 ```{r}
 renderPlotly({
+  
+  if (input$abs == FALSE) {
+    yvar = "gic"
+    ylab = "scales::percent"
+    ytit = "Annualized growth"
+    titl = paste0("GIC of the quantile", input$ms ," of the distribution of the ",input$pc,"th percentile")
+  } else {
+    yvar = "abs"
+    ylab = "scales::dollar"
+    ytit = "Monetary change"
+    titl = paste0("Total monetary change of the ", input$ms ," of the ",  input$pc,"th percentile")
+  }
+    
+  
   pn <- ggplot(DQ(),
        aes(
-         x = qp,
-         y = gic
+         x    = qp,
+         y    = get(yvar)
        )
           ) +
-      geom_point() +
+      geom_point(aes(text = text)) +
       geom_line() +
       geom_hline(yintercept = 0,
                  color = "red") +
       theme_minimal() +
-      scale_y_continuous(labels = scales::percent) +
+      scale_y_continuous(labels = eval(parse(text = ylab))) +
       labs(
-        title = paste0("Growth Incidence curve of ",  input$pc,"th percentile"),
+        title = titl,
         x     = "Quantiles",
-        y     = "Annualized growth"
+        y     = ytit
       )
 
-  ggplotly(pn)
+  ggplotly(pn, tooltip = "text")
 })
 ```
 
@@ -249,7 +283,7 @@ renderPlotly({
 Row {.tabset .tabset-fade}
 -----------------------------------------------------------------------
 
-### Growth Incidence Curve of GDP
+### GIC of GDP per capita
 
 ```{r}
 
@@ -316,34 +350,58 @@ DG <- reactive({
               value.var = input$ms)
   
   DG <- DG[,
-           gic := ((yr2/yr1)^(1 / yrdif)) - 1
+           `:=`(
+               gic = ((yr2/yr1)^(1 / yrdif)) - 1,
+               abs = yr2 - yr1
+             )
            ]
 
+  DG[,
+     text := paste0("GIC: ", scales::percent(gic, accuracy = .01), "\n",
+                    "Absolute change: ", scales::dollar(abs), "\n",
+                    "value year 1: ", scales::dollar(yr1), "\n",
+                    "value year 2: ", scales::dollar(yr2), "\n"
+                    )]
+  
   return(DG)
 })
 ```
 
 ```{r}
 renderPlotly({
+  
+  if (input$abs == FALSE) {
+    yvar = "gic"
+    ylab = "scales::percent"
+    ytit = "Annualized growth"
+    titl = paste0("GIC of the quantile", input$ms ," of ", varlabel)
+  } else {
+    yvar = "abs"
+    ylab = "scales::dollar"
+    ytit = "Monetary change"
+    titl = paste0("Total monetary change of the ", input$ms ," of ", varlabel)
+  }
+    
+  
   pn <- ggplot(DG(),
        aes(
          x = qp,
-         y = gic
+         y = get(yvar)
        )
           ) +
-      geom_point() +
+      geom_point(aes(text = text)) +
       geom_line() +
       geom_hline(yintercept = 0,
                  color = "red") +
       theme_minimal() +
-      scale_y_continuous(labels = scales::percent) +
+      scale_y_continuous(labels = eval(parse(text = ylab))) +
       labs(
-        title = paste0("Growth Incidence curve of GDP per capita"),
+        title = titl,
         x     = "Quantiles",
-        y     = "Annualized growth"
+        y     = ytit
       )
 
-  ggplotly(pn)
+  ggplotly(pn, tooltip = "text")
 })
 ```
 

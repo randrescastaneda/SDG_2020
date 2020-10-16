@@ -48,7 +48,7 @@ board_register_rsconnect(server = my_server,
 dfc <- pin_get(name = "country_deciles",
                board = "rsconnect")
 
-dfc <- readr::read_rds(here("data", "dfc.rds"))
+# dfc <- readr::read_rds(here("data", "dfc.rds"))
 
 #----------------------------------------------------------
 #   Calculate Quantiles
