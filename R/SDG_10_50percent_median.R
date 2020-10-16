@@ -35,7 +35,9 @@ library("pins")
 board_register("rsconnect", server = "http://w0lxopshyprd1b.worldbank.org:3939/")
 
 # Retrieve Pin
-# dm <- readr::read_rds(here("data", "SDG_10_50percent_median.rds"))
+cr <- readr::read_rds(here("data", "cty_regs_names.rds"))
+cr <- as.data.table(cr)
+
 dm <- pin_get("acastanedaa/50percent_median_country", board = "rsconnect")
 dm <- as.data.table(dm)
 
@@ -66,7 +68,7 @@ dm <- dm[mcomp == TRUE
 # Reshape
 
 dw <- dcast(dm,
-            countrycode + coveragetype ~ yseq,
+            countrycode + countryname + coveragetype ~ yseq,
             value.var = c("headcount", "year"))
 
 # clean
@@ -80,7 +82,7 @@ dw <- dw[,
    ][
      difyr == TRUE
      ][,
-       text  := paste("Country:",paste0(countrycode, "-", coveragetype), "\n",
+       text  := paste("Country:",paste0(countryname, "-", coveragetype), "\n",
                      "Period:", paste0(year_yr2, "-", year_yr1), "\n",
                      "change:", paste0(scales::percent(headcount_yr2, accuracy = .01), "-",
                                        scales::percent(headcount_yr1, accuracy = .01), "=",
@@ -93,78 +95,92 @@ dw[,
                   paste0(countrycode, "-", coveragetype))
    ]
 
+dw <- dw[cr,
+   on = .(countrycode)]
 
 
 #--------- set up for chart ---------
 
-my_colors        <- c("#004B6B", "#47BCEE")
-names(my_colors) <- c("high", "low")
+hc_50med <- function(dw, ...) {
+  my_colors        <- c("#004B6B", "#47BCEE")
+  names(my_colors) <- c("high", "low")
 
-my_alphas        <-  c(1, .1)
-names(my_alphas) <- c("high", "low")
+  my_alphas        <-  c(1, .1)
+  names(my_alphas) <- c("high", "low")
 
-my_sizes         <-  c(2, 1)
-names(my_sizes)  <- c("high", "low")
-
-
-minx <- NA
-maxx <- NA
-aty  <- 10
-sty  <- 11
+  my_sizes         <-  c(2, 1)
+  names(my_sizes)  <- c("high", "low")
 
 
+  minx <- NA
+  maxx <- NA
+  aty  <- 10
+  sty  <- 11
 
-p <- ggplot(data = dw,
-            aes(y = cty,
-                text = text)) +
-  geom_segment(
-    aes(yend    = cty,
-        x       = headcount_yr2,
-        xend    = headcount_yr1,
-        alpha   = highlight),
-    color   = my_colors[1]
-  ) +
-  geom_point(
-    aes(x       = headcount_yr1,
-        alpha   = highlight,
-        size    = highlight),
-    fill        = "white",
-    color   = my_colors[1],
-    shape       = 21,
-    stroke      = 0.5
-  ) +
-  geom_point(
-    aes(x       = headcount_yr2,
-        alpha   = highlight,
-        size    = highlight),
-    color       = "white",
-    fill        = my_colors[1],
-    shape       = 21
-  ) +
-  geom_vline(xintercept      = 0,
-             color           = "red",
-             linetype        = "dashed")  +
-  theme_minimal() +
-  theme(
-    axis.text.y       = element_blank(),
-    axis.title.y      = element_blank(),
-    # strip.text.y.left = element_text(size = sty),
-    legend.position   = "none"
-  ) +
-  labs(
-    title               = "Change in Share of population below 50% of median",
-    subtitle            = "Sorted by top countries",
-    caption             = "Data from PovcalNet",
-    x                   = "Change in headcount",
-    y                   = ""
-  ) +
-  scale_x_continuous(limits = c(minx, maxx)) +
-  scale_color_manual(values = my_colors) +
-  scale_alpha_manual(values = my_alphas) +
-  scale_size_manual(values = my_sizes)
+  dots <- rlang::enquos(...)
+  if (length(dots) != 0) {
+    dw <- dw %>%
+      mutate(
+        highlight = if_else(!!!dots, "high", "low")
+      )
 
-ggplotly(p, tooltip = "text")
+  } else {
 
+    dw <- dw %>%
+      mutate(
+        highlight = "high"
+      )
+  }
+
+
+
+  p <- ggplot(data = dw,
+              aes(y = cty,
+                  text = text)) +
+    geom_segment(
+      aes(yend    = cty,
+          x       = 0,
+          xend    = difhc,
+          alpha   = highlight),
+      color   = my_colors[1]
+    ) +
+    geom_point(
+      aes(x       = difhc,
+          alpha   = highlight,
+          size    = highlight),
+      fill        = "white",
+      color   = my_colors[1],
+      shape       = 21,
+      stroke      = 0.5
+    )  +
+    geom_vline(xintercept      = 0,
+               color           = "red",
+               linetype        = "dashed")  +
+    theme_minimal() +
+    theme(
+      axis.text.y       = element_blank(),
+      axis.title.y      = element_blank(),
+      # strip.text.y.left = element_text(size = sty),
+      legend.position   = "none"
+    ) +
+    labs(
+      title               = "Change in Share of population below 50% of median",
+      subtitle            = "Sorted by top countries",
+      caption             = "Data from PovcalNet",
+      x                   = "Change in headcount",
+      y                   = ""
+    ) +
+    scale_x_continuous(limits = c(minx, maxx)) +
+    scale_color_manual(values = my_colors) +
+    scale_alpha_manual(values = my_alphas) +
+    scale_size_manual(values = my_sizes)
+
+  gp <- ggplotly(p, tooltip = "text")
+  return(gp)
+}
+
+hc_50med(dw, incomegroup == "High income")
+hc_50med(dw, incomegroup == "Lower middle income")
 
 
 
