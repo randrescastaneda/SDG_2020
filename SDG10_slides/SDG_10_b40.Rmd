@@ -101,14 +101,13 @@ b40chart <- function(df, ..., altver = FALSE) {
   #--------- set up for chart ---------
   
   my_colors        <- c("#004B6B", "#47BCEE")
-  names(my_colors) <- levels(as.factor(df$highlight))
+  names(my_colors) <- c("high", "low")
   
   my_alphas        <-  c(1, .1)
-  names(my_alphas) <- levels(as.factor(df$highlight))
-  
+  names(my_alphas) <- c("high", "low")
   
   my_sizes         <-  c(2, 1)
-  names(my_sizes)  <- levels(as.factor(df$highlight))
+  names(my_sizes)  <- c("high", "low")
   
   
   
