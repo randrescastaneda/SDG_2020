@@ -66,7 +66,7 @@ if (length(ls(pattern = "ld_b40_1")) == 0 ) { # load df?
 ```
 
 ```{r chartfunc}
-b40chart <- function(df, ...) {
+b40chart <- function(df, ..., altver = FALSE) {
   
   # args <- as.list(substitute(list(...)))[-1L]
   
@@ -88,6 +88,13 @@ b40chart <- function(df, ...) {
     df <- df %>% 
       mutate(
         highlight = "high"
+      )
+  }
+  
+  if (altver == TRUE) {
+    df <- df %>% 
+      mutate(
+        highlight = "low"
       )
   }
   
@@ -193,13 +200,7 @@ p1 <- b40chart(df)
 ```
 ---
 .left-column[
-Let's select some of the countries for which we had shared prosperity in 2017 and rank them according  to the growth of their bottom 40. 
-]
----
-.left-column[
-Let's select some of the countries for which we had shared prosperity in 2017 and rank them according  to the growth of their bottom 40. 
-
-For all these cases, incomes of the bottom 40 are growing faster than average during **2008 and 2013**
+Let's select some countries in which the income of the bottom 40 was growing faster than average during **2008 and 2013**.
 ]
 .right-column[
 ```{r b401}
@@ -208,7 +209,7 @@ ggplotly(p1, tooltip = "text")
 ]
 ---
 .left-column[
-Some low income countries seem to be doing very well.  
+Some **low-income** countries seemed to having done very well in that period.  
 ]
 .right-column[
 ```{r b402}
@@ -221,7 +222,9 @@ ggplotly(pli, tooltip = "text")
 
 ---
 .left-column[
-Yet, three years later, for the period **2012-2017**, the story reverted for some of them. 
+Some **low-income** countries seemed to having done very well in that period.  
+
+Yet, for the period **2012-2017**, the story reverted for some of them. 
 
 Tanzania and Uganda switched from having positive and higher bottom 40 growth than average in 2008-2013 to present negative growth in their bottom 40 in 2012-2017. 
 ]
@@ -229,13 +232,12 @@ Tanzania and Uganda switched from having positive and higher bottom 40 growth th
 ```{r b403}
 ggplotly(pli + nsp, tooltip = "text")
 
-  
 ```
 ]
 
 ---
 .left-column[
-In lower-middle income, we have countries, like Mongolia and Bolivia, with remarkable economic growth in their bottom 40 in contrast to their average growth. 
+In **lower-middle-income** group, we had countries in **2008 and 2013**, like Mongolia and Bolivia, with remarkable economic growth in their bottom 40 in contrast to their average growth. 
 ]
 .right-column[
 ```{r b404}
@@ -245,7 +247,7 @@ ggplotly(plm, tooltip = "text")
 ]
 ---
 .left-column[
-Yet, **from 2012 to 2017** the story reverted for most lower-middle income countries. Economic growth in Mongolia and Bhutan declined dramatically. Bolivia's overall growth was negative, though the bottom 40 managed to growth during this period. On the other hand, Honduras, which presented negative growth **from 2008 to 2013**, shows modest pro-rich economic growth as the average is growing faster than the bottom 40. 
+Yet, **from 2012 to 2017** the story reverted for most **lower-middle-income** countries. Economic growth in Mongolia and Bhutan declined dramatically. Bolivia's overall growth was negative, though the bottom 40 managed to growth during this period. On the other hand, Honduras, which presented negative growth **from 2008 to 2013**, shows modest pro-rich economic growth as the average is growing faster than the bottom 40. 
 ]
 .right-column[
 ```{r b405}
@@ -255,7 +257,7 @@ ggplotly(plm + nsp, tooltip = "text")
 ]
 ---
 .left-column[
-In general, Upper-middle economies had excellent growth **from 2008 to 2013**. With the exception of Albania, all other countries had at least positive bottom 40 growth. 
+In general, **Upper-middle** economies had excellent growth **from 2008 to 2013**. With the exception of Albania, all other countries had at least positive bottom 40 growth. 
 ]
 .right-column[
 ```{r b406}
@@ -265,7 +267,7 @@ ggplotly(pum, tooltip = "text")
 ]
 ---
 .left-column[
-However, **from 2012 to 2017** countries like Belarus, Kazakhstan, and Russia reverted to negative overall growth. More generally, all upper-middle income countries with the exception of Romania, Dominican Republic, and Albania, did worst in the **2012-2017** period. 
+However, **from 2012 to 2017** countries like Belarus, Kazakhstan, and Russia reverted to negative overall growth. More generally, all **upper-middle-income** countries with the exception of Romania, Dominican Republic, and Albania, did worst in the **2012-2017** period. 
 ]
 .right-column[
 ```{r b407}
@@ -275,7 +277,7 @@ ggplotly(pum + nsp, tooltip = "text")
 ]
 ---
 .left-column[
-Finally, **from 2008 to 2013** some high-income countries like Chile and Panama did very well, whereas others like Iceland and Latvia had negative economic growth. 
+Finally, **from 2008 to 2013** some **high-income** countries like Chile and Panama did very well, whereas others like Iceland and Latvia had negative economic growth. 
 ]
 .right-column[
 ```{r b408}
@@ -285,7 +287,7 @@ ggplotly(phi, tooltip = "text")
 ]
 ---
 .left-column[
-Yet, **from 2012 to 2017**, with the exception of the Argentina, Germany, and Switzerland, high-income countries presented positive pro-poor growth. Latvia, whose economic performance was negative in the first period, excelled on the second period with the second to the best economic and shared prosperity performance of all. 
+Yet, **from 2012 to 2017**, with the exception of the Argentina, Germany, and Switzerland, **high-income** countries showed positive pro-poor growth. Latvia, whose economic performance was negative in the first period, excelled on the second period with the second to the best economic and shared prosperity performance of all. 
 ]
 .right-column[
 ```{r b409}
@@ -294,7 +296,7 @@ ggplotly(phi + nsp, tooltip = "text")
 ]
 ---
 .left-column[
-So, the story of bottom 40 for these countries changed from this in **2008-2013** 
+So, the story of bottom 40 for these countries changed from this in **2008-2013**...
 ]
 .right-column[
 ```{r b40f1}
@@ -303,11 +305,13 @@ ggplotly(p1, tooltip = "text")
 ]
 ---
 .left-column[
-So, the story of bottom 40 for these countries changed from this in **2008-2013** to this in **2012-2017**
+So, the story of bottom 40 for these countries changed from this in **2008-2013**... 
+
+to this in **2012-2017**
 ]
 .right-column[
 ```{r b40f2}
-p2 <- b40chart(df, incomegroup == "bla")
+p2 <- b40chart(df, altver = TRUE)
 ggplotly(p2 + nsp, tooltip = "text")
 ```
 ]
