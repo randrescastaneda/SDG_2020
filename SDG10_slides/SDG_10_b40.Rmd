@@ -22,6 +22,7 @@ library(scales)
 library(ggpubr)
 library(xaringanthemer)
 library(here)
+library(plotly)
 
 knitr::opts_chunk$set(
   warning = FALSE,
@@ -44,101 +45,123 @@ class: inverse, right, bottom
 
 ???
 Intcomments
+
 ```{r initcal}
-if (length(ls(pattern = "ld_b40_1")) == 0 ) { # load data?
+if (length(ls(pattern = "ld_b40_1")) == 0 ) { # load df?
   source(here("R", "SDG_10_B40_Two_Periods.R"))
+  df <- data %>% 
+    arrange(OLDGrowth40) %>% 
+    mutate(
+    text = paste("Country:", country, "\n",
+                 "(2008-2013) B40:", round(OLDGrowth40, digits = 2), "\n", 
+                 "(2012-2017) B40:", round(Growth40, digits = 2), "\n", 
+                 "(2008-2013) Total:", round(OLDGrowth, digits = 2), "\n", 
+                 "(2012-2017) Total:", round(Growth, digits = 2), "\n"
+                 ),
+    cty = factor(country, country)
+  ) 
+  
   ld_b40_1 <-  1
 }
 ```
 
 ```{r chartfunc}
-b40chart <- function(data, ...) {
+b40chart <- function(df, ...) {
   
-  df <- data   %>%
-    filter(...)  %>%
+  # args <- as.list(substitute(list(...)))[-1L]
+  
+  df <- df   %>%
+    arrange(OLDGrowth40) %>% 
     mutate(
       cty = factor(country, country)
     )
   
-  if (...length() != 0) {
-    DT   <- as.data.table(data)
-    DT   <- melt(DT, measure = patterns("Growth", "country"), 
-                 value.name = c("value", "country"))
-    
-    minx <- DT[
-      ...
-       ][
-         value == min(value), value
-         ] * 1.1
-    
-    maxx <- DT[
-      ...
-    ][
-      value == max(value), value
-      ] * 1.1
-    
-    aty  <- 15
-    sty  <- 15
-    
-  } else{
-    minx <- NA
-    maxx <- NA
-    aty  <- 10
-    sty  <- 11
-  } 
-    
+  dots <- rlang::enquos(...)
+  if (length(dots) != 0) {
+    df <- df %>% 
+      mutate(
+        highlight = if_else(!!!dots, "high", "low"), 
+        Growth    = if_else(!!!dots, Growth, NA_real_), 
+        Growth40  = if_else(!!!dots, Growth40, NA_real_)
+      )
+  } else {
+    df <- df %>% 
+      mutate(
+        highlight = "high"
+      )
+  }
+  
+  #--------- set up for chart ---------
+  
+  my_colors        <- c("#004B6B", "#47BCEE")
+  names(my_colors) <- levels(as.factor(df$highlight))
+  
+  my_alphas        <-  c(1, .1)
+  names(my_alphas) <- levels(as.factor(df$highlight))
+  
+  
+  my_sizes         <-  c(2, 1)
+  names(my_sizes)  <- levels(as.factor(df$highlight))
+  
+  
+  
+  minx <- NA
+  maxx <- NA
+  aty  <- 10
+  sty  <- 11
+  
+  
   p <- ggplot(data = df,
-              aes(y = cty)) +
+              aes(y = cty, 
+                  text = text)) +
     geom_segment(
       aes(yend    = cty,
           x       = OLDGrowth40,
-          xend    = OLDGrowth),
-      color       = "steelblue4",
-      alpha       = 0.5) +
+          xend    = OLDGrowth, 
+          alpha   = highlight),
+      color   = my_colors[1]
+      ) +
     geom_point(
-      aes(x       = OLDGrowth),
-      color       = "steelblue4",
+      aes(x       = OLDGrowth, 
+          alpha   = highlight,
+          size    = highlight),
       fill        = "white",
+      color   = my_colors[1],
       shape       = 21,
-      stroke      = 0.7,
-      size        = 2,
-      alpha       = 0.5
+      stroke      = 0.5
     ) +
     geom_point(
-      aes(x       = OLDGrowth40),
+      aes(x       = OLDGrowth40, 
+          alpha   = highlight,
+          size    = highlight),
       color       = "white",
-      fill        = "steelblue4",
-      shape       = 21,
-      size        = 2,
-      alpha       = 0.5
+      fill        = my_colors[1],
+      shape       = 21
     ) +
     geom_vline(xintercept      = 0,
                color           = "red",
                linetype        = "dashed")  +
-    facet_grid(incomegroup ~ .,
-               scales           = "free",
-               space            = "free",
-               switch           = "y") +
     theme_minimal() +
     theme(
       axis.text.y       = element_text(size = aty),
       axis.title.y      = element_blank(),
-      strip.text.y.left = element_text(size = sty)
+      strip.text.y.left = element_text(size = sty),
+      legend.position   = "none"
     ) +
     labs(
       title               = "Growth Bottom 40 vs National Average",
       subtitle            = "Sorted by top countries",
-      caption             = "Bottom and Total growth as reported in the Global Database of Share Prosperity.",
+      caption             = "Bottom and Total growth as reported in the Global dfbase of Share Prosperity.",
       x                   = "Growth",
       y                   = ""
     ) +
-    scale_x_continuous(limits = c(minx, maxx))
-
-return(p) 
+    scale_x_continuous(limits = c(minx, maxx)) +
+    scale_color_manual(values = my_colors) +
+    scale_alpha_manual(values = my_alphas) +
+    scale_size_manual(values = my_sizes)
+  
+  return(p)
 }
-
-
-p1 <- b40chart(data)
 
 nsp <- list(
   geom_segment(
@@ -154,18 +177,19 @@ nsp <- list(
     color               = "black",
     fill                = "white",
     shape               = 21,
-    stroke              = 0.7,
-    size                = 2
+    stroke              = 0.5,
+    size                = 1.5
   ) ,
   geom_point(
     aes(x               = Growth40),
     color               = "white",
     fill                = "red",
     shape               = 21,
-    size                = 2
+    size                = 1.5
   )
 )
 
+p1 <- b40chart(df)
 ```
 ---
 .left-column[
@@ -179,7 +203,7 @@ For all these cases, incomes of the bottom 40 are growing faster than average du
 ]
 .right-column[
 ```{r b401}
-p1
+ggplotly(p1, tooltip = "text")
 ```
 ]
 ---
@@ -189,8 +213,9 @@ Some low income countries seem to be doing very well.
 .right-column[
 ```{r b402}
 
-pli <- b40chart(data, incomegroup == "Low income")
-pli 
+pli <- b40chart(df, incomegroup == "Low income")
+ggplotly(pli, tooltip = "text")
+
 ```
 ]
 
@@ -202,7 +227,8 @@ Tanzania and Uganda switched from having positive and higher bottom 40 growth th
 ]
 .right-column[
 ```{r b403}
-pli + nsp
+ggplotly(pli + nsp, tooltip = "text")
+
   
 ```
 ]
@@ -213,8 +239,8 @@ In lower-middle income, we have countries, like Mongolia and Bolivia, with remar
 ]
 .right-column[
 ```{r b404}
-plm <- b40chart(data, incomegroup == "Lower middle income")
-plm
+plm <- b40chart(df, incomegroup == "Lower middle income")
+ggplotly(plm, tooltip = "text")
 ```
 ]
 ---
@@ -223,7 +249,8 @@ Yet, **from 2012 to 2017** the story reverted for most lower-middle income count
 ]
 .right-column[
 ```{r b405}
-plm + nsp
+ggplotly(plm + nsp, tooltip = "text")
+
 ```
 ]
 ---
@@ -232,8 +259,8 @@ In general, Upper-middle economies had excellent growth **from 2008 to 2013**. W
 ]
 .right-column[
 ```{r b406}
-pum <- b40chart(data, incomegroup == "Upper middle income")
-pum
+pum <- b40chart(df, incomegroup == "Upper middle income")
+ggplotly(pum, tooltip = "text")
 ```
 ]
 ---
@@ -242,7 +269,8 @@ However, **from 2012 to 2017** countries like Belarus, Kazakhstan, and Russia re
 ]
 .right-column[
 ```{r b407}
-pum + nsp
+ggplotly(pum + nsp, tooltip = "text")
+
 ```
 ]
 ---
@@ -251,8 +279,8 @@ Finally, **from 2008 to 2013** some high-income countries like Chile and Panama 
 ]
 .right-column[
 ```{r b408}
-phi <- b40chart(data, incomegroup == "High income")
-phi
+phi <- b40chart(df, incomegroup == "High income")
+ggplotly(phi, tooltip = "text")
 ```
 ]
 ---
@@ -261,24 +289,25 @@ Yet, **from 2012 to 2017**, with the exception of the Argentina, Germany, and Sw
 ]
 .right-column[
 ```{r b409}
-phi + nsp
+ggplotly(phi + nsp, tooltip = "text")
 ```
 ]
 ---
 .left-column[
-So, the story of bottom 40 changed from this in **2008-2013** 
+So, the story of bottom 40 for these countries changed from this in **2008-2013** 
 ]
 .right-column[
 ```{r b40f1}
-p1
+ggplotly(p1, tooltip = "text")
 ```
 ]
 ---
 .left-column[
-So, the story of bottom 40 changed from this in **2008-2013** to this in **2012-2017**
+So, the story of bottom 40 for these countries changed from this in **2008-2013** to this in **2012-2017**
 ]
 .right-column[
 ```{r b40f2}
-p1 + nsp
+p2 <- b40chart(df, incomegroup == "bla")
+ggplotly(p2 + nsp, tooltip = "text")
 ```
 ]
