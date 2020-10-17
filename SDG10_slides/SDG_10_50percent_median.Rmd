@@ -1,0 +1,196 @@
+---
+title: "Share of population below the 50% of the median"
+output:
+  xaringan::moon_reader:
+    seal: false
+    css: ["css/sfah.css", "css/fonts.css", "default"]
+    self_contained: false
+    lib_dir: libs
+    mathjax: "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_HTMLorMML"
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      slideNumberFormat: "%current%"
+      ratio: "16:9"
+      titleSlideClass: ["left", "middle", "inverse"]
+---
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+library("knitr")
+library("scales")
+library("xaringanthemer")
+library("here")
+library("pins")
+library("tidyverse")
+library("plotly")
+library("data.table")
+
+
+knitr::opts_chunk$set(
+  warning = FALSE,
+  collapse = TRUE,
+  message = FALSE,
+  echo = FALSE,
+  fig.retina = 3,
+  fig.width = 10
+)
+knitr::opts_knit$set(
+  root.dir = ".."
+)
+# options(knitr.table.format = "html")
+library(fontawesome) # from github: https://github.com/rstudio/fontawesome
+xaringanExtra::use_xaringan_extra(c("tile_view", "animate_css", "tachyons"))
+
+```
+
+class: inverse, right, bottom
+## Share of population below 50% of Median
+
+## Analysis by groups of countries
+
+???
+Initial comments
+```{r initcal}
+if (length(ls(pattern = "ld_50pm_1")) == 0 ) { # load df?
+  source(here("R", "SDG_10_50percent_median.R"))
+  ld_50pm_1 <-  1
+}
+```
+
+---
+.pull-left[
+.f1.pv6.orange[
+Target 10.2
+]
+]
+.pull-right[
+Target 10.2 seeks to .red[*empower and promote the social, economic and political inclusion of all, irrespective of age, sex, disability, race, ethnicity, origin, religion or economic or other status.*] One way to measure if this target is being met is by reducing the .purple[*Proportion of people living below 50 percent of median income.*] This is sometimes called relative poverty, but it is indeed more related to a measure of inequality and social inclusion than to a measure of deprivation. 
+
+People who fall below this cutoff are considered relatively deprived in the sense that their socioeconomic status is substantially lower than the one of the better off in a society. Irrespective from the general economic development of a society, if the share of the population that falls below 50% of the median does not change over time, we can this society lack .purple[**social, economic and political inclusion.**]
+]
+---
+.left-column[
+By using comparable data, we found those countries for which there is data available after `r first_year` for two points that are at least `r min_diff` years apart. 
+
+In this chart, the countries at the top are those that reduce their social deprivation the most, whereas the ones at the bottom increase the share of people living below 50% of the median
+]
+.right-column[
+```{r}
+hc_50med(dw)
+```
+]
+
+---
+.left-column[
+.orange.f2[Low-income]
+
+And this is regular text
+]
+.right-column[
+```{r}
+hc_50med(dw, incomegroup == "Low income")
+```
+]
+
+---
+.left-column[
+.orange.f2[Low-middle-income]
+]
+.right-column[
+```{r}
+hc_50med(dw, incomegroup == "Lower middle income")
+```
+]
+
+---
+.left-column[
+.red.f2[Upper-middle-income]
+]
+.right-column[
+```{r}
+hc_50med(dw, incomegroup == "Upper middle income")
+```
+]
+
+---
+.left-column[
+.red.f2[High-income]
+]
+.right-column[
+```{r}
+hc_50med(dw, incomegroup == "High income")
+```
+]
+
+---
+.left-column[
+.blue.f2[EAP]
+]
+.right-column[
+```{r}
+hc_50med(dw, region == "EAP")
+```
+]
+
+---
+.left-column[
+.green.f2[ECA]
+]
+.right-column[
+```{r}
+hc_50med(dw, region == "ECA")
+```
+]
+
+---
+.left-column[
+.purple.f2[LAC]
+]
+.right-column[
+```{r}
+hc_50med(dw, region == "LAC")
+```
+]
+
+---
+.left-column[
+.pink.f2[EAP]
+]
+.right-column[
+```{r}
+hc_50med(dw, region == "MNA")
+```
+]
+
+---
+.left-column[
+.navy.f2[EAP]
+]
+.right-column[
+```{r}
+hc_50med(dw, region == "SAS")
+```
+]
+
+---
+.left-column[
+.gold.f2[EAP]
+]
+.right-column[
+```{r}
+hc_50med(dw, region == "SSA")
+```
+]
+
+---
+.left-column[
+.dark-red.f2[EAP]
+]
+.right-column[
+```{r}
+hc_50med(dw, region == "OHI")
+```
+]
+
+

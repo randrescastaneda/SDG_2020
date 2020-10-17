@@ -16,12 +16,11 @@
 #   Load libraries
 #----------------------------------------------------------
 
-library("data.table")
-library("janitor")
 library("here")
-library("plotly")
-library("ggrepel")
 library("pins")
+library("tidyverse")
+library("plotly")
+library("data.table")
 # board_register("rsconnect", server = "http://localhost:3939")
 
 
@@ -41,9 +40,11 @@ cr <- as.data.table(cr)
 dm <- pin_get("acastanedaa/50percent_median_country", board = "rsconnect")
 dm <- as.data.table(dm)
 
+first_year <- 2000
+
 dm <- dm[mcomp == TRUE
          ][
-           year >= 2000
+           year >= (first_year)
          ][,
            # Find max and min year available for each country after 200
            myear := year  %in% c(min(year), max(year)),
@@ -179,8 +180,9 @@ hc_50med <- function(dw, ...) {
   return(gp)
 }
 
-hc_50med(dw, incomegroup == "High income")
-hc_50med(dw, incomegroup == "Lower middle income")
+# hc_50med(dw, incomegroup == "High income")
+#
+# hc_50med(dw, incomegroup == "Lower middle income")
 
 
 
