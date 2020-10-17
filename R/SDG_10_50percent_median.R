@@ -77,7 +77,7 @@ min_diff <- 5
 dw <- dw[,
    `:=`(
         difyr = (year_yr2 - year_yr1 >= ..min_diff ),
-        difhc = headcount_yr2 - headcount_yr1,
+        difhc = (headcount_yr2 - headcount_yr1)/(year_yr2 - year_yr1),
         highlight = "high"
      )
    ][
@@ -90,7 +90,7 @@ dw <- dw[,
                                        scales::percent(difhc, accuracy = .01)), "\n")
        ]
 
-setorder(dw, difhc)
+setorder(dw, -difhc)
 dw[,
    cty := factor(paste0(countrycode, "-", coveragetype),
                   paste0(countrycode, "-", coveragetype))
@@ -165,7 +165,7 @@ hc_50med <- function(dw, ...) {
       legend.position   = "none"
     ) +
     labs(
-      title               = "Change in Share of population below 50% of median",
+      title               = "Average Change in Share of population below 50% of median",
       subtitle            = "Sorted by top countries",
       caption             = "Data from PovcalNet",
       x                   = "Change in headcount",

@@ -54,6 +54,28 @@ Initial comments
 ```{r initcal}
 if (length(ls(pattern = "ld_50pm_1")) == 0 ) { # load df?
   source(here("R", "SDG_10_50percent_median.R"))
+  
+  add_and <- function(x) {
+    if (!(is.character(x))) {
+      warning("`x` must be character. coercing to character")
+      x <- as.character(x)
+    }
+  
+    lx <- length(x)
+    if (lx == 1) {
+      y <- x
+    }
+    else if (lx == 2) {
+      y <- paste(x[1], "and", x[2])
+    }
+    else {
+      y <- c(x[1:lx-1], paste("and", x[lx]))
+      y <- paste(y, collapse = ", ")
+    }
+    return(y)
+  }
+
+  
   ld_50pm_1 <-  1
 }
 ```
@@ -82,10 +104,19 @@ hc_50med(dw)
 ]
 
 ---
+```{r}
+cc <- dw[incomegroup == "Low income"
+   & !is.na(countryname)
+   ][
+     order(difhc) ,
+     countryname
+   ]
+```
+
 .left-column[
 .orange.f2[Low-income]
 
-And this is regular text
+Low-income countries are divided in those that have decreased substantially their relative deprivation and those that have not. Among the good performers we can find `r add_and(cc[1:3])`
 ]
 .right-column[
 ```{r}
@@ -155,7 +186,7 @@ hc_50med(dw, region == "LAC")
 
 ---
 .left-column[
-.pink.f2[EAP]
+.pink.f2[MNA]
 ]
 .right-column[
 ```{r}
@@ -165,7 +196,7 @@ hc_50med(dw, region == "MNA")
 
 ---
 .left-column[
-.navy.f2[EAP]
+.navy.f2[SAS]
 ]
 .right-column[
 ```{r}
@@ -175,7 +206,7 @@ hc_50med(dw, region == "SAS")
 
 ---
 .left-column[
-.gold.f2[EAP]
+.gold.f2[SSA]
 ]
 .right-column[
 ```{r}
@@ -185,7 +216,7 @@ hc_50med(dw, region == "SSA")
 
 ---
 .left-column[
-.dark-red.f2[EAP]
+.dark-red.f2[OHI]
 ]
 .right-column[
 ```{r}
