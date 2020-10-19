@@ -19,11 +19,13 @@
 library("tidyverse")
 library("data.table")
 library("janitor")
+library("pins")
 
 #----------------------------------------------------------
 #   subfunctions
 #----------------------------------------------------------
 source("R/utils.R")
+board_register("rsconnect", server = "http://w0lxopshyprd1b.worldbank.org:3939/")
 
 #----------------------------------------------------------
 #   hundred people
@@ -34,23 +36,10 @@ cf <- cf[, .(welfare, population = weight, countrycode)]
 
 
 write_csv(cf,
-          path = "data/SDG10_daily_income.csv",
+          file = "data/SDG10_daily_income.csv",
           col_names = TRUE,
           na = "")
 
-df <- df[, .(
-  countrycode,
-  percentile = pc,
-  headcount,
-  share_income = Sy,
-  welfare,
-  cumm_income = qc
-)]
-
-write_csv(df,
-          path = "data/SDG10_share_income.csv",
-          col_names = TRUE,
-          na = "")
 
 pe <- pe[, .(
   percentile = hcf,
@@ -61,10 +50,28 @@ pe <- pe[, .(
 )]
 
 write_csv(pe,
-          path = "data/SDG10_perfect_equality.csv",
+          file = "data/SDG10_perfect_equality.csv",
           col_names = TRUE,
           na = "")
 
+
+df <- pin_get("acastanedaa/percentiles_country_povcalnet", board = "rsconnect")
+
+df <- df[, .(
+  countrycode,
+  year,
+  percentile = quantile,
+  headcount,
+  share_income = Sy,
+  welfare,
+  cumm_income = qc
+)]
+
+
+write_csv(df,
+          file = "data/SDG10_share_income.csv",
+          col_names = TRUE,
+          na = "")
 
 #----------------------------------------------------------
 # Change in Gini
@@ -77,7 +84,7 @@ df_g <- df_g %>%
   rename(gini_2000 = gini_1, gini_2018 = gini_2)
 
 write_csv(df_g,
-          path = "data/SDG10_change_gini.csv",
+          file = "data/SDG10_change_gini.csv",
           col_names = TRUE,
           na = "")
 
@@ -90,7 +97,7 @@ dfc_2c <- dfc_2c %>%
   select(-c(lending, fcountrycode, countryx))
 
 write_csv(dfc_2c,
-          path = "data/SDG10_p10p90p50_two_countries.csv",
+          file = "data/SDG10_p10p90p50_two_countries.csv",
           col_names = TRUE,
           na = "")
 
@@ -100,7 +107,7 @@ dfc_1 <- dfc_1 %>%
   select(-c(lending, fcountrycode))
 
 write_csv(dfc_1,
-          path = "data/SDG10_p10p90p50_ALL_countries.csv",
+          file = "data/SDG10_p10p90p50_ALL_countries.csv",
           col_names = TRUE,
           na = "")
 
@@ -115,13 +122,13 @@ source("R/SDG_10_global_ineq_between_countries.R")
 p50d_15 <- p50d_15[, .(countrycode, meadian = p50, decile = qp50)]
 
 write_csv(p50d_15,
-          path = "data/SDG10_medians_2015.csv",
+          file = "data/SDG10_medians_2015.csv",
           col_names = TRUE,
           na = "")
 
 pr      <- pr[, .(year, palma)]
 write_csv(pr,
-          path = "data/SDG10_palma_ratio.csv",
+          file = "data/SDG10_palma_ratio.csv",
           col_names = TRUE,
           na = "")
 
@@ -131,7 +138,7 @@ dfq     <-  dfq %>%
   select(countrycode, year, median = p50)
 
 write_csv(dfq,
-          path = "data/SDG10_medians_overTime.csv",
+          file = "data/SDG10_medians_overTime.csv",
           col_names = TRUE,
           na = "")
 
@@ -192,7 +199,7 @@ DT[names,
 
 
 write_csv(DT,
-          path = "data/SDG10_percentiles_overTime.csv",
+          file = "data/SDG10_percentiles_overTime.csv",
           col_names = TRUE,
           na = "")
 
@@ -216,7 +223,7 @@ coverd <- coverd %>%
   rename(mean2007 = val) #This mean is used for sorting in the graph
 
 write_csv(coverd,
-          path = "data/SDG10_social_protection_cover.csv",
+          file = "data/SDG10_social_protection_cover.csv",
           col_names = TRUE,
           na = "")
 
@@ -238,7 +245,7 @@ CPIss <- CPIss %>%
   rename(value2007 = v2007)  #for sorting
 
 write_csv(CPIss,
-          path = "data/SDG10_social_protection_rating.csv",
+          file = "data/SDG10_social_protection_rating.csv",
           col_names = TRUE,
           na = "")
 
@@ -255,7 +262,7 @@ remit_from <- remit_from %>%
   rename(time_span = span) # For graphs of growth I keep those w/ an span greater than 5 years
 
 write_csv(remit_from,
-          path = "data/SDG10_remittances_origin.csv",
+          file = "data/SDG10_remittances_origin.csv",
           col_names = TRUE,
           na = "")
 
@@ -271,7 +278,7 @@ remit_to <- remit_to %>%
   rename(time_span = span) # For graphs of growth I keep those w/ an span greater than 5 years
 
 write_csv(remit_to,
-          path = "data/SDG10_remittances_desstination.csv",
+          file = "data/SDG10_remittances_desstination.csv",
           col_names = TRUE,
           na = "")
 
@@ -294,7 +301,7 @@ CPIinc <- CPIinc %>%
 
 
 write_csv(CPIinc,
-          path = "data/SDG10_social_inclusion_rating.csv",
+          file = "data/SDG10_social_inclusion_rating.csv",
           col_names = TRUE,
           na = "")
 
@@ -315,6 +322,6 @@ AID <- AID %>%
          value2017 = v2017)
 
 write_csv(AID,
-          path = "data/SDG10_aid.csv",
+          file = "data/SDG10_aid.csv",
           col_names = TRUE,
           na = "")
