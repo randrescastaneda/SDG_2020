@@ -73,6 +73,21 @@ write_csv(df,
           col_names = TRUE,
           na = "")
 
+
+
+df2 <- df[countrycode  %chin% c("BRA", "FIN")
+          & year        %in%   c(1993, 2017)]
+
+
+write_csv(df2,
+          file = "data/SDG10_share_income_BRA_FIN.csv",
+          col_names = TRUE,
+          na = "")
+
+
+
+
+
 #----------------------------------------------------------
 # Change in Gini
 #----------------------------------------------------------
