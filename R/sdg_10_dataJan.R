@@ -340,3 +340,35 @@ write_csv(AID,
           file = "data/SDG10_aid.csv",
           col_names = TRUE,
           na = "")
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#---------   Bottom 40   ---------
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+source("R/SDG_10_B40_simple.R")
+
+
+write_csv(df,
+          file = "data/SDG10_B40_simple.csv",
+          col_names = TRUE,
+          na = "")
+
+cb40 <- read_csv("data/PEB_b40_profiling.csv") %>%
+  janitor::clean_names() %>%
+  select(region,
+         countrycode = code,
+         countryname,
+         characteristic = precase,
+         incomegroup,
+         year,
+         share_b40 = b40,
+         share_t60 = t60
+         )
+
+write_csv(cb40,
+          file = "data/SDG10_B40_characteristics.csv",
+          col_names = TRUE,
+          na = "")
+

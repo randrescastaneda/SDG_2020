@@ -146,9 +146,11 @@ WDI <- left_join(WDI, cr, by = "countrycode") %>%
 # data <- WDI %>%
 # filter(countrycode %in% list2017)
 
+#
+# data <- WDI %>%
+#   filter(OLDdiff > 0 & !is.na(diff & OLDdiff))
 
-data <- WDI %>%
-  filter(OLDdiff > 0 & !is.na(diff & OLDdiff))
+data <- WDI
 
 data <-  data %>%
   mutate(

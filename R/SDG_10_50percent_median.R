@@ -21,6 +21,7 @@ library("pins")
 library("tidyverse")
 library("plotly")
 library("data.table")
+library("ggrepel")
 # board_register("rsconnect", server = "http://localhost:3939")
 
 
@@ -42,11 +43,11 @@ dm <- as.data.table(dm)
 
 first_year <- 2000
 
-dm <- dm[mcomp == TRUE
+dfil <- dm[mcomp == TRUE
          ][
            year >= (first_year)
          ][,
-           # Find max and min year available for each country after 200
+           # Find max and min year available for each country after 2000
            myear := year  %in% c(min(year), max(year)),
            by = .(countrycode, coveragetype)
 
@@ -68,7 +69,7 @@ dm <- dm[mcomp == TRUE
 
 # Reshape
 
-dw <- dcast(dm,
+dw <- dcast(dfil,
             countrycode + countryname + coveragetype ~ yseq,
             value.var = c("headcount", "year"))
 
@@ -180,6 +181,7 @@ hc_50med <- function(dw, ...) {
   return(gp)
 }
 
+hc_50 <- hc_50med(dw)
 # hc_50med(dw, incomegroup == "High income")
 #
 # hc_50med(dw, incomegroup == "Lower middle income")
@@ -218,4 +220,181 @@ hc_50med <- function(dw, ...) {
 #   theme(
 #     legend.position = "none"
 #   )
-# hc_md
+# # hc_md
+
+
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#---------   Median and headcount   ---------
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+miny <- 2000
+maxy <- 2017
+
+
+df <- dm[cr,
+         on = .(countrycode)
+][,
+  `:=`(
+    maxc = abs(year - maxy) == min(abs(year - maxy), na.rm = TRUE),
+    minc = abs(year - miny) == min(abs(year - miny), na.rm = TRUE)
+  ),
+  # maxy := year == max(year, na.rm = TRUE),
+  by = .(countrycode, coveragetype)
+][
+  maxc == TRUE | minc == TRUE
+][,
+  # find which countries have only one
+  # observation and drop them
+  nc := .N,
+  by = .(countrycode, coveragetype)
+][
+  nc == 2
+][,
+  # seq of year
+  `:=`(
+    id = paste0(countrycode, "-", coveragetype),
+    yseq = paste0("yr",as.character(rowid(countrycode, coveragetype)))
+    )
+][,
+  c("nc", "maxc", "minc"):= NULL
+][
+  year == maxy | year == miny
+][
+  order(year, -headcount),
+  ranking := rowid(year)
+]
+
+
+gp_compare <- ggplot(df,
+                     aes(x     = headcount,
+                         y     = median,
+                         color = region,
+                         text  = text)) +
+  geom_point() +
+  theme_minimal() +
+  scale_x_continuous(labels = scales::percent) +
+  scale_y_continuous(labels = scales::dollar) +
+  facet_grid(~year) +
+  theme(
+    legend.position = "bottom",
+    legend.title    = element_blank()
+  )
+# ggplotly(gp_compare, tooltip = "text")
+
+
+
+
+#--------- 45 degree line ---------
+# clean
+d45 <- dcast(df,
+            region + countrycode + countryname + coveragetype ~ yseq,
+            value.var = c("headcount", "year"))
+
+# drop years with no change
+d45 <- d45[headcount_yr1 != headcount_yr2]
+
+
+max1 <-  max(d45$headcount_yr1, na.rm = TRUE)
+max2 <-  max(d45$headcount_yr2, na.rm = TRUE)
+min1 <-  min(d45$headcount_yr1, na.rm = TRUE)
+min2 <-  min(d45$headcount_yr2, na.rm = TRUE)
+
+med45 <- ggplot(d45,
+                aes(x = headcount_yr1,
+                    y = headcount_yr2,
+                    color = region)) +
+  geom_point(size = 2,
+             show.legend = FALSE) +
+  geom_abline(intercept = 0 ,
+              slope = 1,
+              color = "grey50") +
+  labs(x = paste("headcount in circa", miny),
+       y = paste("headcount in circa", maxy),
+       title = "Share of population below 50% of the median") +
+  scale_x_continuous(limits = c(min(min1, min2), max1),
+                     labels = scales::percent) +
+  scale_y_continuous(limits = c(min(min1, min2), max2),
+                     labels = scales::percent) +
+  theme_classic() +
+  theme(
+    legend.position = "",
+  )
+
+# ggplotly(med45)
+
+
+#--------- Rankin ---------
+
+#
+# medrank <- ggplot(data = df,
+#              aes(x = year,
+#                  y = ranking,
+#                  group = id)
+#              ) +
+#   geom_line(aes(color = region),
+#             alpha = 1,
+#             size = 1
+#             ) +
+#   geom_point(aes(fill  = countrycode),
+#              color = "grey",
+#              size = 2) +
+#   scale_y_reverse(breaks = 1:nrow(df)) +
+#   theme(
+#     legend.position = "none",
+#     axis.text.y = element_blank()
+#   ) +
+#   labs(x        = "Year",
+#        y        = "Rank",
+#        title    = "Change in ranking over time of percentile",
+#        subtitle = "Dots color refer to decile group"
+#   ) +
+#   ranking_theme()
+# medrank
+# ggplotly(medrank)
+#
+
+
+df2 <- df[year == maxy
+][,
+  hc2 := headcount
+][, c("countrycode", "coveragetype",  "hc2")
+]
+
+
+df1 <- df[year == miny
+][,
+  hc1 := headcount
+][, c("countrycode", "coveragetype",  "hc1")
+]
+
+dfr <- df[df1,
+          on = .(countrycode, coveragetype)
+][df2,
+  on = .(countrycode, coveragetype)
+][!is.na(year)
+]
+
+
+medrank <- ggplot(dfr) +
+  geom_point(aes(x     = headcount,
+                 y     = reorder(id, hc1),
+                 color = as.character(year))
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.y     = element_text(size = 6),
+    axis.title.y    = element_blank(),
+    legend.title    = element_blank(),
+    legend.position = c(.8,.2)
+  ) +
+  scale_x_continuous(labels = scales::percent) +
+  labs(
+    title    = "Growth of Bottom40 and overall mean (Sorted by B40)",
+    subtitle = "circa 2012-2017",
+    x        = "Annualized growth"
+  )
+
+

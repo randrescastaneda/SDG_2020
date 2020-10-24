@@ -92,6 +92,10 @@ Target 10.2 seeks to .red[*empower and promote the social, economic and politica
 People who fall below this cutoff are considered relatively deprived in the sense that their socioeconomic status is substantially lower than the one of the better off in a society. Irrespective from the general economic development of a society, if the share of the population that falls below 50% of the median does not change over time, we can this society lack .purple[**social, economic and political inclusion.**]
 ]
 ---
+class: inverse, middle
+## Annual change in headcount
+
+---
 .left-column[
 By using comparable data, we found those countries for which there is data available after `r first_year` for two points that are at least `r min_diff` years apart. 
 
@@ -155,73 +159,24 @@ hc_50med(dw, incomegroup == "High income")
 ]
 
 ---
-.left-column[
-.blue.f2[EAP]
-]
-.right-column[
-```{r}
-hc_50med(dw, region == "EAP")
-```
-]
-
+class: inverse, middle
+## Median and headcount
 ---
-.left-column[
-.green.f2[ECA]
-]
-.right-column[
-```{r}
-hc_50med(dw, region == "ECA")
+```{r }
+ ggplotly(gp_compare, tooltip = "text")
 ```
-]
-
 ---
-.left-column[
-.purple.f2[LAC]
-]
-.right-column[
-```{r}
-hc_50med(dw, region == "LAC")
-```
-]
-
+class: inverse, middle
+## headcount in two years and 45 line
 ---
-.left-column[
-.pink.f2[MNA]
-]
-.right-column[
-```{r}
-hc_50med(dw, region == "MNA")
+```{r }
+ggplotly(med45)
 ```
-]
-
 ---
-.left-column[
-.navy.f2[SAS]
-]
-.right-column[
-```{r}
-hc_50med(dw, region == "SAS")
-```
-]
-
+class: inverse, middle
+## headcount sorted by one year
 ---
-.left-column[
-.gold.f2[SSA]
-]
-.right-column[
-```{r}
-hc_50med(dw, region == "SSA")
+
+```{r }
+ggplotly(medrank)
 ```
-]
-
----
-.left-column[
-.dark-red.f2[OHI]
-]
-.right-column[
-```{r}
-hc_50med(dw, region == "OHI")
-```
-]
-
-

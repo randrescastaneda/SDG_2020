@@ -50,6 +50,7 @@ Intcomments
 if (length(ls(pattern = "ld_b40_1")) == 0 ) { # load df?
   source(here("R", "SDG_10_B40_Two_Periods.R"))
   df <- data %>% 
+    filter(OLDdiff > 0 & !is.na(diff & OLDdiff)) %>% 
     arrange(OLDGrowth40) %>% 
     mutate(
     text = paste("Country:", country, "\n",
