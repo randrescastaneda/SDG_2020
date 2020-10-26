@@ -372,3 +372,13 @@ write_csv(cb40,
           col_names = TRUE,
           na = "")
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#---------   Share below 50% of median   ---------
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+source(here("R", "SDG_10_50percent_median.R"))
+
+
+write_csv(d45,
+          file = "data/SDG10_50percent_median_2000-2017.csv",
+          col_names = TRUE,
+          na = "")

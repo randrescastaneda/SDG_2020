@@ -1,0 +1,97 @@
+---
+title: "Share of population below 50% of median"
+author: "R.Andres Castaneda"
+date: "10/26/2020"
+output:
+  html_document:
+    # theme: null
+    # highlight: null
+    # css: tachyons.css
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+library("knitr")
+library("scales")
+library("xaringanthemer")
+library("here")
+library("pins")
+library("tidyverse")
+library("plotly")
+library("data.table")
+
+
+knitr::opts_chunk$set(
+  warning = FALSE,
+  collapse = TRUE,
+  message = FALSE,
+  echo = FALSE,
+  fig.retina = 3,
+  fig.width = 10
+)
+
+```
+
+## Analysis by groups of countries
+```{r initcal}
+if (length(ls(pattern = "ld_50pm_1")) == 0 ) { # load df?
+  source(here("R", "SDG_10_50percent_median.R"))
+  
+  add_and <- function(x) {
+    if (!(is.character(x))) {
+      warning("`x` must be character. coercing to character")
+      x <- as.character(x)
+    }
+  
+    lx <- length(x)
+    if (lx == 1) {
+      y <- x
+    }
+    else if (lx == 2) {
+      y <- paste(x[1], "and", x[2])
+    }
+    else {
+      y <- c(x[1:lx-1], paste("and", x[lx]))
+      y <- paste(y, collapse = ", ")
+    }
+    return(y)
+  }
+
+  
+  ld_50pm_1 <-  1
+}
+```
+
+Target 10.2 seeks to *empower and promote the social, economic and political inclusion of all, irrespective of age, sex, disability, race, ethnicity, origin, religion or economic or other status.* One way to measure this target is by reducing the *Proportion of people living below 50 percent of median income.* This is sometimes called relative poverty, but it is indeed more related to a measure of inequality and social inclusion than to a measure of deprivation.
+
+People who fall below this cutoff are considered relatively deprived in the sense that their socioeconomic status is substantially lower than the one of the better off society. Irrespectively of the general economic development of an economy, if the share of the population that falls below 50% of the median does not change over time, we can say that this society lacks **<span class="purple">economic inclusion.</span>**
+
+## Annual change in headcount
+By using comparable data, we found those countries for which there is data available after `r first_year` for two points that are at least `r min_diff` years apart. In this chart, the countries at the top are those that reduce their social deprivation , whereas the ones at the bottom increased it.
+
+```{r, fig.height=8}
+hc_50med(dw)
+```
+
+## Headcount in two years and 45 line
+
+Here we can say that most of LAC countries reduce their level of inequality from 2000 to 2017 by reducing the share of the population below the 50% of the median. There are some remarkable examples in SSA like CCCC. However, other countries like CCCC, increased their inequality. 
+
+```{r med45}
+ggplotly(med45, tooltip = "text")
+```
+
+
+## headcount sorted by one year
+
+```{r medrank, fig.height=12}
+ggplotly(medrank, tooltip = "text")
+```
+
+
+## Median and headcount
+
+```{r }
+ ggplotly(gp_compare, tooltip = "text")
+```
+

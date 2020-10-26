@@ -294,7 +294,12 @@ d45 <- dcast(df,
             value.var = c("headcount", "year"))
 
 # drop years with no change
-d45 <- d45[headcount_yr1 != headcount_yr2]
+d45 <- d45[headcount_yr1 != headcount_yr2
+           ][,
+             text := paste0("Country: ", countryname, "-", coveragetype, "\n",
+                            year_yr1, ": ", scales::percent(headcount_yr1), "\n",
+                            year_yr2, ": ", scales::percent(headcount_yr2), "\n")
+             ]
 
 
 max1 <-  max(d45$headcount_yr1, na.rm = TRUE)
@@ -303,9 +308,10 @@ min1 <-  min(d45$headcount_yr1, na.rm = TRUE)
 min2 <-  min(d45$headcount_yr2, na.rm = TRUE)
 
 med45 <- ggplot(d45,
-                aes(x = headcount_yr1,
-                    y = headcount_yr2,
-                    color = region)) +
+                aes(x     = headcount_yr1,
+                    y     = headcount_yr2,
+                    color = region,
+                    text  = text)) +
   geom_point(size = 2,
              show.legend = FALSE) +
   geom_abline(intercept = 0 ,
@@ -380,8 +386,9 @@ dfr <- df[df1,
 
 medrank <- ggplot(dfr) +
   geom_point(aes(x     = headcount,
-                 y     = reorder(id, hc1),
-                 color = as.character(year))
+                 y     = reorder(id, hc2),
+                 color = as.character(year),
+                 text  = text)
   ) +
   theme_minimal() +
   theme(
