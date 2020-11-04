@@ -16,6 +16,8 @@
 
 ## [Share of population below 50% of median](https://datanalytics.worldbank.org/content/604/)
 
+## [Share of population below 50% of Median (slides)](https://randrescastaneda.github.io/SDG_2020/SDG10_slides/SDG_10_50percent_median.html)
+
 # Between-Country inequality dashboards
 
 ## [Evolution of Ratios](https://randrescastaneda.shinyapps.io/SDG_10_ineq_btw_countries/)
