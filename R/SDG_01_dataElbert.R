@@ -148,14 +148,12 @@ nt_df <- overall %>%
   select(
     countrycode,
     countryname,
-    projection = project,
+    region     = regioncode,
     year1      = Iny,
     year2      = Fny,
     pov1       = Value0,
     pov2       = Value,
-    abs_gr     = Growth,
-    ann_gr     = GAGR,
-    abs_gr_p   = Growthp
+    abs_gr     = Growth
     ) %>%
   arrange(-abs_gr) %>%
   mutate(
@@ -165,7 +163,10 @@ nt_df <- overall %>%
       abs_gr < -.5              ~ "Countries on track to halve poverty",
       TRUE ~ ""
     )
-  )
+  ) %>%
+  select(-abs_gr) %>%
+  filter( category != "")
+
 
 l[["national"]] <- nt_df
 
@@ -271,6 +272,8 @@ write_csv(x         = lm_wld,
 #----------------------------------------------------------
 
 l[sapply(l, is.null)] <- NULL
+
+readr::write_rds(l, "data/SDG01_updated_data.rds")
 
 writexl::write_xlsx(
   x         = l,

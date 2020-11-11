@@ -27,7 +27,7 @@ library("broom")
 #   subfunctions
 #----------------------------------------------------------
 
-
+source("R/utils.R")
 #--------- define steps for breaking the axis of the chart
 
 f_steps <- function(k, zero = TRUE) {
@@ -345,3 +345,15 @@ bad_ctrs <- cty_pred[
 
 
 
+more_poor <- cty %>%
+  filter(year == 2017) %>%
+  arrange(-poor_pop) %>%
+  slice(1:10) %>%
+  select(countryname, countrycode, poor_pop, region) %>%
+  mutate(region = if_else(is.na(region), "SSA", region))
+
+more_poor_SSA <- more_poor %>%
+  filter(region == "SSA")
+
+nrow(more_poor_SSA)
+add_and(more_poor_SSA$countryname)
