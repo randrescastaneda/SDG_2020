@@ -144,11 +144,16 @@ l[["fan_projections"]]  <- DD
 #----------------------------------------------------------
 
 source(here("R", "SDG_01_NatLines.R"))
+wb_codes <- readr::read_csv("Data/wb3_to_region.csv")
+
 nt_df <- overall %>%
+  left_join(wb_codes,
+            by = c("countrycode" = "iso3c")
+            ) %>%
   select(
     countrycode,
     countryname,
-    region     = regioncode,
+    region     = region_iso3c,
     year1      = Iny,
     year2      = Fny,
     pov1       = Value0,
