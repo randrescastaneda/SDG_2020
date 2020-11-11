@@ -64,6 +64,7 @@ comparable <- read_csv(comparable_path) %>%
     )
   )
 
+server <-  NULL
 #--------- countries and regions ---------
 
 regs <- c("EAP", "ECA", "LAC", "MNA", "SAS", "SSA", "OHI")
@@ -86,7 +87,7 @@ cr <- read_rds("data/cty_regs_names.rds")
 st_year <- 1990
 
 # Global poverty
-wld <- povcalnet_wb(server = "int") %>%
+wld <- povcalnet_wb(server = server) %>%
   filter(year > st_year, regioncode == "WLD") %>%
   mutate(
     poor_pop = round(headcount * population, 0),
@@ -94,7 +95,7 @@ wld <- povcalnet_wb(server = "int") %>%
   )
 
 # Data at country level
-cty <- povcalnet(server = "int",
+cty <- povcalnet(server = server,
                  fill_gaps = TRUE) %>%
   left_join(comparable,
             by = c("countrycode", "year", "datatype", "coveragetype")
@@ -102,7 +103,7 @@ cty <- povcalnet(server = "int",
   filter(year > st_year) %>%
   group_by(countrycode, year) %>%
   mutate(n  = n(),
-         poor_pop  = round(headcount * population, 0),
+         poor_pop  = round(headcount * population, 3),
          headcount = round(headcount, 5)
          ) %>%
   filter(  (n == 1)
@@ -113,7 +114,7 @@ cty <- povcalnet(server = "int",
   mutate(text = paste0("Country: ", countryname, "\n",
                        "Region: ", region, "\n",
                        "Headcount: ", round(headcount*100, digits = 1), "%\n",
-                       "Million of poor: ", poor_pop, "\n",
+                       "Million of poor: ", round(poor_pop, 2), "\n",
                        "Year: ", year, "\n"),
          regionf = as.factor(region)) %>%
   select(countrycode,
@@ -313,9 +314,12 @@ cty_bad <- povch %>%
 
 setDT(cty_comp)
 bad_ctrs <- cty_pred[
+  # get country codes of those for which povert increased in last
+  # comparable spell
   beta > 0,
   .(countrycode = unique(countrycode))
-  ][
+  ][ # get data with poverty changes for only those countries in which
+    # poverty increased.
     cty_comp,
     on = "countrycode",
     nomatch = 0
